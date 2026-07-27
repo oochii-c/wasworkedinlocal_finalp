@@ -1,5 +1,7 @@
-<img width="856" height="187" alt="image" src="https://github.com/user-attachments/assets/d4e5abae-f73a-4c05-8b97-23a1c475a194" /># wasworkedinlocal_finalp
+
 나중에 채울게요
+
+<img width="856" height="187" alt="image" src="https://github.com/user-attachments/assets/d4e5abae-f73a-4c05-8b97-23a1c475a194" /># wasworkedinlocal_finalp
 
 ## 브랜치 규칙
 - main 브랜치에 직접 커밋 금지(최종 Progect용) -> 머지할때만..
