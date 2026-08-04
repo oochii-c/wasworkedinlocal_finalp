@@ -5,3 +5,8 @@
 .env
 .env.*
 !.env.example
+*.key
+
+# Dependencies / cache
+node_modules/
+__pycache__/
