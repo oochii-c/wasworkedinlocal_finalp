@@ -1,10 +1,10 @@
 import './App.css'
-import Onboarding_kja from './components/Onboarding_kja.tsx'
+import Onboarding from './components/Onboarding.tsx'
 
 function App() {
   return (
     <div className="app">
-      <Onboarding_kja />
+      <Onboarding />
     </div>
   )
 }

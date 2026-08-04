@@ -1,7 +1,7 @@
-import "./Onboarding_kja.css"
+import "./Onboarding.css"
 import { useState } from "react"
 
-const Onboarding_kja = () => {
+const Onboarding = () => {
     // 사용자 이름 저장
     const [userName, setUserName] = useState<string>("")
     const [gender, setGender] = useState<string>("남자")
@@ -82,4 +82,4 @@ const Onboarding_kja = () => {
     )
 }
 
-export default Onboarding_kja
+export default Onboarding
