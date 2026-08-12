@@ -1,0 +1,643 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  background: #006fae;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+
+/* =================================
+   전체 화면
+================================= */
+
+.page {
+  width: 100vw;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  overflow: hidden;
+
+  background: #006fae;
+}
+
+
+/* =================================
+   배경 + 입력폼
+   하나의 화면으로 묶음
+================================= */
+
+.scene {
+  position: relative;
+
+  aspect-ratio: 1086 / 1448;
+
+  width: min(100vw, 1086px, 75vh);
+
+  overflow: hidden;
+}
+
+
+/* =================================
+   용궁집 배경
+================================= */
+
+.background {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  z-index: 0;
+}
+
+
+/* =================================
+   가운데 입력폼 전체
+================================= */
+
+.form-area {
+  position: absolute;
+
+  z-index: 10;
+
+  /*
+    배경 이미지 기준 위치
+  */
+  top: 35%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  /*
+    폼 전체 크기
+  */
+  width: 35%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+
+/* =================================
+   각각의 입력 줄
+================================= */
+
+.form-row {
+  width: 100%;
+
+  min-height: 66px;
+
+  display: flex;
+
+  align-items: center;
+
+  padding: 9px 14px;
+
+  border: 1px solid rgba(130, 170, 185, 0.35);
+
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.72);
+
+  box-shadow:
+    0 3px 10px rgba(20, 90, 120, 0.08);
+
+  backdrop-filter: blur(4px);
+}
+
+
+/* =================================
+   왼쪽 제목
+================================= */
+
+.label {
+  width: 125px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  color: #123b5d;
+
+  font-size: 17px;
+
+  font-weight: 600;
+
+  flex-shrink: 0;
+}
+
+
+/* 아이콘 */
+
+.icon {
+  font-size: 24px;
+
+  color: #123b5d;
+}
+
+
+/* =================================
+   이름 입력창
+================================= */
+
+.form-row > input {
+  flex: 1;
+
+  width: 0;
+
+  height: 46px;
+
+  border: 1px solid #c9d8de;
+
+  border-radius: 24px;
+
+  padding: 0 20px;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  color: #234b68;
+
+  font-size: 15px;
+
+  outline: none;
+}
+
+
+.form-row > input:focus {
+  border-color: #1598ce;
+}
+
+
+.form-row > input::placeholder {
+  color: #7d9cac;
+}
+
+
+/* =================================
+   남성 / 여성
+   양력 / 음력
+================================= */
+
+.button-group {
+  flex: 1;
+
+  display: flex;
+
+  gap: 10px;
+}
+
+
+.button-group button {
+  flex: 1;
+
+  height: 44px;
+
+  border: 1px solid #ccd9de;
+
+  border-radius: 24px;
+
+  background: rgba(255, 255, 255, 0.8);
+
+  color: #294d64;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+.button-group button:hover {
+  border-color: #1598ce;
+}
+
+
+/* 선택된 버튼 */
+
+.button-group button.active {
+  border-color: #149dd1;
+
+  background: linear-gradient(
+    135deg,
+    #28a8d5,
+    #078bc0
+  );
+
+  color: white;
+
+  box-shadow:
+    0 4px 10px rgba(0, 130, 190, 0.2);
+}
+
+
+/* =================================
+   생년월일
+================================= */
+
+.birth-input {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+
+/* YYYY / MM / DD */
+
+.birth-input input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+
+  height: 44px;
+
+  border: 1px solid #ccd9de;
+
+  border-radius: 12px;
+
+  padding: 0 4px;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  text-align: center;
+
+  font-size: 15px;
+
+  color: #234b68;
+
+  outline: none;
+}
+
+
+.birth-input input:focus {
+  border-color: #1598ce;
+}
+
+.birth-input input:nth-of-type(1) {
+  flex: 1.6;
+}
+
+
+.birth-input input::placeholder {
+  color: #7d9cac;
+}
+
+.birth-input input {
+  -moz-appearance: textfield;
+}
+
+.birth-input input::-webkit-outer-spin-button,
+.birth-input input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* 년 / 월 / 일 */
+
+.birth-input span {
+  flex-shrink: 0;
+
+  color: #45687b;
+
+  font-size: 13px;
+}
+
+
+/* =================================
+   태어난 시간
+================================= */
+
+.time-row {
+  align-items: flex-start;
+}
+
+
+.time-area {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+/* 시간 선택 */
+
+.time-area select {
+  width: 100%;
+
+  height: 45px;
+
+  padding: 0 16px;
+
+  border: 1px solid #ccd9de;
+
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  color: #45687b;
+
+  font-size: 14px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+
+.time-area select:focus {
+  border-color: #1598ce;
+}
+
+
+.time-area select:disabled {
+  background: #edf2f4;
+
+  color: #9aaeb7;
+
+  cursor: not-allowed;
+}
+
+
+/* =================================
+   태어난 시간 모름
+================================= */
+
+.unknown-time {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #527284;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+
+.unknown-time input {
+  width: 20px;
+
+  height: 20px;
+
+  accent-color: #1598ce;
+
+  cursor: pointer;
+}
+
+
+/* =================================
+   사주 확인하기 버튼
+================================= */
+
+.submit-button {
+  width: 82%;
+
+  height: 62px;
+
+  margin: 18px auto 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  border: 2px solid #e5b84c;
+
+  border-radius: 35px;
+
+  background: linear-gradient(
+    135deg,
+    #087bb2,
+    #00558c
+  );
+
+  color: white;
+
+  font-family: "Noto Sans KR", sans-serif;
+
+  font-size: 20px;
+
+  font-weight: 500;
+
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 15px rgba(0, 60, 100, 0.25);
+
+  transition: all 0.25s ease;
+}
+
+
+/* 별 */
+
+.button-star {
+  color: #ffd86a;
+
+  font-size: 17px;
+}
+
+
+/* 화살표 원 */
+
+.button-arrow {
+  width: 35px;
+
+  height: 35px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: white;
+
+  color: #087bb2;
+
+  font-size: 22px;
+
+  font-weight: bold;
+}
+
+
+/* 마우스 올렸을 때 */
+
+.submit-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 9px 20px rgba(0, 60, 100, 0.35);
+}
+
+
+/* 클릭 */
+
+.submit-button:active {
+  transform: translateY(1px);
+}
+
+
+/* =================================
+   작은 화면
+================================= */
+
+@media (max-width: 1000px) {
+
+  .form-area {
+    width: 38%;
+  }
+
+  .label {
+    width: 105px;
+
+    font-size: 15px;
+  }
+
+  .birth-input input {
+    width: 65px;
+  }
+
+}
+
+
+/* =================================
+   모바일
+================================= */
+
+@media (max-width: 700px) {
+
+  .form-area {
+    top: 34%;
+
+    width: 68%;
+  }
+
+  .form-row {
+    min-height: 58px;
+
+    padding: 7px 10px;
+  }
+
+  .label {
+    width: 85px;
+
+    font-size: 13px;
+  }
+
+  .icon {
+    font-size: 19px;
+  }
+
+  .form-row > input {
+    height: 38px;
+
+    font-size: 12px;
+
+    padding: 0 12px;
+  }
+
+  .button-group {
+    gap: 5px;
+  }
+
+  .button-group button {
+    height: 38px;
+
+    font-size: 12px;
+  }
+
+  .birth-input {
+    gap: 3px;
+  }
+
+  .birth-input input {
+    width: 50px;
+
+    height: 38px;
+
+    font-size: 12px;
+  }
+
+  .birth-input span {
+    font-size: 11px;
+  }
+
+  .time-area select {
+    height: 38px;
+
+    font-size: 11px;
+  }
+
+  .unknown-time {
+    font-size: 11px;
+  }
+
+  .unknown-time input {
+    width: 17px;
+
+    height: 17px;
+  }
+
+  .submit-button {
+    width: 85%;
+
+    height: 52px;
+
+    margin-top: 12px;
+
+    font-size: 15px;
+  }
+
+  .button-arrow {
+    width: 29px;
+
+    height: 29px;
+
+    font-size: 18px;
+  }
+
+}
