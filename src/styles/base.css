@@ -1,0 +1,25 @@
+/* ============================================================
+   base.css  -  reset & 기본 타이포
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 16px; } /* 1rem 기준 - 미디어쿼리에서 이 값을 조정하면 전체 폼이 함께 스케일됩니다 */
+
+body {
+  margin: 0;
+  background: var(--c-navy-900);
+  color: var(--text-primary);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, select, button, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; }
+
+ul, ol { list-style: none; margin: 0; padding: 0; }

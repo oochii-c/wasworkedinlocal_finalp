@@ -1,0 +1,463 @@
+/* ============================================================
+   saju.css - "당신의 사주를 봅니다" 용궁(바닷속) 다크 테마
+   ----------------------------------------------------------
+   - 배경: background_vertical_v1.png (바닷속 용궁 일러스트 + 골드 프레임)
+   - 폼 부품: assets/svg/*.svg 를 background-image 로 사용
+   - 컬러 팔레트(시안 기준):
+       #0B1F3B  #134264  #1E6E93  #66B2D6  #EACB8A  #F45B5B
+   ============================================================ */
+
+:root {
+  --saju-navy-900: #0B1F3B;
+  --saju-navy-800: #0F243F;
+  --saju-blue-700: #134264;
+  --saju-blue-500: #1E6E93;
+  --saju-blue-300: #66B2D6;
+  --saju-gold:     #EACB8A;
+  --saju-gold-bright: #FFD67A;
+  --saju-red:      #F45B5B;
+
+  --saju-text:        #EAF2FB;
+  --saju-text-muted:  #9FB8CE;
+  --saju-text-faint:  #6E8AA6;
+
+  --saju-card-radius: 16px;
+  --saju-input-radius: 14px;
+
+  /* 폼 부품 SVG 경로 (한 곳에서 관리) */
+  --svg-text-default:  url("/assets/svg/01_text_input_default.svg");
+  --svg-text-focus:    url("/assets/svg/02_text_input_focus.svg");
+  --svg-text-error:    url("/assets/svg/03_text_input_error.svg");
+  --svg-select-closed: url("/assets/svg/04_select_closed.svg");
+  --svg-select-open:   url("/assets/svg/05_select_open.svg");
+  --svg-seg-default:   url("/assets/svg/10_segment_two_option_default.svg");
+  --svg-seg-left:      url("/assets/svg/11_segment_two_option_selected_left.svg");
+  --svg-seg-right:     url("/assets/svg/12_segment_two_option_selected_right.svg");
+  --svg-label-badge:   url("/assets/svg/16_form_label.svg");
+}
+
+/* ---------- 페이지 배경 ---------- */
+.saju-page {
+  width: 100%;
+  max-width: 430px;
+  margin-inline: auto;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 3rem 1.5rem 2.5rem;
+  color: var(--saju-text);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+
+  background-image: url("/assets/img/background_vertical_v1.png");
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-attachment: local;
+}
+
+/* ---------- 헤더 ---------- */
+.saju-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.saju-header h1 {
+  font-family: "강원모루", "GangwonEdu", "Pretendard", sans-serif;
+  font-size: clamp(1.5rem, 6.2vw, 1.9rem);
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0 0 0.6rem;
+  white-space: nowrap;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+.saju-header p {
+  font-size: 0.9rem;
+  color: var(--saju-text-muted);
+  margin: 0;
+}
+
+/* ---------- 카드(섹션) ---------- */
+.saju-section {
+  background: rgba(11, 31, 59, 0.55);
+  border: 1px solid #1E3A5A;
+  border-radius: var(--saju-card-radius);
+  padding: 1.1rem 1.15rem 1.25rem;
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(3px);
+  box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06);
+}
+
+/* ---------- SectionHeader (번호배지 + 제목) ---------- */
+.saju-section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+.saju-section-title-row h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+.saju-section-title-row .saju-title-sub {
+  font-size: 0.85rem;
+  color: var(--saju-text-muted);
+  font-weight: 400;
+}
+
+/* 번호배지 : 16_form_label.svg 의 골드 원을 배경으로 */
+.saju-number-badge {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--saju-gold);
+  color: var(--saju-navy-900);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.saju-section-kicker { display: none; } /* 카드 디자인에선 kicker 미사용 */
+.saju-section-rule { display: none; }
+
+/* ---------- TextInput (01/02/03.svg) ---------- */
+.saju-text-input-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 640 / 96;
+}
+.saju-text-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-image: var(--svg-text-default);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border: none;
+  outline: none;
+  color: var(--saju-text);
+  font-size: 1rem;
+  padding: 0 1.25rem 0 3.2rem; /* 왼쪽 조개 아이콘 자리 확보 */
+}
+.saju-text-input::placeholder { color: var(--saju-text-faint); }
+.saju-text-input.is-focus { background-image: var(--svg-text-focus); }
+.saju-text-input.is-error { background-image: var(--svg-text-error); }
+
+/* 인풋 왼쪽 조개 아이콘 */
+.saju-text-input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.9;
+}
+
+/* ---------- PillToggleGroup (성별 2단) ---------- */
+.saju-pill-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+}
+/* 성별처럼 2개일 때 : 검은 배경 박스 + 가운데 구분선 */
+.saju-pill-group--framed {
+  aspect-ratio: 640 / 94;
+  background: #0A0E14;
+  border: 1px solid #1E3A5A;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 5px;
+  gap: 5px;
+}
+
+.saju-pill-group--framed .saju-pill {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--saju-text-muted);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+/* 선택된 쪽 : 파란 그라데이션 + 골드 라인 하이라이트 */
+.saju-pill-group--framed .saju-pill.is-active {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  box-shadow: inset 0 0 0 1px var(--saju-gold);
+}
+
+/* 양력/음력/평달/윤달 4단 : 인라인 세그먼트(테두리 박스) */
+.saju-pill-group--inline {
+  gap: 0;
+  background: rgba(15, 36, 63, 0.9);
+  border: 1px solid #1E3A5A;
+  border-radius: 12px;
+  padding: 4px;
+}
+.saju-pill-group--inline .saju-pill {
+  flex: 1;
+  padding: 0.6rem 0.3rem;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: var(--saju-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.saju-pill-group--inline .saju-pill.is-active {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  box-shadow: inset 0 0 0 1px var(--saju-gold);
+}
+.saju-pill-group--inline .saju-pill.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---------- 안내문구(달 아이콘 줄) ---------- */
+.saju-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--saju-text-muted);
+  margin: 0.7rem 0 0.9rem;
+}
+
+/* ---------- DateSelect / TimeSelect (04/05.svg 스타일 박스) ---------- */
+.saju-select-row {
+  display: flex;
+  gap: 0.55rem;
+  margin-bottom: 0.6rem;
+}
+.saju-select-box {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 200 / 76;
+  min-width: 0;
+}
+.saju-select-box select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-image: var(--svg-select-closed);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0 2.4rem 0 0.9rem;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+/* 드롭다운 펼쳐진 목록(option)의 배경/글자색 — 안 넣으면 흰 배경에 흰 글씨로 안 보임 */
+.saju-select-box select option {
+  background: #0F243F;
+  color: #fff;
+}
+.saju-select-box select:disabled { opacity: 0.4; cursor: not-allowed; }
+.saju-select-box .saju-select-unit {
+  position: absolute;
+  right: 2.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--saju-text-muted);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---------- 시간 선택 row (버튼 + 시간모름 토글) ---------- */
+.saju-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.saju-time-row .saju-select-box { flex: 1; }
+
+/* 12간지 시간 선택 버튼 (누르면 모달) */
+.saju-time-trigger {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #1E3A5A;
+  border-radius: var(--saju-input-radius);
+  background: rgba(15, 36, 63, 0.9);
+  color: var(--saju-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.saju-time-trigger:hover:not(:disabled) {
+  border-color: var(--saju-blue-300);
+  box-shadow: 0 0 0 2px rgba(102, 178, 214, 0.2);
+}
+.saju-time-trigger.is-placeholder { color: var(--saju-text-faint); }
+.saju-time-trigger:disabled { opacity: 0.4; cursor: not-allowed; }
+.saju-time-trigger .saju-time-caret { color: var(--saju-text-muted); flex-shrink: 0; }
+
+/* ---------- ToggleSwitch ---------- */
+.saju-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+.saju-toggle {
+  width: 2.6rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: #1E2C43;
+  border: 1px solid #2C4763;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+.saju-toggle.is-on { background: var(--saju-blue-300); border-color: var(--saju-blue-300); }
+.saju-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+.saju-toggle.is-on .saju-toggle-knob { transform: translateX(1.1rem); }
+.saju-toggle-label {
+  font-size: 0.82rem;
+  color: var(--saju-text-muted);
+  white-space: nowrap;
+}
+
+/* ---------- InfoBanner ---------- */
+.saju-info-note {
+  font-size: 0.78rem;
+  color: var(--saju-text-muted);
+  margin: 0.85rem 0 0.7rem;
+}
+.saju-info-warning {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  background: #2A1010;
+  border: 1px solid var(--saju-red);
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #FCA5A5;
+}
+.saju-info-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--saju-gold);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- SubmitButton ---------- */
+.saju-submit-button {
+  width: 100%;
+  padding: 1.1rem;
+  border: 1.5px solid var(--saju-gold);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 6px 20px rgba(11, 31, 59, 0.5), inset 0 0 12px rgba(234, 203, 138, 0.12);
+  transition: filter 0.15s ease;
+  margin-top: 0.5rem;
+}
+.saju-submit-button:hover:not(:disabled) { filter: brightness(1.1); }
+.saju-submit-button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ---------- Modal (12간지 시간표) ---------- */
+.saju-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1.25rem;
+}
+.saju-modal {
+  width: 100%;
+  max-width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--saju-navy-800);
+  border: 1px solid var(--saju-gold);
+  color: var(--saju-text);
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+.saju-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.saju-modal-header h4 { margin: 0; font-size: 1rem; }
+.saju-modal-close {
+  background: none;
+  border: none;
+  color: var(--saju-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.saju-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.saju-modal-table th,
+.saju-modal-table td {
+  padding: 0.55rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(102, 178, 214, 0.12);
+}
+.saju-modal-table th { color: var(--saju-gold); }
+
+/* 클릭 가능한 행 */
+.saju-modal-row { cursor: pointer; transition: background 0.12s ease; }
+.saju-modal-row:hover { background: rgba(102, 178, 214, 0.1); }
+.saju-modal-row.is-selected {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+}
+.saju-modal-row.is-selected td { color: #fff; font-weight: 600; }
