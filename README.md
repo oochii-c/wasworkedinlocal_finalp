@@ -1,18 +1,16 @@
-나중에 채울게요
+# React + Vite
 
-<img width="856" height="187" alt="image" src="https://github.com/user-attachments/assets/d4e5abae-f73a-4c05-8b97-23a1c475a194" /># wasworkedinlocal_finalp
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 브랜치 규칙
-- main 브랜치에 직접 커밋 금지(최종 Progect용) -> 머지할때만..
-- 브랜치 이름은 feature/기능이름 으로 짓는다(각자 개발 or 작업파일)
+Currently, two official plugins are available:
 
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-##  팀원 전원의 Claude가 같은 규칙
-/init 
+## React Compiler
 
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## 건드리면 안 되는 것(.gitignore 넣을 내용) 
- .env
-*.key
-node_modules/
-__pycache__/
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
