@@ -6,9 +6,17 @@ type Lunar = { year: number; month: number; day: number; leap: boolean }
 
 // A: KASI 백엔드 (서버 proxy -> data.go.kr)
 async function convertKasi(y: number, m: number, d: number): Promise<Lunar> {
-  const res = await fetch(`/api/lunar?year=${y}&month=${m}&day=${d}`)
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error ?? 'KASI 변환 실패')
+  let res: Response
+  try {
+    res = await fetch(`/api/lunar?year=${y}&month=${m}&day=${d}`)
+  } catch {
+    throw new Error('서버(:8000)에 연결할 수 없음 — 서버 켜졌는지 확인')
+  }
+  // 서버 다운·502면 빈 바디라 json() 파싱이 터짐 → 먼저 상태 확인해 원인 명시
+  const data = await res.json().catch(() => {
+    throw new Error(`서버 응답 없음 (HTTP ${res.status}) — 서버 켜졌는지 확인`)
+  })
+  if (!res.ok) throw new Error(data.error ?? `KASI 변환 실패 (HTTP ${res.status})`)
   return {
     year: Number(data.lunar.year),
     month: Number(data.lunar.month),

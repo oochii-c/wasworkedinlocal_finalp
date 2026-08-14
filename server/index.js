@@ -39,6 +39,11 @@ app.get('/api/lunar', async (req, res) => {
     const item = parsed?.response?.body?.items?.item
     if (!item) return res.status(404).json({ error: '변환 결과 없음' })
 
+    console.log(
+      `입력 ${year}-${month}-${day} → 음력 ${item.lunYear}-${item.lunMonth}-${item.lunDay}` +
+        (item.lunLeapmonth === '윤' ? ' (윤달)' : '')
+    )
+
     res.json({
       solar: { year: Number(year), month: Number(month), day: Number(day) },
       lunar: {

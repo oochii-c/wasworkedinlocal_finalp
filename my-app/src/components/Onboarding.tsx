@@ -1,6 +1,15 @@
 import "./Onboarding.css"
 import { useState } from "react"
 
+// 숫자만 추려 YYYY.MM.DD로 자동 포맷 (입력하는 동안 점 자동 삽입)
+const formatBirthDate = (raw: string) => {
+    const d = raw.replace(/\D/g, "").slice(0, 8)
+    const parts = [d.slice(0, 4)]
+    if (d.length > 4) parts.push(d.slice(4, 6))
+    if (d.length > 6) parts.push(d.slice(6, 8))
+    return parts.join(".")
+}
+
 const Onboarding = () => {
     // 사용자 이름 저장
     const [userName, setUserName] = useState<string>("")
@@ -41,7 +50,7 @@ const Onboarding = () => {
                     </select>
                     <div className="datetime-row">
                         <label className="sr-only" htmlFor="birth-date">생년월일</label>
-                        <input className="field-input" type="number" id="birth-date" placeholder="2000.01.01" value={birthDate} onChange={(e) => setbirthDate(e.target.value)} />
+                        <input className="field-input" type="text" inputMode="numeric" maxLength={10} id="birth-date" placeholder="2000.01.01" value={birthDate} onChange={(e) => setbirthDate(formatBirthDate(e.target.value))} />
                         <label className="sr-only" htmlFor="birth-time">시간</label>
                         <input className="field-input" type="number" id="birth-time" placeholder="00:00" value={birthTime} onChange={(e) => setBirthTime(e.target.value)} disabled={timeUnknown} />
                     </div>
