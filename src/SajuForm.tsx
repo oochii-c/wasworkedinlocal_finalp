@@ -286,7 +286,7 @@ export default function SajuForm() {
   const [name, setName] = useState("");
   const [gender, setGender] = useState("male");
   const [calendarType, setCalendarType] = useState("solar");
-  const [date, setDate] = useState<SajuDateValue>({ year: 1990, month: 2, day: 3 });
+  const [date, setDate] = useState<SajuDateValue>({ year: 0, month: 0, day: 0 });
   const [time, setTime] = useState<SajuTimeValue>({ hour: 0, minute: 0 });
   const [timeUnknown, setTimeUnknown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
