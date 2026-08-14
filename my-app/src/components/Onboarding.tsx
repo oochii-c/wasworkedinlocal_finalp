@@ -120,8 +120,9 @@ function isDST(y: number, m: number, d: number) {
  * 보정 순서:
  * 1. DST 기간이면 -60분 (입력 시각이 이미 서머타임 기준이므로)
  * 2. 진태양시 보정: 서울(127°E) vs 표준경선(135°E) → -32분
- * 3. 야자시: 보정 후 hour === 23이면 일주 날짜를 하루 앞으로 당김
- *    (야자시법: 밤 23시 이후는 전날의 자시로 본다)
+ *
+ * ※ 야자시(밤 23시대)는 lunar-typescript가 자정 기준으로 일주를 유지하도록
+ *   이미 처리하므로 여기서 별도 날짜 보정을 하지 않는다.
  */
 function correctToSaju(year: number, month: number, day: number, hour: number, minute: number) {
   let offsetMin = -32
@@ -131,17 +132,10 @@ function correctToSaju(year: number, month: number, day: number, hour: number, m
   const baseMs = new Date(year, month - 1, day, hour, minute).getTime()
   const d = new Date(baseMs + offsetMin * 60 * 1000)
 
-  let cY = d.getFullYear(), cM = d.getMonth() + 1, cD = d.getDate()
-  const cH = d.getHours(), cMin = d.getMinutes()
-
-  // 야자시: 보정 후 23시대이면 일주 날짜를 하루 앞으로
-  if (cH === 23) {
-    const prev = new Date(cY, cM - 1, cD)
-    prev.setDate(prev.getDate() - 1)
-    cY = prev.getFullYear(); cM = prev.getMonth() + 1; cD = prev.getDate()
+  return {
+    year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate(),
+    hour: d.getHours(), minute: d.getMinutes(), dstApplied, offsetMin,
   }
-
-  return { year: cY, month: cM, day: cD, hour: cH, minute: cMin, dstApplied, offsetMin }
 }
 
 // 사주 한 기둥(연/월/일/시) 데이터 묶음
@@ -268,7 +262,8 @@ function calcSaju(
 
   const dayGanStr = ec.getDayGan()
   const seWun = daYun.flatMap(dy =>
-    Array.from({ length: dy.endYear - dy.startYear }, (_, i) => {
+    // endYear는 포함 경계(다음 대운 startYear === endYear+1) → +1 해야 마지막 해가 안 빠짐
+    Array.from({ length: dy.endYear - dy.startYear + 1 }, (_, i) => {
       const y = dy.startYear + i
       const gz = GAN_LIST[(y - 4 + 4000) % 10] + ZHI_LIST[(y - 4 + 4800) % 12]
       return { year: y, ganZhi: gz, ...seWunScore(gz[0], dayGanStr) }
