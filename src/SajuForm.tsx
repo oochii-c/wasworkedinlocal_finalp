@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ReactNode } from "react";
+import { useState, useRef, useEffect, type ChangeEvent, type ReactNode } from "react";
 import "./styles/saju.css";
 
 /* ============================================================
@@ -10,7 +10,7 @@ import "./styles/saju.css";
      STEP 1.  SectionHeader   - 제목 (+ 부제)  ※ 번호배지 제거됨
      STEP 2.  SajuTextInput   - 이름 입력칸 (01/02/03.svg + 조개 아이콘)
      STEP 3.  PillToggleGroup - 성별 2단(segment) / 양력·음력·평달·윤달 4단(inline)
-     STEP 4.  DateSelectGroup - 년/월/일 드롭다운
+     STEP 4.  DateInputGroup  - 년/월/일 직접 입력
      STEP 5.  ToggleSwitch    - 시간모름 on/off 스위치
      STEP 6.  ZodiacTimePicker- 시간 선택 버튼(누르면 12간지 표 모달) + 시간모름
      STEP 7.  InfoBanner      - 안내 문구 + 유효성 경고
@@ -49,12 +49,6 @@ const ZODIAC_TABLE: Array<[string, string]> = [
   ["술시", "19:30~21:30"],
   ["해시", "21:30~23:30"],
 ];
-
-function range(start: number, end: number): number[] {
-  const arr: number[] = [];
-  for (let i = start; i <= end; i++) arr.push(i);
-  return arr;
-}
 
 /* ------------------------------------------------------------
    STEP 1. SectionHeader (번호배지 없음)
@@ -164,51 +158,157 @@ function PillToggleGroup({ options, value, onChange, variant = "inline" }: PillT
 }
 
 /* ------------------------------------------------------------
-   STEP 4. DateSelectGroup (년/월/일)
+   STEP 4. DateField + DateInputGroup (년/월/일 — 입력 + 아래로 펼치는 선택)
+   - DateField : 입력칸 하나 + 아래로 펼쳐지는 커스텀 드롭다운
+       · 직접 타이핑 가능(숫자만), 타이핑하면 목록이 자동 필터링
+       · 오른쪽 ▾ 버튼(또는 포커스) 누르면 목록이 "아래로" 펼쳐짐
+       · 목록 항목 클릭 또는 blur 시 유효 범위로 보정
+   - DateInputGroup : 년/월/일 3개를 한 줄에 배치
    ------------------------------------------------------------ */
-interface DateSelectGroupProps {
+interface DateFieldProps {
+  value: number;                 // 0 이면 미입력
+  options: number[];             // 드롭다운 목록
+  placeholder: string;           // YYYY / MM / DD
+  unit: string;                  // 년 / 월 / 일
+  maxLen: number;                // 입력 자릿수 제한
+  min: number;
+  max: number;
+  ariaLabel: string;
+  onChange: (v: number) => void;
+}
+
+function DateField({
+  value, options, placeholder, unit, maxLen, min, max, ariaLabel, onChange,
+}: DateFieldProps) {
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // 바깥 클릭 시 닫기
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const text = value === 0 ? "" : String(value);
+
+  // 타이핑 값에 맞춰 목록 필터링 (예: "19" → 19로 시작하는 연도)
+  const filtered = text === ""
+    ? options
+    : options.filter((o) => String(o).startsWith(text));
+
+  const commit = (v: number) => {
+    let nv = v;
+    if (nv !== 0) {
+      if (nv < min) nv = min;
+      if (nv > max) nv = max;
+    }
+    onChange(nv);
+  };
+
+  return (
+    <div className="saju-input-box" ref={boxRef}>
+      <input
+        type="text"
+        inputMode="numeric"
+        className="saju-date-input"
+        value={text}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          const digits = e.target.value.replace(/[^0-9]/g, "").slice(0, maxLen);
+          onChange(digits === "" ? 0 : Number(digits));
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => commit(value)}
+      />
+      <span className="saju-select-unit">{unit}</span>
+      <button
+        type="button"
+        className="saju-date-caret"
+        aria-label={`${ariaLabel} 목록 열기`}
+        onClick={() => setOpen((o) => !o)}
+        tabIndex={-1}
+      >
+        ▾
+      </button>
+
+      {open && filtered.length > 0 && (
+        <ul className="saju-date-dropdown" role="listbox">
+          {filtered.map((o) => (
+            <li
+              key={o}
+              role="option"
+              aria-selected={o === value}
+              className={`saju-date-option${o === value ? " is-selected" : ""}`}
+              // onMouseDown: input blur 보다 먼저 실행되도록
+              onMouseDown={(e) => {
+                e.preventDefault();
+                commit(o);
+                setOpen(false);
+              }}
+            >
+              {o}{unit}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+interface DateInputGroupProps {
   value: SajuDateValue;
   onChange: (value: SajuDateValue) => void;
   yearRange?: [number, number];
 }
 
-function DateSelectGroup({ value, onChange, yearRange = [1930, 2026] }: DateSelectGroupProps) {
-  const years = range(yearRange[0], yearRange[1]);
-  const months = range(1, 12);
-  const days = range(1, 31);
-
-  const handle = (key: keyof SajuDateValue) => (e: ChangeEvent<HTMLSelectElement>) => {
-    onChange({ ...value, [key]: Number(e.target.value) });
-  };
+function DateInputGroup({ value, onChange, yearRange = [1930, 2026] }: DateInputGroupProps) {
+  const years: number[] = [];
+  for (let y = yearRange[1]; y >= yearRange[0]; y--) years.push(y); // 최근 연도부터
+  const months: number[] = [];
+  for (let m = 1; m <= 12; m++) months.push(m);
+  const days: number[] = [];
+  for (let d = 1; d <= 31; d++) days.push(d);
 
   return (
     <div className="saju-select-row">
-      <div className="saju-select-box">
-        <select value={value.year} onChange={handle("year")} aria-label="출생 연도">
-          {years.map((y) => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
-        <span className="saju-select-unit">년</span>
-      </div>
-
-      <div className="saju-select-box">
-        <select value={value.month} onChange={handle("month")} aria-label="출생 월">
-          {months.map((m) => (
-            <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
-          ))}
-        </select>
-        <span className="saju-select-unit">월</span>
-      </div>
-
-      <div className="saju-select-box">
-        <select value={value.day} onChange={handle("day")} aria-label="출생 일">
-          {days.map((d) => (
-            <option key={d} value={d}>{String(d).padStart(2, "0")}</option>
-          ))}
-        </select>
-        <span className="saju-select-unit">일</span>
-      </div>
+      <DateField
+        value={value.year}
+        options={years}
+        placeholder="YYYY"
+        unit="년"
+        maxLen={4}
+        min={1900}
+        max={2100}
+        ariaLabel="출생 연도"
+        onChange={(v) => onChange({ ...value, year: v })}
+      />
+      <DateField
+        value={value.month}
+        options={months}
+        placeholder="MM"
+        unit="월"
+        maxLen={2}
+        min={1}
+        max={12}
+        ariaLabel="출생 월"
+        onChange={(v) => onChange({ ...value, month: v })}
+      />
+      <DateField
+        value={value.day}
+        options={days}
+        placeholder="DD"
+        unit="일"
+        maxLen={2}
+        min={1}
+        max={31}
+        ariaLabel="출생 일"
+        onChange={(v) => onChange({ ...value, day: v })}
+      />
     </div>
   );
 }
@@ -398,6 +498,7 @@ export default function SajuForm() {
   return (
     <div className="saju-page">
       <header className="saju-header">
+        <div className="saju-brand">용궁</div>
         <h1>당신의 사주를 봅니다</h1>
         <p>생년월일시로 원국을 그립니다</p>
       </header>
@@ -434,7 +535,7 @@ export default function SajuForm() {
           🌙 양/음 = 음력+윤달일 때만 활성(그 외 숨김/비활성) · 기본값 없음
         </div>
 
-        <DateSelectGroup value={date} onChange={setDate} />
+        <DateInputGroup value={date} onChange={setDate} />
 
         <ZodiacTimePicker
           timeIndex={timeIndex}
