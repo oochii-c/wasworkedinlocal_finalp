@@ -36,12 +36,10 @@ export interface SeWunInfo {
   stars: number;
 }
 
-export interface SinsalInfo {
+export interface ShenShaInfo {
   name: string;
   desc: string;
 }
-
-export type ShenShaInfo = SinsalInfo;
 
 export interface DaYunInfo {
   ganZhi: string;
@@ -54,8 +52,7 @@ export interface DaYunInfo {
 export interface SajuExtended extends SajuChart {
   wuXingCount: Record<string, number>;
   shiShenCount: Record<string, number>;
-  shenSha: SinsalInfo[];
-  sinsal?: SinsalInfo[];
+  shenSha: ShenShaInfo[];
   daYun: DaYunInfo[];
   seWun: SeWunInfo[];
   currentSeWun?: SeWunInfo;

@@ -2,7 +2,7 @@ import { Solar, Lunar } from "lunar-typescript";
 import { type SajuInput, type Pillar, type SajuChart, type SajuExtended } from "./types";
 import { correctToSaju } from "./timeCorrection";
 import { toTraditional, toTradArr } from "./hanja";
-import { SIPSHEN_GROUP, calcSinsal } from "./sinsal";
+import { SIPSHEN_GROUP, calcShenSha } from "./shenSha";
 import { GAN_TO_WUXING, calcFortuneFlow } from "./fortune";
 
 export const PILLAR_DEFS: [string, string][] = [
@@ -110,7 +110,7 @@ export function computeSajuExtended(input: SajuInput): SajuExtended {
     }
   }
 
-  const shenSha = calcSinsal(base.pillars, base.dayGan);
+  const shenSha = calcShenSha(base.pillars, base.dayGan);
   const fortune = calcFortuneFlow(input, base.dayGan);
 
   return {
@@ -118,7 +118,6 @@ export function computeSajuExtended(input: SajuInput): SajuExtended {
     wuXingCount,
     shiShenCount,
     shenSha,
-    sinsal: shenSha,
     ...fortune,
   };
 }

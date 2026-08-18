@@ -1,4 +1,4 @@
-import { type Pillar, type SinsalInfo } from "./types";
+import { type Pillar, type ShenShaInfo } from "./types";
 
 /* ============================================================
    신살(神煞) 및 십성 매핑 & 계산
@@ -12,7 +12,7 @@ export const SIPSHEN_GROUP: Record<string, string> = {
   日主: "비겁",
 };
 
-export const SINSAL_DESC: Record<string, string> = {
+export const SHENSHA_DESC: Record<string, string> = {
   도화살: "이성에게 매력을 어필하는 기운",
   역마살: "이동·여행·변화의 기운",
   천을귀인: "위기 때 귀인이 나타나는 기운",
@@ -22,13 +22,10 @@ export const SINSAL_DESC: Record<string, string> = {
   월덕귀인: "인덕이 있는 길성",
 };
 
-// 하위 호환용 alias
-export const SHENSHA_DESC = SINSAL_DESC;
-
-export function calcSinsal(pillars: Pillar[], dayGan: string): SinsalInfo[] {
+export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
   const yearZhi = pillars[0]?.zhi ?? "";
   const allZhis = pillars.map(p => p.zhi);
-  const result: SinsalInfo[] = [];
+  const result: ShenShaInfo[] = [];
 
   const DOHWA: Record<string, string> = {
     寅: "卯", 午: "卯", 戌: "卯",
@@ -37,7 +34,7 @@ export function calcSinsal(pillars: Pillar[], dayGan: string): SinsalInfo[] {
     亥: "子", 卯: "子", 未: "子",
   };
   if (DOHWA[yearZhi] && allZhis.slice(1).includes(DOHWA[yearZhi])) {
-    result.push({ name: "도화살", desc: SINSAL_DESC["도화살"] });
+    result.push({ name: "도화살", desc: SHENSHA_DESC["도화살"] });
   }
 
   const YUKMA: Record<string, string> = {
@@ -47,7 +44,7 @@ export function calcSinsal(pillars: Pillar[], dayGan: string): SinsalInfo[] {
     亥: "巳", 卯: "巳", 未: "巳",
   };
   if (YUKMA[yearZhi] && allZhis.slice(1).includes(YUKMA[yearZhi])) {
-    result.push({ name: "역마살", desc: SINSAL_DESC["역마살"] });
+    result.push({ name: "역마살", desc: SHENSHA_DESC["역마살"] });
   }
 
   const TIANYI: Record<string, string[]> = {
@@ -59,7 +56,7 @@ export function calcSinsal(pillars: Pillar[], dayGan: string): SinsalInfo[] {
     壬: ["巳", "卯"], 癸: ["巳", "卯"],
   };
   if ((TIANYI[dayGan] ?? []).some(z => allZhis.includes(z))) {
-    result.push({ name: "천을귀인", desc: SINSAL_DESC["천을귀인"] });
+    result.push({ name: "천을귀인", desc: SHENSHA_DESC["천을귀인"] });
   }
 
   const YANGREN: Record<string, string> = {
@@ -68,11 +65,8 @@ export function calcSinsal(pillars: Pillar[], dayGan: string): SinsalInfo[] {
     壬: "子", 癸: "亥",
   };
   if (YANGREN[dayGan] && allZhis.includes(YANGREN[dayGan])) {
-    result.push({ name: "양인살", desc: SINSAL_DESC["양인살"] });
+    result.push({ name: "양인살", desc: SHENSHA_DESC["양인살"] });
   }
 
   return result;
 }
-
-// 하위 호환용 alias
-export const calcShenSha = calcSinsal;

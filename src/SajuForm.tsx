@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, type ChangeEvent, type ReactNode } from "r
 import "./styles/saju.css";
 import { computeSajuExtended, type SajuExtended } from "./saju";
 import { type Story } from "./SajuReading";
-import Dashboard from "./pages/dashboard/Dashboard";
+import Dashboard from "./components/dashboard/Dashboard";
 
 /* ============================================================
    SajuForm.tsx
