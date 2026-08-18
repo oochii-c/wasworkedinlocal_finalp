@@ -58,7 +58,8 @@
   color: var(--saju-text);
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
 
-  background-image: url("/assets/img/background_vertical_v1.png");
+  background-color: #0A1428;
+  background-image: url("../assets/img/background_vertical_v1r1.png");
   background-size: cover;
   background-position: top center;
   background-repeat: no-repeat;
