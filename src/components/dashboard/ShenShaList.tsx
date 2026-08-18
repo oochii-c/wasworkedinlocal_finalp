@@ -14,10 +14,7 @@ export default function ShenShaList({ shenSha }: Props) {
 
   return (
     <section className="db-section" aria-label="신살">
-      <h3 className="db-section-title">
-        내 신살과 길성
-        <span className="db-section-sub">가진 것만</span>
-      </h3>
+      <h3 className="db-section-title">내 신살과 길성</h3>
 
       {shenSha.length === 0 ? (
         <p className="db-shensha-empty">특별한 신살 없음 · 평탄한 사주</p>

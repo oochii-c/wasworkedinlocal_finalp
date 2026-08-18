@@ -5,13 +5,12 @@ interface Props {
   pillars: Pillar[];
 }
 
-// 오행 문자 추출 (wuXing은 "木火" 형태 — 첫 글자=천간, 두번째=지지)
 function wuXingOf(wx: string, idx: 0 | 1): string {
   return wx?.[idx] ?? "?";
 }
 
-// 순서: 시→일→월→연 (와이어프레임 기준)
-const PILLAR_ORDER = [3, 2, 1, 0] as const; // 인덱스: 시,일,월,연
+// 순서: 시→일→월→연
+const PILLAR_ORDER = [3, 2, 1, 0] as const;
 const PILLAR_LABELS = ["시", "일", "월", "연"];
 
 export default function OriginChart({ pillars }: Props) {

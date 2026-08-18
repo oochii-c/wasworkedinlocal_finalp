@@ -66,11 +66,6 @@
   gap: 8px;
 }
 
-.db-section-sub {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--text-secondary);
-}
 
 /* ---- 블록 1: 캐릭터 ---- */
 .db-character {
@@ -285,44 +280,94 @@
   border-top: 1px dashed rgba(234,203,138,0.15);
 }
 
-/* ---- 블록 7: 대운 ---- */
-.db-dayun-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+/* ---- 블록 7: 대운 그래프 ---- */
+
+.db-dayun-graph-wrap {
+  margin: 0 -4px;
+  cursor: pointer;
 }
 
-.db-dayun-item {
+/* 선택 연도 카드 */
+.db-dayun-card {
+  margin-top: 10px;
   background: rgba(234,203,138,0.07);
-  border: 1px solid rgba(234,203,138,0.15);
-  border-radius: 8px;
-  padding: 6px 10px;
+  border: 1px solid rgba(234,203,138,0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.db-dayun-year-nav {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-width: 54px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.db-dayun-item.is-current {
-  background: rgba(234,203,138,0.18);
-  border-color: rgba(234,203,138,0.5);
+.db-dayun-nav-btn {
+  background: none;
+  border: 1px solid rgba(234,203,138,0.3);
+  border-radius: 5px;
+  color: var(--c-gold-300);
+  font-size: 14px;
+  padding: 2px 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1.4;
 }
 
-.db-dayun-gz {
+.db-dayun-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.db-dayun-card-year {
   font-size: 15px;
   font-weight: 700;
-  color: var(--c-gold-300);
-}
-
-.db-dayun-age {
-  font-size: 10px;
   color: var(--text-primary);
+  flex: 1;
 }
 
-.db-dayun-year {
-  font-size: 9px;
+.db-dayun-stars {
+  color: var(--c-gold-300);
+  letter-spacing: 1px;
+}
+
+.db-dayun-card-basis {
+  font-size: 12px;
   color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.db-dayun-card-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  margin-bottom: 10px;
+  /* 3줄 고정 — 내용 길이와 무관하게 카드 크기 유지 */
+  height: calc(13px * 1.7 * 3);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.db-dayun-fortune-loading {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.db-dayun-detail-btn {
+  display: block;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(234,203,138,0.7);
+  cursor: pointer;
+  text-align: right;
+  width: 100%;
+  padding: 0;
 }
 
 /* ---- 하단 네비 ---- */

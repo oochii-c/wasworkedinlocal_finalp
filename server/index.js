@@ -123,6 +123,84 @@ app.post("/api/reading", async (req, res) => {
   }
 });
 
+// 지지 → 띠 매핑
+const ZHI_ZODIAC = {
+  子: "쥐", 丑: "소", 寅: "호랑이", 卯: "토끼",
+  辰: "용", 巳: "뱀", 午: "말", 未: "양",
+  申: "원숭이", 酉: "닭", 戌: "개", 亥: "돼지",
+};
+
+app.post("/api/year-fortune", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
+  }
+
+  const { year, ganZhi, rel, dayGan, stars } = req.body || {};
+  if (!year || !ganZhi || !dayGan) {
+    return res.status(400).json({ error: "필수 파라미터 누락" });
+  }
+
+  const gan = ganZhi[0];
+  const zhi = ganZhi[1];
+  const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
+  const [yearKor, yearElem] = GAN_INFO[gan] || ["?", "?"];
+  const zodiac = ZHI_ZODIAC[zhi] || zhi;
+  const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
+
+  const prompt = `너는 사주 명리 해설가다. 아래 정보를 바탕으로 해당 연도의 세운(歲運) 풀이를 작성해.
+
+- 일간(나): ${dayGan}(${dayKor}${dayElem}) · 오행 ${dayElem}
+- ${year}년 세운 간지: ${ganZhi} — 천간 ${gan}(${yearKor}${yearElem}), 지지 ${zhi}(${zodiac}의 해)
+- 천간 관계: ${rel} (${starsLabel}) — 세운 천간 ${yearElem}이 일간 ${dayElem}에 미치는 영향
+- 총평: ${stars}점짜리 해
+
+규칙:
+1. 반드시 3문장으로 작성. 각 문장은 서로 다른 측면(이 해의 기운/실천 방향/구체적 조언)을 담아.
+2. ${zodiac}의 해 특성을 자연스럽게 한 문장에 녹여.
+3. 일간 ${dayGan}(${dayElem}) 기준으로 구체적으로, 따뜻하게.
+4. 반드시 아래 JSON만 출력(코드블록·설명 없이): {"text":"..."}`;
+
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.95,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : null;
+    }
+
+    if (!parsed?.text) {
+      return res.status(502).json({ error: "응답 형식 오류", raw: content });
+    }
+
+    res.json({ text: parsed.text });
+  } catch (e) {
+    res.status(500).json({ error: "연도 운세 생성 실패", detail: String(e) });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`saju server on http://localhost:${PORT} (model: ${MODEL})`);
 });

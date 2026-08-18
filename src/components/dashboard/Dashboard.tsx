@@ -49,7 +49,13 @@ export default function Dashboard(props: DashboardProps) {
         <AiStories stories={stories} />
 
         {/* 블록 7: 대운 */}
-        <DaYunFlow daYun={chart.daYun} birthYear={date.year} />
+        <DaYunFlow
+          daYun={chart.daYun}
+          seWun={chart.seWun}
+          currentSeWun={chart.currentSeWun}
+          birthYear={date.year}
+          dayGan={chart.dayGan}
+        />
       </main>
 
       {/* 하단 네비 */}
