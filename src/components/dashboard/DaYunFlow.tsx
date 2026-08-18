@@ -73,7 +73,14 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
     [seWun, selectedYear, currentSeWun]
   );
 
-  // AI 연도 운세 캐시 (컴포넌트 생애 동안 유지)
+  /*
+   * fortuneCache: 이미 불러온 연도 운세를 저장해두는 캐시
+   * - key: `일간-연도` (예: "辛-2026")
+   * - value: AI가 생성한 운세 텍스트
+   * - useRef 사용 이유: 값이 바뀌어도 리렌더를 일으키지 않음.
+   *   useState로 만들면 캐시 저장할 때마다 불필요한 리렌더 발생.
+   *   컴포넌트가 화면에 있는 동안 계속 유지됨 (다른 연도 갔다 돌아와도 살아있음).
+   */
   const fortuneCache = useRef<Record<string, string>>({});
   const [fortuneText, setFortuneText] = useState<string | null>(null);
   const [fortuneLoading, setFortuneLoading] = useState(false);
@@ -82,9 +89,10 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
   useEffect(() => {
     if (!selectedSW) return;
 
+    // 같은 일간이라도 연도마다 다른 텍스트를 캐시하기 위해 두 값을 합쳐 키 생성
     const cacheKey = `${dayGan}-${selectedYear}`;
 
-    // 캐시 히트 → 즉시 표시
+    // 이미 호출한 적 있는 연도면 캐시에서 꺼내서 바로 표시 → API 재호출 없음
     if (fortuneCache.current[cacheKey]) {
       setFortuneText(fortuneCache.current[cacheKey]);
       setFortuneLoading(false);
@@ -96,6 +104,14 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
     setFortuneText(null);
     setFortuneError(false);
 
+    /*
+     * AbortController: 사용자가 ← → 를 빠르게 눌러 연도를 바꿀 때
+     * 이전 연도의 진행 중인 fetch 요청을 취소하는 용도.
+     * 예) 2020 → 2021 → 2022 순서로 빠르게 이동하면
+     *     2020, 2021 요청은 abort되고 2022 요청만 완료됨.
+     * 이렇게 하지 않으면 2020 응답이 늦게 도착해
+     *     2022 텍스트 위에 2020 텍스트가 덮어써지는 버그가 생김.
+     */
     const controller = new AbortController();
 
     fetch("/api/year-fortune", {
@@ -108,7 +124,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
         dayGan,
         stars: selectedSW.stars,
       }),
-      signal: controller.signal,
+      signal: controller.signal, // 이 signal이 abort되면 fetch 자동 취소
     })
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -117,24 +133,28 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
       .then(data => {
         const text = typeof data.text === "string" && data.text ? data.text : null;
         if (text) {
-          fortuneCache.current[cacheKey] = text; // 성공한 응답만 캐시
+          // 성공한 응답만 캐시에 저장 (빈 문자열·오류는 저장 안 함 → 나중에 재시도 가능)
+          fortuneCache.current[cacheKey] = text;
           setFortuneText(text);
         } else {
           setFortuneError(true);
         }
       })
       .catch(err => {
+        // AbortError는 연도 이동으로 인한 정상 취소 → 에러 표시 안 함
+        // 그 외(네트워크 오류, 서버 오류 등)는 에러 메시지 표시
         if (err.name !== "AbortError") setFortuneError(true);
       })
       .finally(() => setFortuneLoading(false));
 
+    // useEffect 클린업: selectedYear가 바뀌면 이전 fetch를 abort
     return () => controller.abort();
   }, [selectedYear, selectedSW, dayGan]);
 
   if (daYunAvgs.length === 0) {
     return (
-      <section className="db-section" aria-label="인생 흐름 대운">
-        <h3 className="db-section-title">인생 흐름 (대운)</h3>
+      <section className="db-section" aria-label="인생 흐름">
+        <h3 className="db-section-title">인생 흐름</h3>
         <p className="db-shensha-empty">대운 정보를 계산할 수 없습니다</p>
       </section>
     );
@@ -170,8 +190,8 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
   const NOW_ZONE = 18;
 
   return (
-    <section className="db-section" aria-label="인생 흐름 대운">
-      <h3 className="db-section-title">인생 흐름 (대운)</h3>
+    <section className="db-section" aria-label="인생 흐름">
+      <h3 className="db-section-title">인생 흐름</h3>
 
       <div className="db-dayun-graph-wrap">
         <svg viewBox={`0 0 ${W} ${H + 22}`} width="100%" style={{ display: "block" }} aria-hidden="true">

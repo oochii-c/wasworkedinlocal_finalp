@@ -66,11 +66,6 @@ export default function ElementStar({ wuXingCount }: Props) {
           );
         })}
       </svg>
-      <p className="db-chart-hint">
-        {ELEMENTS.map(el => `${el}${wuXingCount[el] ?? 0}`).join(" · ")}
-        {Object.values(wuXingCount).some(v => v === 0) &&
-          ` · ${ELEMENTS.filter(e => (wuXingCount[e] ?? 0) === 0).join("")} 부족`}
-      </p>
     </section>
   );
 }

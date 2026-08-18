@@ -194,12 +194,6 @@
   align-items: center;
 }
 
-.db-chart-hint {
-  font-size: 12px;
-  color: var(--text-secondary);
-  text-align: center;
-  margin-top: 4px;
-}
 
 /* ---- 블록 5: 신살 ---- */
 .db-badges {
