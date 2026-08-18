@@ -248,10 +248,6 @@ function InfoBanner({ timeUnknown }: InfoBannerProps) {
       {timeUnknown && (
         <div className="saju-info-note">시간 모름 — 시각 값 비활성 · "사주 없이 계산됩니다"</div>
       )}
-      <div className="saju-info-warning">
-        <span>⚠️</span>
-        <span>잘못 입력 시 인풋 하단 빨간 글씨 — 예: '입력 정보를 다시 확인해 주세요.'</span>
-      </div>
     </>
   );
 }
