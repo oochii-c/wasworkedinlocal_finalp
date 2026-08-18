@@ -1,5 +1,5 @@
-import { type SajuExtended } from "../saju";
-import { type Story } from "../SajuReading";
+import { type SajuExtended } from "../../saju";
+import { type Story } from "../../SajuReading";
 
 export type { SajuExtended, Story };
 

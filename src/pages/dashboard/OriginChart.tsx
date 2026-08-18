@@ -1,4 +1,4 @@
-import { type Pillar } from "../saju";
+import { type Pillar } from "../../saju";
 import { WUXING_BG, WUXING_BORDER, WUXING_TEXT, HANJA_DOK } from "./constants";
 
 interface Props {
