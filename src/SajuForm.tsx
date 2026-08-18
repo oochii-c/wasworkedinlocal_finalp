@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, type ChangeEvent, type ReactNode } from "react";
 import "./styles/saju.css";
-import { computeSaju, type SajuChart } from "./saju";
-import SajuReading, { type Story } from "./SajuReading";
+import { computeSajuExtended, type SajuExtended } from "./saju";
+import { type Story } from "./SajuReading";
+import Dashboard from "./dashboard/Dashboard";
 
 /* ============================================================
    SajuForm.tsx
@@ -281,15 +282,15 @@ const CALENDAR_OPTIONS: PillOption[] = [
 ];
 
 export default function SajuForm() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState("홍길동");
   const [gender, setGender] = useState("male");
   const [calendarType, setCalendarType] = useState("solar");
-  const [date, setDate] = useState<SajuDateValue>({ year: 0, month: 0, day: 0 });
+  const [date, setDate] = useState<SajuDateValue>({ year: 1990, month: 6, day: 15 });
   const [time, setTime] = useState<SajuTimeValue>({ hour: 0, minute: 0 });
-  const [timeUnknown, setTimeUnknown] = useState(false);
+  const [timeUnknown, setTimeUnknown] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [chart, setChart] = useState<SajuChart | null>(null);
+  const [chart, setChart] = useState<SajuExtended | null>(null);
   const [stories, setStories] = useState<Story[] | null>(null);
 
   const handleSubmit = async () => {
@@ -298,9 +299,9 @@ export default function SajuForm() {
       return;
     }
 
-    let computed: SajuChart;
+    let computed: SajuExtended;
     try {
-      computed = computeSaju({ gender, calendarType, date, time, timeUnknown });
+      computed = computeSajuExtended({ gender, calendarType, date, time, timeUnknown });
     } catch {
       setError("해당 날짜로 원국을 만들 수 없습니다. 윤달 여부·날짜를 확인해 주세요.");
       return;
@@ -328,10 +329,13 @@ export default function SajuForm() {
 
   if (chart && stories) {
     return (
-      <SajuReading
+      <Dashboard
         chart={chart}
         stories={stories}
         name={name}
+        gender={gender}
+        date={date}
+        time={time}
         timeUnknown={timeUnknown}
         onBack={() => {
           setChart(null);

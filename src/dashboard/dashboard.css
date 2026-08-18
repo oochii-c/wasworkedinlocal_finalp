@@ -1,0 +1,383 @@
+/* ============================================================
+   dashboard.css — 용궁 사주 대시보드 전용 스타일
+   variables.css 토큰 계승
+   ============================================================ */
+
+/* ---- 레이아웃 ---- */
+.db-page {
+  min-height: 100dvh;
+  background: var(--c-navy-900);
+  display: flex;
+  flex-direction: column;
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  color: var(--text-primary);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.db-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(234,203,138,0.12);
+}
+
+.db-logo {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--c-gold-300);
+}
+
+.db-back-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.db-main {
+  flex: 1;
+  padding: 12px 14px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+/* ---- 공통 섹션 카드 ---- */
+.db-section {
+  background: rgba(19,66,100,0.35);
+  border: 1px solid rgba(234,203,138,0.14);
+  border-radius: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.db-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-gold-300);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-section-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ---- 블록 1: 캐릭터 ---- */
+.db-character {
+  background: linear-gradient(135deg, rgba(11,39,68,0.6), rgba(19,66,100,0.4));
+}
+
+.db-char-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.db-hanja-card {
+  width: 68px;
+  height: 68px;
+  border-radius: 14px;
+  border: 1.5px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.db-hanja {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--c-gold-300);
+  line-height: 1;
+}
+
+.db-char-meta {
+  flex: 1;
+}
+
+.db-char-type {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.db-char-tags {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.db-fields {
+  display: flex;
+  gap: 6px;
+}
+
+.db-fields span {
+  flex: 1;
+  background: rgba(234,203,138,0.07);
+  border: 1px solid rgba(234,203,138,0.15);
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 6px 4px;
+  text-align: center;
+}
+
+/* ---- 블록 2: 원국 ---- */
+.db-wongook-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+
+.db-wg-head {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding-bottom: 4px;
+}
+
+.db-wg-cell {
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 10px 4px 9px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-wg-hanja-box {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  position: relative;
+}
+
+.db-wg-hanja {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.db-wg-dok {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-gold-300);
+  opacity: 0.85;
+  margin-left: 2px;
+  line-height: 1;
+}
+
+/* ---- 블록 3+4: 2열 나란히 ---- */
+.db-row2 {
+  display: flex;
+  gap: 10px;
+}
+
+.db-row2 .db-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.db-chart-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.db-chart-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ---- 블록 5: 신살 ---- */
+.db-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.db-badge {
+  background: rgba(234,203,138,0.1);
+  border: 1px solid rgba(234,203,138,0.35);
+  border-radius: 14px;
+  padding: 6px 14px;
+  font-size: 14px;
+  color: var(--c-gold-300);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.db-badge.is-active,
+.db-badge:hover {
+  background: rgba(234,203,138,0.22);
+}
+
+.db-tooltip {
+  margin-top: 10px;
+  background: rgba(9,35,61,0.95);
+  border: 1px solid rgba(234,203,138,0.25);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.db-shensha-empty {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ---- 블록 6: AI 총운 ---- */
+.db-ai-box {
+  background: rgba(9,35,61,0.5);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.db-ai-headline {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-gold-300);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.db-ai-body {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.db-ai-more {
+  display: block;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-gold-600);
+  cursor: pointer;
+  text-align: right;
+  width: 100%;
+}
+
+.db-ai-extra {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(234,203,138,0.15);
+}
+
+/* ---- 블록 7: 대운 ---- */
+.db-dayun-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.db-dayun-item {
+  background: rgba(234,203,138,0.07);
+  border: 1px solid rgba(234,203,138,0.15);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 54px;
+}
+
+.db-dayun-item.is-current {
+  background: rgba(234,203,138,0.18);
+  border-color: rgba(234,203,138,0.5);
+}
+
+.db-dayun-gz {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--c-gold-300);
+}
+
+.db-dayun-age {
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+.db-dayun-year {
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+/* ---- 하단 네비 ---- */
+.db-bottomnav {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  background: rgba(9,23,56,0.9);
+  border-top: 1px solid rgba(234,203,138,0.12);
+  backdrop-filter: blur(12px);
+  padding: 8px 4px 10px;
+}
+
+.db-navitem {
+  flex: 1;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--text-disabled);
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.db-navitem.is-active {
+  color: var(--c-gold-300);
+  font-weight: 700;
+}
+
+.db-nav-ico {
+  font-size: 18px;
+  display: block;
+  filter: grayscale(0.7);
+  opacity: 0.6;
+}
+
+.db-navitem.is-active .db-nav-ico {
+  filter: none;
+  opacity: 1;
+}
+
+.db-navitem.is-center .db-nav-ico {
+  font-size: 20px;
+  background: rgba(234,203,138,0.15);
+  border: 1px solid rgba(234,203,138,0.3);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: none;
+  opacity: 1;
+  margin: 0 auto 2px;
+}
