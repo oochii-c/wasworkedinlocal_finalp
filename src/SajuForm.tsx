@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, type ChangeEvent, type ReactNode } from "react";
 import "./styles/saju.css";
+import { computeSaju, type SajuChart } from "./saju";
+import SajuReading, { type Story } from "./SajuReading";
 
 /* ============================================================
    SajuForm.tsx
@@ -285,14 +287,59 @@ export default function SajuForm() {
   const [date, setDate] = useState<SajuDateValue>({ year: 0, month: 0, day: 0 });
   const [time, setTime] = useState<SajuTimeValue>({ hour: 0, minute: 0 });
   const [timeUnknown, setTimeUnknown] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [chart, setChart] = useState<SajuChart | null>(null);
+  const [stories, setStories] = useState<Story[] | null>(null);
 
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-    // TODO: 실제 API 연결
-    console.log({ name, gender, calendarType, date, time, timeUnknown });
-    setTimeout(() => setIsSubmitting(false), 800);
+  const handleSubmit = async () => {
+    if (!date.year || !date.month || !date.day) {
+      setError("생년월일을 모두 입력해 주세요.");
+      return;
+    }
+
+    let computed: SajuChart;
+    try {
+      computed = computeSaju({ gender, calendarType, date, time, timeUnknown });
+    } catch {
+      setError("해당 날짜로 원국을 만들 수 없습니다. 윤달 여부·날짜를 확인해 주세요.");
+      return;
+    }
+
+    setError("");
+    setChart(computed);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/reading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, gender, chart: computed }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "풀이 생성 실패");
+      setStories(data.stories as Story[]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "풀이 생성 실패");
+      setChart(null);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (chart && stories) {
+    return (
+      <SajuReading
+        chart={chart}
+        stories={stories}
+        name={name}
+        timeUnknown={timeUnknown}
+        onBack={() => {
+          setChart(null);
+          setStories(null);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="saju-page">
@@ -335,9 +382,10 @@ export default function SajuForm() {
         />
 
         <InfoBanner timeUnknown={timeUnknown} />
+        {error && <div className="saju-info-error">{error}</div>}
       </section>
 
-      <SubmitButton loading={isSubmitting} onClick={handleSubmit} />
+      <SubmitButton loading={loading} disabled={loading} onClick={handleSubmit} />
     </div>
   );
 }

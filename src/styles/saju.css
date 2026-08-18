@@ -589,3 +589,56 @@
   background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
 }
 .saju-modal-row.is-selected td { color: #fff; font-weight: 600; }
+
+/* ---------- 유효성 에러 ---------- */
+.saju-info-error {
+  margin-top: clamp(8px, 2.2cqw, 11px);
+  background: #2A1010;
+  border: 1px solid var(--saju-red);
+  border-radius: var(--radius-input);
+  padding: clamp(8px, 2.4cqw, 12px) clamp(10px, 3cqw, 14px);
+  font-size: var(--fs-tiny);
+  line-height: 1.5;
+  color: #FCA5A5;
+}
+
+/* ---------- 원국 결과 표 ---------- */
+.saju-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--saju-text);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+.saju-chart-table th,
+.saju-chart-table td {
+  border: 1px solid rgba(102, 178, 214, 0.18);
+  padding: clamp(6px, 1.8cqw, 10px) clamp(4px, 1.4cqw, 8px);
+}
+.saju-chart-table thead th { color: var(--saju-gold); font-weight: 600; }
+.saju-chart-table tbody th { color: var(--saju-text-muted); font-weight: 500; }
+.saju-chart-ganzhi {
+  font-size: var(--fs-body, 1.1rem);
+  font-weight: 700;
+  color: var(--saju-gold);
+}
+
+/* ---------- 풀이 이야기 ---------- */
+.saju-story {
+  margin-bottom: clamp(14px, 3.6cqw, 22px);
+  padding-bottom: clamp(12px, 3cqw, 18px);
+  border-bottom: 1px solid rgba(102, 178, 214, 0.14);
+}
+.saju-story:last-child { border-bottom: none; }
+.saju-story-title {
+  color: var(--saju-gold);
+  font-size: var(--fs-body, 1.15rem);
+  font-weight: 700;
+  margin: 0 0 clamp(6px, 1.6cqw, 10px);
+}
+.saju-story-body {
+  color: var(--saju-text);
+  font-size: var(--fs-small);
+  line-height: 1.7;
+  margin: 0;
+}
