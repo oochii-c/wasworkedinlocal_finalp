@@ -1,12 +1,31 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 const API_KEY = process.env.OPENROUTER_API_KEY;
 const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-3.5-flash";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PILLARS_LOG = path.join(__dirname, "data", "pillars.jsonl");
+
+// 열람된 사주팔자(천간·지지)를 한 줄씩 누적 저장
+function savePillars({ name, gender, chart }) {
+  const record = {
+    ts: new Date().toISOString(),
+    name: name || "",
+    gender: gender || "",
+    baZi: chart.baZi,
+    pillars: chart.pillars.map((p) => ({ key: p.key, gan: p.gan, zhi: p.zhi })),
+  };
+  fs.mkdirSync(path.dirname(PILLARS_LOG), { recursive: true });
+  fs.appendFileSync(PILLARS_LOG, JSON.stringify(record) + "\n", "utf8");
+}
 
 const app = express();
 app.use(cors());
@@ -23,7 +42,7 @@ const GAN_WUXING = Object.fromEntries(Object.entries(GAN_INFO).map(([k, v]) => [
 function chartToText(chart) {
   const lines = chart.pillars.map(
     (p) =>
-      `${p.key}주: ${p.ganZhi} (천간 ${p.gan}[${GAN_WUXING[p.gan] || "?"}]/${p.shiShenGan}, 지지 ${p.zhi}, 지장간 ${p.hideGan.join(" ")}, 오행 ${p.wuXing}, 십이운성 ${p.diShi}, 납음 ${p.naYin})`
+      `${p.key}주: ${p.ganZhi} (천간 ${p.gan}[${GAN_WUXING[p.gan] || "?"}]/${p.shiShenGan}, 지지 ${p.zhi}, 지장간 ${(p.hideGan || []).join(" ")}, 오행 ${p.wuXing}, 십이운성 ${p.diShi}, 납음 ${p.naYin})`
   );
   const dayElem = GAN_WUXING[chart.dayGan] || "?";
   return `일간(나): ${chart.dayGan} (오행: ${dayElem}) · 띠: ${chart.shengXiao}\n팔자: ${chart.baZi.join(" ")}\n${lines.join("\n")}`;
@@ -49,11 +68,17 @@ app.post("/api/reading", async (req, res) => {
     return res.status(400).json({ error: "원국 데이터가 없습니다." });
   }
 
-  const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
-  const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다. 팔자에 등장하는 다른 천간(예: 辛, 壬 등)을 본인으로 착각하지 마라.`;
-  const userMsg = `${anchor}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+  try {
+    savePillars({ name, gender, chart });
+  } catch (e) {
+    console.error("팔자 저장 실패:", e);
+  }
 
   try {
+    const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
+    const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다. 팔자에 등장하는 다른 천간(예: 辛, 壬 등)을 본인으로 착각하지 마라.`;
+    const userMsg = `${anchor}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
