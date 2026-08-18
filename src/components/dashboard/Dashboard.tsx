@@ -7,7 +7,7 @@ import TenGodRadar from "./TenGodRadar";
 import ShenShaList from "./ShenShaList";
 import AiStories from "./AiStories";
 import DaYunFlow from "./DaYunFlow";
-import BottomNav from "./BottomNav";
+import BottomNav from "../BottomNav";
 
 export default function Dashboard(props: DashboardProps) {
   const { chart, stories, name, gender, date, time, timeUnknown, onBack } = props;
@@ -16,7 +16,7 @@ export default function Dashboard(props: DashboardProps) {
     <div className="db-page">
       {/* 상단 바 */}
       <header className="db-topbar">
-        <span className="db-logo">🔮 내 사주</span>
+        <span className="db-logo">용궁 · 사주 풀이</span>
         <button type="button" className="db-back-btn" onClick={onBack} aria-label="입력으로 돌아가기">
           ← 다시 입력
         </button>

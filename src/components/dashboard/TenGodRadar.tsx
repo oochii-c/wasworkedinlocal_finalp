@@ -4,8 +4,14 @@ interface Props {
   shiShenCount: Record<string, number>;
 }
 
-const CX = 84, CY = 80, R = 55;
-const LABELS_KR = ["비겁\n(자립)", "식상\n(표현)", "재성\n(현실)", "관성\n(책임)", "인성\n(공부)"];
+const CX = 90, CY = 84, R = 52;
+const LABELS_KR = [
+  ["비겁", "(자립)"],
+  ["식상", "(표현)"],
+  ["재성", "(현실)"],
+  ["관성", "(책임)"],
+  ["인성", "(공부)"],
+];
 
 function pentaPoint(cx: number, cy: number, r: number, i: number): [number, number] {
   const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
@@ -14,7 +20,8 @@ function pentaPoint(cx: number, cy: number, r: number, i: number): [number, numb
 
 function labelOffset(i: number): [number, number] {
   const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
-  return [Math.cos(angle) * 18, Math.sin(angle) * 16];
+  // 꼭짓점 바깥쪽으로 부드럽게 방사형 배치
+  return [Math.cos(angle) * 19, Math.sin(angle) * 16];
 }
 
 export default function TenGodRadar({ shiShenCount }: Props) {
@@ -30,7 +37,13 @@ export default function TenGodRadar({ shiShenCount }: Props) {
   return (
     <section className="db-section db-chart-section" aria-label="십성 레이더">
       <h3 className="db-section-title">십성 성향</h3>
-      <svg width="168" height="160" viewBox="0 0 168 160" aria-hidden="true">
+      <svg
+        width="100%"
+        height="auto"
+        viewBox="0 0 180 168"
+        style={{ display: "block", maxWidth: "200px" }}
+        aria-hidden="true"
+      >
         {/* 격자 레이어 */}
         {[0.25, 0.5, 0.75, 1].map(scale => (
           <polygon
@@ -44,40 +57,67 @@ export default function TenGodRadar({ shiShenCount }: Props) {
             strokeWidth="1"
           />
         ))}
-        {/* 축선 */}
+
+        {/* 방사형 축선 */}
         {SIPSHEN_LABELS.map((_, i) => {
           const [x, y] = pentaPoint(CX, CY, R, i);
-          return <line key={i} x1={CX} y1={CY} x2={x} y2={y} stroke="rgba(234,203,138,0.1)" strokeWidth="1" />;
+          return (
+            <line
+              key={i}
+              x1={CX}
+              y1={CY}
+              x2={x}
+              y2={y}
+              stroke="rgba(234,203,138,0.1)"
+              strokeWidth="1"
+            />
+          );
         })}
-        {/* 내부 채움 polygon */}
+
+        {/* 내부 채움 영역 */}
         <polygon
           points={innerStr}
-          fill="rgba(234,203,138,0.15)"
-          stroke="rgba(234,203,138,0.6)"
+          fill="rgba(234,203,138,0.16)"
+          stroke="rgba(234,203,138,0.7)"
           strokeWidth="1.5"
         />
+
         {/* 꼭짓점 점 */}
         {innerPts.map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r="3" fill="#EACB8A" />
         ))}
-        {/* 레이블 */}
+
+        {/* 십성 라벨 */}
         {SIPSHEN_LABELS.map((lbl, i) => {
           const [ox, oy] = labelOffset(i);
           const [bx, by] = pentaPoint(CX, CY, R, i);
-          const lines = LABELS_KR[i].split("\n");
+          const [title, sub] = LABELS_KR[i];
           return (
             <text
               key={lbl}
               x={bx + ox}
               y={by + oy}
-              fontSize="7"
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="rgba(155,184,203,0.9)"
             >
-              {lines.map((line, j) => (
-                <tspan key={j} x={bx + ox} dy={j === 0 ? 0 : 9}>{line}</tspan>
-              ))}
+              <tspan
+                x={bx + ox}
+                dy="-3"
+                fontSize="11"
+                fontWeight="700"
+                fill="#EACB8A"
+              >
+                {title}
+              </tspan>
+              <tspan
+                x={bx + ox}
+                dy="11.5"
+                fontSize="8.5"
+                fontWeight="400"
+                fill="rgba(184,206,224,0.8)"
+              >
+                {sub}
+              </tspan>
             </text>
           );
         })}

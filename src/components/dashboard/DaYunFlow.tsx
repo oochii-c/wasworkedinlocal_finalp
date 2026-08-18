@@ -223,7 +223,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
               />
               <circle cx={currentYearX} cy={H - PY} r={3} fill="#EACB8A" />
               <text x={currentYearX} y={PY - 3}
-                fontSize="8.5" textAnchor="middle" fill="#EACB8A" fontWeight="700">
+                fontSize="10" textAnchor="middle" fill="#EACB8A" fontWeight="700">
                 지금 {currentAge}세
               </text>
             </>
@@ -269,9 +269,9 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
           {/* X축 연도 레이블 */}
           {daYunAvgs.map((d, i) => (
             <text key={i} x={gPoints[i].x} y={H + 16}
-              fontSize="8" textAnchor="middle"
-              fill={i === selectedDaYunIdx ? "rgba(234,203,138,0.9)" : "rgba(184,206,224,0.4)"}
-              fontWeight={i === selectedDaYunIdx ? "700" : "400"}
+              fontSize="9.5" textAnchor="middle"
+              fill={i === selectedDaYunIdx ? "rgba(234,203,138,0.95)" : "rgba(184,206,224,0.6)"}
+              fontWeight={i === selectedDaYunIdx ? "700" : "500"}
               style={{ pointerEvents: "none" }}
             >
               {d.startYear}

@@ -1,100 +1,130 @@
 /* ============================================================
    dashboard.css — 용궁 사주 대시보드 전용 스타일
-   variables.css 토큰 계승
+   (SajuReading & saju.css 디자인 시스템 계승)
    ============================================================ */
 
 /* ---- 레이아웃 ---- */
 .db-page {
   min-height: 100dvh;
-  background: var(--c-navy-900);
+  background-color: #0A1428;
+  background-image: url("../../assets/img/background_vertical_v1r1.png");
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-attachment: local;
   display: flex;
   flex-direction: column;
-  font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
-  color: var(--text-primary);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  color: #EAF2FB;
   max-width: 480px;
   margin: 0 auto;
+  box-sizing: border-box;
+  position: relative;
 }
 
+/* 상단 탑바 (헤더 가독성 스크림 적용) */
 .db-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid rgba(234,203,138,0.12);
+  padding: 18px 20px 14px;
+  background: radial-gradient(
+    130% 100% at 50% 0%,
+    rgba(6, 14, 32, 0.88) 0%,
+    rgba(6, 14, 32, 0.6) 60%,
+    rgba(6, 14, 32, 0) 100%
+  );
+  border-bottom: 1px solid rgba(102, 178, 214, 0.12);
 }
 
 .db-logo {
+  font-family: "강원모루", "GangwonEdu", "Pretendard", sans-serif;
   font-weight: 700;
-  font-size: 15px;
-  color: var(--c-gold-300);
+  font-size: 19px;
+  color: #EACB8A;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 12px rgba(234, 203, 138, 0.35);
 }
 
 .db-back-btn {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 13px;
+  background: rgba(11, 31, 59, 0.7);
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  border-radius: 8px;
+  color: #B8CEE0;
+  font-size: 13.5px;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 5px 12px;
+  transition: all 0.15s ease;
+}
+
+.db-back-btn:hover {
+  background: rgba(19, 66, 100, 0.9);
+  color: #fff;
+  border-color: #EACB8A;
 }
 
 .db-main {
   flex: 1;
-  padding: 12px 14px 80px;
+  padding: 14px 16px 84px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   overflow-y: auto;
 }
 
-/* ---- 공통 섹션 카드 ---- */
+/* ---- 공통 섹션 카드 (SajuReading saju-section 박스 스타일) ---- */
 .db-section {
-  background: rgba(19,66,100,0.35);
-  border: 1px solid rgba(234,203,138,0.14);
-  border-radius: 14px;
-  padding: 14px;
-  backdrop-filter: blur(8px);
+  background: rgba(11, 31, 59, 0.62);
+  border: 1px solid #1E3A5A;
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06), 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .db-section-title {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
-  color: var(--c-gold-300);
-  margin-bottom: 12px;
+  color: #EACB8A;
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
-
 
 /* ---- 블록 1: 캐릭터 ---- */
 .db-character {
-  background: linear-gradient(135deg, rgba(11,39,68,0.6), rgba(19,66,100,0.4));
+  background: linear-gradient(135deg, rgba(11, 31, 59, 0.75), rgba(15, 36, 63, 0.6));
 }
 
 .db-char-row {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .db-hanja-card {
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   border-radius: 14px;
-  border: 1.5px solid;
+  border: 1.5px solid #1E3A5A;
+  background: rgba(8, 22, 44, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: inset 0 0 14px rgba(102, 178, 214, 0.08);
 }
 
 .db-hanja {
   font-size: 42px;
   font-weight: 700;
-  color: var(--c-gold-300);
+  color: #EACB8A;
   line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .db-char-meta {
@@ -102,16 +132,17 @@
 }
 
 .db-char-type {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #EAF2FB;
   margin-bottom: 6px;
   line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .db-char-tags {
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: #B8CEE0;
   line-height: 1.6;
 }
 
@@ -122,12 +153,12 @@
 
 .db-fields span {
   flex: 1;
-  background: rgba(234,203,138,0.07);
-  border: 1px solid rgba(234,203,138,0.15);
-  border-radius: 7px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  padding: 6px 4px;
+  background: rgba(15, 36, 63, 0.85);
+  border: 1px solid #1E3A5A;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #B8CEE0;
+  padding: 8px 4px;
   text-align: center;
 }
 
@@ -140,19 +171,21 @@
 }
 
 .db-wg-head {
-  font-size: 13px;
-  color: var(--text-secondary);
-  padding-bottom: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #B8CEE0;
+  padding-bottom: 6px;
 }
 
 .db-wg-cell {
-  border: 1px solid;
+  border: 1px solid #1E3A5A;
   border-radius: 8px;
-  padding: 10px 4px 9px;
+  padding: 12px 4px 10px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 0 12px rgba(102, 178, 214, 0.04);
 }
 
 .db-wg-hanja-box {
@@ -166,13 +199,14 @@
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .db-wg-dok {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--c-gold-300);
-  opacity: 0.85;
+  color: #EACB8A;
+  opacity: 0.9;
   margin-left: 2px;
   line-height: 1;
 }
@@ -186,6 +220,7 @@
 .db-row2 .db-section {
   flex: 1;
   min-width: 0;
+  padding: 14px 12px;
 }
 
 .db-chart-section {
@@ -194,88 +229,101 @@
   align-items: center;
 }
 
+.db-chart-section .db-section-title {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
 
 /* ---- 블록 5: 신살 ---- */
 .db-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 8px;
 }
 
 .db-badge {
-  background: rgba(234,203,138,0.1);
-  border: 1px solid rgba(234,203,138,0.35);
+  background: rgba(15, 36, 63, 0.85);
+  border: 1px solid rgba(234, 203, 138, 0.35);
   border-radius: 14px;
-  padding: 6px 14px;
-  font-size: 14px;
-  color: var(--c-gold-300);
+  padding: 7px 14px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #EACB8A;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s ease;
 }
 
 .db-badge.is-active,
 .db-badge:hover {
-  background: rgba(234,203,138,0.22);
+  background: linear-gradient(180deg, #134264, #1E6E93);
+  border-color: #EACB8A;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px #EACB8A;
 }
 
 .db-tooltip {
-  margin-top: 10px;
-  background: rgba(9,35,61,0.95);
-  border: 1px solid rgba(234,203,138,0.25);
+  margin-top: 12px;
+  background: rgba(8, 22, 44, 0.95);
+  border: 1px solid rgba(234, 203, 138, 0.35);
   border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--text-primary);
-  line-height: 1.5;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #EAF2FB;
+  line-height: 1.6;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 .db-shensha-empty {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: #B8CEE0;
 }
 
 /* ---- 블록 6: AI 총운 ---- */
 .db-ai-box {
-  background: rgba(9,35,61,0.5);
-  border-radius: 10px;
-  padding: 12px;
+  background: rgba(8, 22, 44, 0.7);
+  border: 1px solid #1E3A5A;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: inset 0 0 16px rgba(102, 178, 214, 0.04);
 }
 
 .db-ai-headline {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--c-gold-300);
-  margin-bottom: 8px;
+  color: #EACB8A;
+  margin-bottom: 10px;
   line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 .db-ai-body {
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.7;
+  font-size: 14.5px;
+  color: #EAF2FB;
+  line-height: 1.75;
+  word-break: keep-all;
 }
 
 .db-ai-more {
   display: block;
-  margin-top: 10px;
+  margin-top: 12px;
   background: none;
   border: none;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--c-gold-600);
+  color: #FFD67A;
   cursor: pointer;
   text-align: right;
   width: 100%;
+  padding: 4px 0;
 }
 
 .db-ai-extra {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(234,203,138,0.15);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(102, 178, 214, 0.2);
 }
 
 /* ---- 블록 7: 대운 그래프 ---- */
-
 .db-dayun-graph-wrap {
   margin: 0 -4px;
   cursor: pointer;
@@ -283,30 +331,38 @@
 
 /* 선택 연도 카드 */
 .db-dayun-card {
-  margin-top: 10px;
-  background: rgba(234,203,138,0.07);
-  border: 1px solid rgba(234,203,138,0.25);
-  border-radius: 10px;
-  padding: 12px 14px;
+  margin-top: 12px;
+  background: rgba(8, 22, 44, 0.7);
+  border: 1px solid #1E3A5A;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: inset 0 0 16px rgba(102, 178, 214, 0.04);
 }
 
 .db-dayun-year-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
 .db-dayun-nav-btn {
-  background: none;
-  border: 1px solid rgba(234,203,138,0.3);
-  border-radius: 5px;
-  color: var(--c-gold-300);
-  font-size: 14px;
-  padding: 2px 8px;
+  background: rgba(15, 36, 63, 0.8);
+  border: 1px solid rgba(234, 203, 138, 0.35);
+  border-radius: 6px;
+  color: #EACB8A;
+  font-size: 16px;
+  padding: 3px 10px;
   cursor: pointer;
   flex-shrink: 0;
-  line-height: 1.4;
+  line-height: 1.3;
+  transition: all 0.12s ease;
+}
+
+.db-dayun-nav-btn:hover:not(:disabled) {
+  background: #134264;
+  color: #fff;
+  border-color: #EACB8A;
 }
 
 .db-dayun-nav-btn:disabled {
@@ -315,39 +371,41 @@
 }
 
 .db-dayun-card-year {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #EAF2FB;
   flex: 1;
 }
 
 .db-dayun-stars {
-  color: var(--c-gold-300);
+  color: #EACB8A;
   letter-spacing: 1px;
+  font-size: 15px;
 }
 
 .db-dayun-card-basis {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
+  font-size: 13.5px;
+  color: #B8CEE0;
+  margin-bottom: 10px;
 }
 
 .db-dayun-card-text {
-  font-size: 13px;
-  color: var(--text-primary);
+  font-size: 14.5px;
+  color: #EAF2FB;
   line-height: 1.7;
   margin-bottom: 10px;
-  /* 3줄 고정 — 내용 길이와 무관하게 카드 크기 유지 */
-  height: calc(13px * 1.7 * 3);
+  /* 3줄 고정 */
+  height: calc(14.5px * 1.7 * 3);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  word-break: keep-all;
 }
 
 .db-dayun-fortune-loading {
-  color: var(--text-secondary);
-  font-size: 12px;
+  color: #B8CEE0;
+  font-size: 14px;
   font-style: italic;
 }
 
@@ -355,24 +413,38 @@
   display: block;
   background: none;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  color: rgba(234,203,138,0.7);
+  color: #EACB8A;
   cursor: pointer;
   text-align: right;
   width: 100%;
-  padding: 0;
+  padding: 2px 0;
+  opacity: 0.85;
 }
 
-/* ---- 하단 네비 ---- */
+.db-dayun-detail-btn:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* ---- 하단 네비게이션 ---- */
 .db-bottomnav {
   position: sticky;
   bottom: 0;
   display: flex;
-  background: rgba(9,23,56,0.9);
-  border-top: 1px solid rgba(234,203,138,0.12);
-  backdrop-filter: blur(12px);
-  padding: 8px 4px 10px;
+  align-items: flex-end;
+  background: radial-gradient(
+    100% 120% at 50% 100%,
+    rgba(6, 14, 32, 0.96) 0%,
+    rgba(9, 23, 56, 0.94) 70%,
+    rgba(11, 31, 59, 0.92) 100%
+  );
+  border-top: 1px solid rgba(102, 178, 214, 0.18);
+  backdrop-filter: blur(16px);
+  padding: 6px 4px 14px;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45);
+  z-index: 50;
 }
 
 .db-navitem {
@@ -382,41 +454,80 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  font-size: 10px;
-  color: var(--text-disabled);
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8CA8C0;
   cursor: pointer;
-  padding: 2px 0;
+  padding: 4px 0;
+  transition: all 0.2s ease;
+}
+
+.db-navitem:hover {
+  color: #B8CEE0;
 }
 
 .db-navitem.is-active {
-  color: var(--c-gold-300);
+  color: #EACB8A;
   font-weight: 700;
 }
 
 .db-nav-ico {
-  font-size: 18px;
-  display: block;
-  filter: grayscale(0.7);
-  opacity: 0.6;
-}
-
-.db-navitem.is-active .db-nav-ico {
-  filter: none;
-  opacity: 1;
-}
-
-.db-navitem.is-center .db-nav-ico {
-  font-size: 20px;
-  background: rgba(234,203,138,0.15);
-  border: 1px solid rgba(234,203,138,0.3);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: none;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.db-navitem.is-active .db-nav-ico {
   opacity: 1;
-  margin: 0 auto 2px;
+  color: #EACB8A;
+  filter: drop-shadow(0 0 6px rgba(234, 203, 138, 0.5));
+}
+
+.db-nav-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* ---- 중앙 여의주(AI 상담) 돌출 버튼 ---- */
+.db-navitem.is-center {
+  margin-top: -24px;
+  position: relative;
+  gap: 3px;
+}
+
+.db-navitem.is-center .yeouiju-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFE082 0%, #EACB8A 35%, #1E6E93 80%, #0B1F3B 100%);
+  border: 1.5px solid #FFD67A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 0 22px rgba(234, 203, 138, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.65),
+    inset 0 0 8px rgba(255, 255, 255, 0.55);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  position: relative;
+}
+
+.db-navitem.is-center:hover .yeouiju-btn,
+.db-navitem.is-center.is-active .yeouiju-btn {
+  transform: scale(1.08) translateY(-3px);
+  box-shadow: 
+    0 0 28px rgba(234, 203, 138, 0.8),
+    0 8px 20px rgba(0, 0, 0, 0.75),
+    inset 0 0 12px rgba(255, 255, 255, 0.75);
+}
+
+.db-navitem.is-center .db-nav-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #EACB8A;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
