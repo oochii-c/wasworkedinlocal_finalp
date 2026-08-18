@@ -1,18 +1,12 @@
-interface DaYun {
-  ganZhi: string;
-  startAge: number;
-  startYear: number;
-}
+import { type DaYunInfo } from "../../saju";
 
 interface Props {
-  daYun: DaYun[];
+  daYun: DaYunInfo[];
   birthYear: number;
 }
 
-const CURRENT_YEAR = 2026;
-
 export default function DaYunFlow({ daYun, birthYear }: Props) {
-  const currentAge = CURRENT_YEAR - birthYear;
+  const currentAge = new Date().getFullYear() - birthYear;
 
   return (
     <section className="db-section" aria-label="대운 흐름">
