@@ -302,7 +302,12 @@ export default function SajuForm() {
     }
 
     setError("");
+    setStories(null);
     setChart(computed);
+    fetchReading(computed);
+  };
+
+  const fetchReading = async (computed: SajuExtended) => {
     setLoading(true);
     try {
       const res = await fetch("/api/reading", {
@@ -313,19 +318,22 @@ export default function SajuForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "풀이 생성 실패");
       setStories(data.stories as Story[]);
+      setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "풀이 생성 실패");
-      setChart(null);
+      setStories(null);
     } finally {
       setLoading(false);
     }
   };
 
-  if (chart && stories) {
+  if (chart) {
     return (
       <Dashboard
         chart={chart}
         stories={stories}
+        loading={loading}
+        onRetry={() => fetchReading(chart)}
         name={name}
         gender={gender}
         date={date}

@@ -5,7 +5,9 @@ export type { SajuExtended, Story };
 
 export interface DashboardProps {
   chart: SajuExtended;
-  stories: Story[];
+  stories: Story[] | null;
+  loading?: boolean;
+  onRetry?: () => void;
   name: string;
   gender: string;
   date: { year: number; month: number; day: number };

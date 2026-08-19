@@ -196,11 +196,11 @@
 }
 .saju-pill-group--framed {
   aspect-ratio: 640 / 94;
-  background: #0A0E14;
+  background: rgba(152, 204, 255, 0.3);
   border: 1px solid #1E3A5A;
   border-radius: var(--radius-card);
   overflow: hidden;
-  padding: clamp(4px, 1.2cqw, 6px);
+  padding: 0;
   gap: clamp(4px, 1.2cqw, 6px);
 }
 .saju-pill-group--framed .saju-pill {
@@ -208,7 +208,7 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-input);
-  color: var(--saju-text-muted);
+  color: #ffffff;
   font-size: var(--fs-body);
   font-weight: 600;
   cursor: pointer;
