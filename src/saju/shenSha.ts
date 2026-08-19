@@ -75,6 +75,13 @@ export const SHENSHA_HANJA: Record<string, string> = {
   백호살:   "白虎殺",
   괴강살:   "魁罡殺",
   공망:     "空亡",
+  태극귀인: "太極貴人",
+  현침살:   "懸針殺",
+  낙정관살: "落井關殺",
+  귀문관살: "鬼門關殺",
+  원진살:   "怨嗔殺",
+  학당귀인: "學堂貴人",
+  천의성:   "天醫星",
 };
 
 export const SHENSHA_DESC: Record<string, string> = {
@@ -102,6 +109,13 @@ export const SHENSHA_DESC: Record<string, string> = {
   백호살:   "강한 집중력과 폭발력. 결단력이 탁월하며 돌발 상황에 주의하면 대성해요.",
   괴강살:   "우두머리의 기질과 강한 리더십. 총명하고 결단력이 있어 큰일을 해내요.",
   공망:     "기운이 비어있는 자리. 세속적 욕심을 비우고 독창적인 길을 가면 유리해요.",
+  태극귀인: "천지 음양의 기운을 온전히 갖춘 길성. 큰 위기에서도 반드시 재기하는 강한 회복력이 있어요.",
+  현침살:   "날카로운 바늘처럼 예민하고 섬세한 기운. 의료·예술·기술 분야에서 두각을 나타낼 수 있어요.",
+  낙정관살: "뜻밖의 구설이나 함정에 빠질 수 있는 기운. 언행과 처신을 신중히 하면 화를 피할 수 있어요.",
+  귀문관살: "신비롭고 독특한 사고방식. 직관과 예감이 뛰어나며 종교·철학·심리 분야에 강한 기질이 있어요.",
+  원진살:   "서로 끌리면서도 갈등하는 기운. 가까운 사람과 오해와 감정 충돌이 생기기 쉬우니 소통이 중요해요.",
+  학당귀인: "학문과 배움의 복이 따르는 길성. 공부·교육·연구 분야에서 성과를 내기 쉬워요.",
+  천의성:   "치유와 의료의 기운. 남을 돕고 치료하는 적성이 있으며 의료·상담 분야에 인연이 있어요.",
 };
 
 export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
@@ -212,6 +226,64 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
   // 공망: 연간지의 순중공망 지지가 월/일/시 지지에 있으면 성립
   const kongWang = calcKongWang(yearGan, yearZhi);
   if (kongWang.some(k => otherZhis.includes(k))) push("공망");
+
+  // ── 6. 일주(日柱) 기준 길성 ──
+
+  // 태극귀인: 일주가 천지 음양의 기운이 극대화되는 특정 60갑자에 해당
+  const TAEGEUK_ILJU = [
+    "甲子","甲午","甲申","甲寅",
+    "丙子","丙午","丙申","丙寅",
+    "戊子","戊午","戊申","戊寅",
+    "庚子","庚午","庚申","庚寅",
+    "壬子","壬午","壬申","壬寅",
+  ];
+  if (TAEGEUK_ILJU.includes(pillars[2]?.ganZhi ?? "")) push("태극귀인");
+
+  // ── 7. 천간(天干) 기준 신살 ──
+
+  // 현침살: 4기둥 천간에 甲·辛·丁 중 하나라도 있으면 성립 (바늘 형태 천간)
+  const HYUNCHIM_GAN = ["甲","辛","丁"];
+  if (allGans.some(g => HYUNCHIM_GAN.includes(g))) push("현침살");
+
+  // ── 8. 월지(月支) 기준 신살 추가 ──
+
+  // 낙정관살: 가을·겨울月(申~丑)이면 巳·午, 봄·여름月(寅~未)이면 子·亥가 4기둥에 있으면 성립
+  const NACKJEONG_DARK = ["申","酉","戌","亥","子","丑"];
+  const NACKJEONG_LIGHT = ["寅","卯","辰","巳","午","未"];
+  if (
+    (NACKJEONG_DARK.includes(monthZhi)  && allZhis.some(z => ["巳","午"].includes(z))) ||
+    (NACKJEONG_LIGHT.includes(monthZhi) && allZhis.some(z => ["子","亥"].includes(z)))
+  ) push("낙정관살");
+
+  // 천의성: 월지의 대칭 지지가 4기둥에 있으면 성립 (치유·의료 기운)
+  const CHEONUI: Record<string, string> = {
+    子:"丑", 丑:"子", 寅:"亥", 卯:"戌",
+    辰:"酉", 巳:"申", 午:"未", 未:"午",
+    申:"巳", 酉:"辰", 戌:"卯", 亥:"寅",
+  };
+  if (CHEONUI[monthZhi] && allZhis.includes(CHEONUI[monthZhi])) push("천의성");
+
+  // ── 9. 지지(地支) 조합 신살 ──
+
+  // 귀문관살: 4기둥에 특정 지지 쌍이 공존하면 성립 (신비·직관의 기운)
+  const GWIMUN_PAIRS: [string,string][] = [
+    ["子","酉"],["丑","午"],["寅","未"],["卯","申"],["辰","亥"],["巳","戌"],
+  ];
+  if (GWIMUN_PAIRS.some(([a,b]) => allZhis.includes(a) && allZhis.includes(b))) push("귀문관살");
+
+  // 원진살: 4기둥에 특정 지지 쌍이 공존하면 성립 (갈등·반목의 기운)
+  const WONJIN_PAIRS: [string,string][] = [
+    ["子","未"],["丑","午"],["寅","酉"],["卯","申"],["辰","亥"],["巳","戌"],
+  ];
+  if (WONJIN_PAIRS.some(([a,b]) => allZhis.includes(a) && allZhis.includes(b))) push("원진살");
+
+  // 학당귀인: 일간에 따른 학문의 지지가 4기둥에 있으면 성립
+  const HAKDANG: Record<string,string> = {
+    甲:"亥", 乙:"午", 丙:"寅", 丁:"酉",
+    戊:"申", 己:"卯", 庚:"巳", 辛:"子",
+    壬:"申", 癸:"卯",
+  };
+  if (HAKDANG[dayGan] && allZhis.includes(HAKDANG[dayGan])) push("학당귀인");
 
   return result;
 }
