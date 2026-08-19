@@ -3,6 +3,12 @@
    (SajuReading & saju.css 디자인 시스템 계승)
    ============================================================ */
 
+/* ---- 오행 버블 회전 링 애니메이션 ---- */
+@keyframes el-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* ---- 레이아웃 ---- */
 .db-page {
   min-height: 100dvh;
