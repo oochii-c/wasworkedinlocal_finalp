@@ -58,43 +58,32 @@
   box-sizing: border-box;
   padding: var(--pad-top) var(--pad-x) clamp(24px, 7cqw, 40px);
   color: var(--saju-text);
-  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  font-family: "ChosunSg", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
 
   background-color: #0A1428;
-  background-image: url("../assets/img/background_vertical_v1r1.png");
-  background-size: cover;
-  background-position: top center;
-  background-repeat: no-repeat;
-  background-attachment: local;
+  background-image:
+    linear-gradient(180deg, rgba(6, 14, 32, 0.96) 0%, rgba(6, 14, 32, 0.6) 30%, rgba(6, 14, 32, 0) 55%),
+    url("../assets/img/background_vertical_v1r1.png");
+  background-size: 100% 340px, cover;
+  background-position: top center, top center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: local, local;
 }
 
 /* ---------- 헤더 ---------- */
 .saju-header {
-  /* 상단 밝은 광선 배경 위 텍스트 가독성용 스크림. 페이지 상·좌·우 끝까지 번지게. */
   margin-top: calc(-1 * var(--pad-top));
   margin-inline: calc(-1 * var(--pad-x));
   padding: var(--pad-top) var(--pad-x) clamp(20px, 6cqw, 34px);
-  margin-bottom: clamp(18px, 5.5cqw, 32px);
+  margin-bottom: clamp(10px, 3cqw, 18px);
   text-align: center;
-  background: radial-gradient(
-    130% 100% at 50% 0%,
-    rgba(6, 14, 32, 0.85) 0%,
-    rgba(6, 14, 32, 0.5) 55%,
-    rgba(6, 14, 32, 0) 100%
-  );
 }
 .saju-brand {
-  font-family: "강원모루", "GangwonEdu", "Pretendard", sans-serif;
-  font-size: clamp(24px, 8cqw, 40px);
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  color: var(--saju-gold);
   margin-bottom: clamp(6px, 2cqw, 12px);
-  text-shadow: 0 2px 14px rgba(234, 203, 138, 0.35);
 }
 .saju-header h1 {
-  font-family: "강원모루", "GangwonEdu", "Pretendard", sans-serif;
-  font-size: var(--fs-title);
+  font-family: "BMYeonSung", "Pretendard", sans-serif;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1.3;
   margin: 0 0 clamp(5px, 1.6cqw, 10px);
@@ -102,8 +91,9 @@
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 .saju-header p {
-  font-size: var(--fs-small);
-  color: var(--saju-text-muted);
+  font-family: "BMYeonSung", "Pretendard", sans-serif;
+  font-size: 24px;
+  color: var(--saju-text);
   margin: 0;
 }
 
@@ -126,7 +116,7 @@
   margin-bottom: clamp(9px, 2.8cqw, 16px);
 }
 .saju-section-title-row h3 {
-  font-size: var(--fs-h3);
+  font-size: 17px;
   font-weight: 600;
   margin: 0;
 }
@@ -166,10 +156,9 @@
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background-image: var(--svg-text-default);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  border: none;
+  background: rgba(152, 204, 255, 0.2);
+  border: 1px solid #7FB0D8;
+  border-radius: 16px;
   outline: none;
   font-size: var(--fs-body);
   /* 색/굵기는 .saju-field-text 에서 강제 (아래 합성 선택자로 보강) */
@@ -298,10 +287,9 @@
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background-image: var(--svg-select-closed);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  border: none;
+  background: rgba(152, 204, 255, 0.3);
+  border: 1px solid #7FB0D8;
+  border-radius: 16px;
   outline: none;
   color: #ffffff;
   -webkit-text-fill-color: #ffffff;
@@ -431,6 +419,21 @@
   display: flex;
   align-items: center;
   gap: clamp(5px, 1.8cqw, 9px);
+}
+.saju-time-unknown-box {
+  flex: 2;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(40px, 12cqw, 52px);
+  background: rgba(152, 204, 255, 0.3);
+  border: 1px solid #7FB0D8;
+  border-radius: 16px;
+  color: #EAF2FB;
+  font-weight: 600;
+  font-size: clamp(13px, 3.6cqw, 16px);
+  text-align: center;
 }
 .saju-time-trigger {
   flex: 1;
