@@ -82,6 +82,8 @@ export const SHENSHA_HANJA: Record<string, string> = {
   원진살:   "怨嗔殺",
   학당귀인: "學堂貴人",
   천의성:   "天醫星",
+  고란살:   "孤鸞殺",
+  협록:     "夾祿",
 };
 
 export const SHENSHA_DESC: Record<string, string> = {
@@ -116,6 +118,8 @@ export const SHENSHA_DESC: Record<string, string> = {
   원진살:   "서로 끌리면서도 갈등하는 기운. 가까운 사람과 오해와 감정 충돌이 생기기 쉬우니 소통이 중요해요.",
   학당귀인: "학문과 배움의 복이 따르는 길성. 공부·교육·연구 분야에서 성과를 내기 쉬워요.",
   천의성:   "치유와 의료의 기운. 남을 돕고 치료하는 적성이 있으며 의료·상담 분야에 인연이 있어요.",
+  고란살:   "배우자와 인연이 늦거나 독립적인 삶을 걷는 기운. 자유로운 개인 영역을 소중히 여겨요.",
+  협록:     "일간의 록이 사주 안에 숨겨진 길성. 겉으로 드러나진 않지만 든든한 내공과 재력이 쌓여요.",
 };
 
 export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
@@ -247,13 +251,15 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
 
   // ── 8. 월지(月支) 기준 신살 추가 ──
 
-  // 낙정관살: 가을·겨울月(申~丑)이면 巳·午, 봄·여름月(寅~未)이면 子·亥가 4기둥에 있으면 성립
-  const NACKJEONG_DARK = ["申","酉","戌","亥","子","丑"];
-  const NACKJEONG_LIGHT = ["寅","卯","辰","巳","午","未"];
-  if (
-    (NACKJEONG_DARK.includes(monthZhi)  && allZhis.some(z => ["巳","午"].includes(z))) ||
-    (NACKJEONG_LIGHT.includes(monthZhi) && allZhis.some(z => ["子","亥"].includes(z)))
-  ) push("낙정관살");
+  // 낙정관살: 일간을 기준으로 정해진 지지가 4기둥 지지에 있으면 성립 (일간 기준 표준 공식)
+  const NACKJEONG_ILGAN: Record<string, string> = {
+    甲:"巳", 己:"巳",
+    乙:"子", 庚:"子",
+    丙:"申", 辛:"申",
+    丁:"戌", 壬:"戌",
+    戊:"卯", 癸:"卯",
+  };
+  if (NACKJEONG_ILGAN[dayGan] && allZhis.includes(NACKJEONG_ILGAN[dayGan])) push("낙정관살");
 
   // 천의성: 월지의 대칭 지지가 4기둥에 있으면 성립 (치유·의료 기운)
   const CHEONUI: Record<string, string> = {
@@ -284,6 +290,26 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
     壬:"申", 癸:"卯",
   };
   if (HAKDANG[dayGan] && allZhis.includes(HAKDANG[dayGan])) push("학당귀인");
+
+  // ── 10. 일주(日柱) 기준 추가 신살 ──
+
+  // 고란살: 특정 일주에 해당하면 성립 (배우자 인연이 늦거나 독립적 기질)
+  const GORAN_ILJU = ["甲寅","乙巳","丙午","丁巳","戊午","戊申","辛亥","壬子","壬申","癸亥"];
+  if (GORAN_ILJU.includes(pillars[2]?.ganZhi ?? "")) push("고란살");
+
+  // 협록: 일간의 록지(祿地)가 4기둥에서 인접한 두 지지 사이에 끼어있으면 성립
+  const ROKJI: Record<string,string> = {
+    甲:"寅", 乙:"卯", 丙:"巳", 丁:"午",
+    戊:"巳", 己:"午", 庚:"申", 辛:"酉",
+    壬:"亥", 癸:"子",
+  };
+  const rokZhi = ROKJI[dayGan];
+  if (rokZhi) {
+    const zi = ZHI_LIST.indexOf(rokZhi);
+    const prev = ZHI_LIST[(zi - 1 + 12) % 12];
+    const next = ZHI_LIST[(zi + 1) % 12];
+    if (allZhis.includes(prev) && allZhis.includes(next)) push("협록");
+  }
 
   return result;
 }
