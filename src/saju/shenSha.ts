@@ -231,17 +231,17 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
   const kongWang = calcKongWang(yearGan, yearZhi);
   if (kongWang.some(k => otherZhis.includes(k))) push("공망");
 
-  // ── 6. 일주(日柱) 기준 길성 ──
+  // ── 6. 일간(日干) 기준 길성 ──
 
-  // 태극귀인: 일주가 천지 음양의 기운이 극대화되는 특정 60갑자에 해당
-  const TAEGEUK_ILJU = [
-    "甲子","甲午","甲申","甲寅",
-    "丙子","丙午","丙申","丙寅",
-    "戊子","戊午","戊申","戊寅",
-    "庚子","庚午","庚申","庚寅",
-    "壬子","壬午","壬申","壬寅",
-  ];
-  if (TAEGEUK_ILJU.includes(pillars[2]?.ganZhi ?? "")) push("태극귀인");
+  // 태극귀인: 일간에 따라 정해진 지지가 4기둥 지지에 있으면 성립 (일간 기준 표준 공식)
+  const TAEGEUK_ILGAN: Record<string, string[]> = {
+    甲: ["子","午"], 乙: ["子","午"],
+    丙: ["卯","酉"], 丁: ["卯","酉"],
+    戊: ["辰","戌","丑","未"], 己: ["辰","戌","丑","未"],
+    庚: ["寅","亥"], 辛: ["寅","亥"],
+    壬: ["巳","申"], 癸: ["巳","申"],
+  };
+  if ((TAEGEUK_ILGAN[dayGan] ?? []).some(z => allZhis.includes(z))) push("태극귀인");
 
   // ── 7. 천간(天干) 기준 신살 ──
 
