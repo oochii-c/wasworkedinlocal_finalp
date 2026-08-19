@@ -139,23 +139,20 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
     }
   }
 
-  // ── 1. 삼합국 기반 12신살 (월/일/시 지지 판별) ──
-  const group = sanHapGroup(yearZhi);
-  if (group) {
-    const m = SHISHA_ZHI[group];
-    if (otherZhis.includes(m["지살"]))   push("지살");
-    if (otherZhis.includes(m["년살"]))   push("도화살");   // 년살 = 도화살
-    if (otherZhis.includes(m["월살"]))   push("월살");
-    if (otherZhis.includes(m["망신살"])) push("망신살");
-    if (otherZhis.includes(m["장성살"])) push("장성살");
-    if (otherZhis.includes(m["반안살"])) push("반안살");
-    if (otherZhis.includes(m["역마살"])) push("역마살");
-    if (otherZhis.includes(m["육해살"])) push("육해살");
-    if (otherZhis.includes(m["화개살"])) push("화개살");
-    if (otherZhis.includes(m["겁살"]))   push("겁살");
-    if (otherZhis.includes(m["재살"]))   push("재살");
-    if (otherZhis.includes(m["천살"]))   push("천살");
+  // ── 1. 삼합국 기반 12신살 (연지 + 일지 두 기준, 만세력 앱과 동일 방식) ──
+  const dayZhi = pillars[2]?.zhi ?? "";
+  // 12신살 키 → 표시 이름 (년살은 도화살로 표기)
+  const SHISHA_NAME: Record<string, string> = { 년살: "도화살" };
+  function applyShiSha(refZhi: string) {
+    const g = sanHapGroup(refZhi);
+    if (!g) return;
+    const m = SHISHA_ZHI[g];
+    for (const [key, zhi] of Object.entries(m)) {
+      if (allZhis.includes(zhi)) push(SHISHA_NAME[key] ?? key);
+    }
   }
+  applyShiSha(yearZhi);  // 연지 기준
+  applyShiSha(dayZhi);   // 일지 기준
 
   // ── 2. 일간(日干) 기준 길성 & 신살 ──
 
