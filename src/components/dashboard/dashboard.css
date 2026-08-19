@@ -3,6 +3,12 @@
    (SajuReading & saju.css 디자인 시스템 계승)
    ============================================================ */
 
+/* ---- 오행 버블 회전 링 애니메이션 ---- */
+@keyframes el-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* ---- 레이아웃 ---- */
 .db-page {
   min-height: 100dvh;
@@ -15,7 +21,7 @@
   display: flex;
   flex-direction: column;
   font-family: "ChosunSg", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
-  color: #EAF2FB;
+  color: var(--saju-text);
   max-width: 480px;
   margin: 0 auto;
   box-sizing: border-box;
@@ -41,7 +47,7 @@
   font-family: "BMYeonSung", "Pretendard", sans-serif;
   font-weight: 700;
   font-size: 19px;
-  color: #EACB8A;
+  color: var(--saju-gold);
   letter-spacing: 0.05em;
   text-shadow: 0 2px 12px rgba(234, 203, 138, 0.35);
 }
@@ -50,7 +56,7 @@
   background: rgba(11, 31, 59, 0.7);
   border: 1px solid rgba(102, 178, 214, 0.25);
   border-radius: 8px;
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
   font-size: 13.5px;
   cursor: pointer;
   padding: 5px 12px;
@@ -60,7 +66,7 @@
 .db-back-btn:hover {
   background: rgba(19, 66, 100, 0.9);
   color: #fff;
-  border-color: #EACB8A;
+  border-color: var(--saju-gold);
 }
 
 .db-main {
@@ -85,7 +91,7 @@
 .db-section-title {
   font-size: 17px;
   font-weight: 700;
-  color: #EACB8A;
+  color: var(--saju-gold);
   margin-bottom: 14px;
   display: flex;
   align-items: center;
@@ -123,7 +129,7 @@
   font-family: "Zen Maru Gothic", serif;
   font-size: 42px;
   font-weight: 700;
-  color: #EACB8A;
+  color: var(--saju-gold);
   line-height: 1;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
@@ -135,7 +141,7 @@
 .db-char-type {
   font-size: 17px;
   font-weight: 700;
-  color: #EAF2FB;
+  color: var(--saju-text);
   margin-bottom: 6px;
   line-height: 1.4;
   letter-spacing: -0.01em;
@@ -143,7 +149,7 @@
 
 .db-char-tags {
   font-size: 14px;
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
   line-height: 1.6;
 }
 
@@ -158,7 +164,7 @@
   border: 1px solid #1E3A5A;
   border-radius: 8px;
   font-size: 13.5px;
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
   padding: 8px 4px;
   text-align: center;
 }
@@ -174,7 +180,7 @@
 .db-wg-head {
   font-size: 14px;
   font-weight: 600;
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
   padding-bottom: 6px;
 }
 
@@ -207,7 +213,7 @@
 .db-wg-dok {
   font-size: 13px;
   font-weight: 600;
-  color: #EACB8A;
+  color: var(--saju-gold);
   opacity: 0.9;
   margin-left: 2px;
   line-height: 1;
@@ -250,17 +256,17 @@
   padding: 7px 14px;
   font-size: 14.5px;
   font-weight: 500;
-  color: #EACB8A;
+  color: var(--saju-gold);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .db-badge.is-active,
 .db-badge:hover {
-  background: linear-gradient(180deg, #134264, #1E6E93);
-  border-color: #EACB8A;
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  border-color: var(--saju-gold);
   color: #ffffff;
-  box-shadow: inset 0 0 0 1px #EACB8A;
+  box-shadow: inset 0 0 0 1px var(--saju-gold);
 }
 
 .db-tooltip {
@@ -270,14 +276,14 @@
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 14px;
-  color: #EAF2FB;
+  color: var(--saju-text);
   line-height: 1.6;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 .db-shensha-empty {
   font-size: 14px;
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
 }
 
 /* ---- 블록 6: AI 총운 ---- */
@@ -292,7 +298,7 @@
 .db-ai-headline {
   font-size: 16px;
   font-weight: 700;
-  color: #EACB8A;
+  color: var(--saju-gold);
   margin-bottom: 10px;
   line-height: 1.5;
   letter-spacing: -0.01em;
@@ -300,7 +306,7 @@
 
 .db-ai-body {
   font-size: 14.5px;
-  color: #EAF2FB;
+  color: var(--saju-text);
   line-height: 1.75;
   word-break: keep-all;
 }
@@ -312,7 +318,7 @@
   border: none;
   font-size: 14px;
   font-weight: 700;
-  color: #FFD67A;
+  color: var(--saju-gold);
   cursor: pointer;
   text-align: right;
   width: 100%;
@@ -352,7 +358,7 @@
   background: rgba(15, 36, 63, 0.8);
   border: 1px solid rgba(234, 203, 138, 0.35);
   border-radius: 6px;
-  color: #EACB8A;
+  color: var(--saju-gold);
   font-size: 16px;
   padding: 3px 10px;
   cursor: pointer;
@@ -362,9 +368,9 @@
 }
 
 .db-dayun-nav-btn:hover:not(:disabled) {
-  background: #134264;
+  background: var(--saju-blue-700);
   color: #fff;
-  border-color: #EACB8A;
+  border-color: var(--saju-gold);
 }
 
 .db-dayun-nav-btn:disabled {
@@ -375,25 +381,25 @@
 .db-dayun-card-year {
   font-size: 17px;
   font-weight: 700;
-  color: #EAF2FB;
+  color: var(--saju-text);
   flex: 1;
 }
 
 .db-dayun-stars {
-  color: #EACB8A;
+  color: var(--saju-gold);
   letter-spacing: 1px;
   font-size: 15px;
 }
 
 .db-dayun-card-basis {
   font-size: 13.5px;
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
   margin-bottom: 10px;
 }
 
 .db-dayun-card-text {
   font-size: 14.5px;
-  color: #EAF2FB;
+  color: var(--saju-text);
   line-height: 1.7;
   margin-bottom: 10px;
   /* 3줄 고정 */
@@ -406,7 +412,7 @@
 }
 
 .db-dayun-fortune-loading {
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
   font-size: 14px;
   font-style: italic;
 }
@@ -417,7 +423,7 @@
   border: none;
   font-size: 14px;
   font-weight: 700;
-  color: #EACB8A;
+  color: var(--saju-gold);
   cursor: pointer;
   text-align: right;
   width: 100%;
@@ -457,18 +463,18 @@
   gap: 4px;
   font-size: 13px;
   font-weight: 600;
-  color: #8CA8C0;
+  color: var(--saju-text-faint);
   cursor: pointer;
   padding: 4px 0;
   transition: all 0.2s ease;
 }
 
 .db-navitem:hover {
-  color: #B8CEE0;
+  color: var(--saju-text-muted);
 }
 
 .db-navitem.is-active {
-  color: #EACB8A;
+  color: var(--saju-gold);
   font-weight: 700;
 }
 
@@ -482,7 +488,7 @@
 
 .db-navitem.is-active .db-nav-ico {
   opacity: 1;
-  color: #EACB8A;
+  color: var(--saju-gold);
   filter: drop-shadow(0 0 6px rgba(234, 203, 138, 0.5));
 }
 
@@ -503,12 +509,12 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #FFE082 0%, #EACB8A 35%, #1E6E93 80%, #0B1F3B 100%);
-  border: 1.5px solid #FFD67A;
+  background: radial-gradient(circle at 35% 30%, #FFE082 0%, var(--saju-gold) 35%, var(--saju-blue-500) 80%, #0B1F3B 100%);
+  border: 1.5px solid var(--saju-gold-bright);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 
+  box-shadow:
     0 0 22px rgba(234, 203, 138, 0.5),
     0 6px 16px rgba(0, 0, 0, 0.65),
     inset 0 0 8px rgba(255, 255, 255, 0.55);
@@ -519,7 +525,7 @@
 .db-navitem.is-center:hover .yeouiju-btn,
 .db-navitem.is-center.is-active .yeouiju-btn {
   transform: scale(1.08) translateY(-3px);
-  box-shadow: 
+  box-shadow:
     0 0 28px rgba(234, 203, 138, 0.8),
     0 8px 20px rgba(0, 0, 0, 0.75),
     inset 0 0 12px rgba(255, 255, 255, 0.75);
@@ -528,6 +534,6 @@
 .db-navitem.is-center .db-nav-label {
   font-size: 13px;
   font-weight: 700;
-  color: #EACB8A;
+  color: var(--saju-gold);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }

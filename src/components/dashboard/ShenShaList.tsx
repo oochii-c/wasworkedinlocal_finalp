@@ -2,6 +2,7 @@ import { useState } from "react";
 
 interface ShenSha {
   name: string;
+  hanja?: string;
   desc: string;
 }
 
@@ -38,7 +39,7 @@ export default function ShenShaList({ shenSha }: Props) {
         const found = shenSha.find(s => s.name === tooltip);
         return found ? (
           <div className="db-tooltip" role="tooltip">
-            <strong>{found.name}</strong> — {found.desc}
+            <strong>{found.name}{found.hanja ? `(${found.hanja})` : ""}</strong> — {found.desc}
           </div>
         ) : null;
       })()}

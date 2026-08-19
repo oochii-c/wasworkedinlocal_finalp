@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { WUXING_SVG_COLOR } from "./constants";
 
 interface Props {
@@ -28,6 +29,9 @@ for (let i = 0; i < 5; i++) {
 }
 
 export default function ElementStar({ wuXingCount }: Props) {
+  const [activeEl, setActiveEl] = useState<string | null>(null);
+
+  const total = Object.values(wuXingCount).reduce((a, b) => a + b, 0);
   const maxCount = Math.max(...Object.values(wuXingCount), 1);
 
   return (
@@ -37,17 +41,14 @@ export default function ElementStar({ wuXingCount }: Props) {
         width="100%"
         height="auto"
         viewBox="0 0 180 168"
-        style={{ display: "block", maxWidth: "200px" }}
+        style={{ display: "block", width: "100%" }}
         aria-hidden="true"
       >
         {/* 내부 대각선 */}
         {lineSegments.map(([x1, y1, x2, y2], i) => (
           <line
             key={i}
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
+            x1={x1} y1={y1} x2={x2} y2={y2}
             stroke="rgba(234,203,138,0.14)"
             strokeWidth="1"
           />
@@ -68,20 +69,89 @@ export default function ElementStar({ wuXingCount }: Props) {
           const ratio = count / maxCount;
           const r = MIN_R + ratio * (MAX_R - MIN_R);
           const color = WUXING_SVG_COLOR[el];
-          const opacity = count === 0 ? 0.28 : 0.88;
+          const isActive = activeEl === el;
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
           return (
-            <g key={el}>
-              <circle cx={px} cy={py} r={r} fill={color} opacity={opacity} />
+            <g
+              key={el}
+              onClick={() => setActiveEl(prev => prev === el ? null : el)}
+              style={{ cursor: "pointer" }}
+            >
+              {/* 글로우 배경 — 부드럽게 페이드 */}
+              <circle
+                cx={px} cy={py}
+                r={r + 7}
+                fill={color}
+                style={{
+                  opacity: isActive ? 0.32 : 0,
+                  transition: "opacity 0.4s ease",
+                  filter: "blur(9px)",
+                }}
+              />
+
+              {/* 회전 점선 링 — opacity로 페이드, transform으로 회전 */}
+              <circle
+                cx={px} cy={py}
+                r={r + 7}
+                fill="none"
+                stroke={color}
+                strokeWidth="1"
+                strokeDasharray="1 5"
+                strokeLinecap="round"
+                style={{
+                  opacity: isActive ? 0.5 : 0,
+                  transition: "opacity 0.4s ease",
+                  transformBox: "fill-box",
+                  transformOrigin: "center",
+                  animation: "el-spin 25s linear infinite",
+                }}
+              />
+
+              {/* 메인 버블 */}
+              <circle
+                cx={px} cy={py}
+                r={r}
+                fill={color}
+                style={{
+                  opacity: count === 0 ? 0.28 : (isActive ? 1 : 0.88),
+                  transition: "opacity 0.35s ease",
+                }}
+              />
+
+              {/* 한자 */}
               <text
                 x={px}
-                y={py + 1}
+                y={isActive ? py - 2 : py + 1}
                 fontSize="11"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="rgba(255,255,255,0.95)"
                 fontWeight="700"
+                style={{
+                  pointerEvents: "none",
+                  transition: "y 0.3s ease",
+                }}
               >
                 {el}
+              </text>
+
+              {/* 퍼센트 — opacity 트랜지션으로 부드럽게 등장 */}
+              <text
+                x={px}
+                y={py + 10}
+                fontSize="9"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontWeight="700"
+                fill="rgba(255,255,255,0.92)"
+                style={{
+                  pointerEvents: "none",
+                  opacity: isActive ? 1 : 0,
+                  transition: "opacity 0.35s ease 0.05s",
+                }}
+              >
+                {pct}%
               </text>
             </g>
           );

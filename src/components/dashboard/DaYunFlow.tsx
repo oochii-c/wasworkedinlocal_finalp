@@ -53,15 +53,18 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
   );
   // 대운 클릭 → startYear, 올해 마커 클릭 → currentYear
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  // 올해 마커 클릭 시 점을 보간 위치로 이동할지 여부
+  const [isCurrentYearDot, setIsCurrentYearDot] = useState(false);
 
   // 세운 전체 범위
   const globalMin = seWun[0]?.year ?? currentYear;
   const globalMax = seWun[seWun.length - 1]?.year ?? currentYear;
 
-  // 년도 변경 시 대운 인덱스도 동기화
+  // 년도 변경 시 대운 인덱스도 동기화 (← → 버튼 / 대운 클릭 공용)
   function handleYearChange(newYear: number) {
     const clamped = Math.min(globalMax, Math.max(globalMin, newYear));
     setSelectedYear(clamped);
+    setIsCurrentYearDot(false);
     const newDaYunIdx = daYunAvgs.findIndex(
       d => d.startYear <= clamped && clamped <= d.endYear
     );
@@ -170,8 +173,9 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
   const pathD = smoothPath(gPoints);
   const selectedGPt = gPoints[selectedDaYunIdx];
 
-  // 현재 년도 보간 위치
+  // 현재 년도 보간 위치 (X, Y 모두)
   let currentYearX: number | null = null;
+  let currentYearY: number | null = null;
   if (currentDaYunIdx >= 0) {
     const curDY = daYunAvgs[currentDaYunIdx];
     const startPt = gPoints[currentDaYunIdx];
@@ -181,10 +185,18 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
       const elapsed = currentYear - curDY.startYear;
       const frac = dyLen > 0 ? Math.min(1, elapsed / dyLen) : 0;
       currentYearX = startPt.x + frac * (nextPt.x - startPt.x);
+      currentYearY = startPt.y + frac * (nextPt.y - startPt.y);
     } else {
       currentYearX = startPt.x;
+      currentYearY = startPt.y;
     }
   }
+
+  // 올해 선택 시 보간 위치, 아닐 때는 선택 대운 경계점
+  const activePt =
+    isCurrentYearDot && currentYearX !== null && currentYearY !== null
+      ? { x: currentYearX, y: currentYearY }
+      : selectedGPt;
 
   // 올해 마커 클릭 영역 (±18px — 대운 클릭보다 위에 렌더)
   const NOW_ZONE = 18;
@@ -206,9 +218,9 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
           <path d={pathD} fill="none"
             stroke="rgba(184,206,224,0.5)" strokeWidth="1.5" />
 
-          {/* 선택 대운 수직선 (점선) */}
+          {/* 선택 위치 수직선 (점선) — 올해 선택 시 보간 위치, 아닐 때 대운 경계 */}
           <line
-            x1={selectedGPt.x} x2={selectedGPt.x}
+            x1={activePt.x} x2={activePt.x}
             y1={PY} y2={H - PY}
             stroke="rgba(234,203,138,0.4)" strokeWidth="1" strokeDasharray="3 2"
           />
@@ -240,29 +252,40 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
                 fill="transparent" style={{ cursor: "pointer" }}
                 onClick={() => {
                   setSelectedDaYunIdx(i);
-                  // 항상 startYear — 올해 이동은 올해 마커로
+                  setIsCurrentYearDot(false);
                   setSelectedYear(daYunAvgs[i].startYear);
                 }}
               />
             );
           })}
 
-          {/* 점 */}
+          {/* 점 — 올해 선택 시 모든 경계점은 기본 크기로, 보간 위치에 별도 강조점 */}
           {gPoints.map((pt, i) => (
             <circle key={`dot-${i}`} cx={pt.x} cy={pt.y}
-              r={i === selectedDaYunIdx ? 4.5 : 3}
-              fill={i === selectedDaYunIdx ? "#EACB8A" : "rgba(184,206,224,0.55)"}
+              r={!isCurrentYearDot && i === selectedDaYunIdx ? 4.5 : 3}
+              fill={!isCurrentYearDot && i === selectedDaYunIdx ? "#EACB8A" : "rgba(184,206,224,0.55)"}
               style={{ pointerEvents: "none" }}
             />
           ))}
+          {isCurrentYearDot && currentYearX !== null && currentYearY !== null && (
+            <circle
+              cx={currentYearX} cy={currentYearY}
+              r={4.5} fill="#EACB8A"
+              style={{ pointerEvents: "none" }}
+            />
+          )}
 
-          {/* 올해 마커 클릭 영역 — 大運 dot 변경 없이 연도만 이동 */}
+          {/* 올해 마커 클릭 영역 — 보간 위치로 점 이동 */}
           {currentYearX !== null && (
             <rect
               x={currentYearX - NOW_ZONE} y={4}
               width={NOW_ZONE * 2} height={H}
               fill="transparent" style={{ cursor: "pointer" }}
-              onClick={() => setSelectedYear(currentYear)}
+              onClick={() => {
+                setSelectedYear(currentYear);
+                setIsCurrentYearDot(true);
+                if (currentDaYunIdx >= 0) setSelectedDaYunIdx(currentDaYunIdx);
+              }}
             />
           )}
 

@@ -53,6 +53,39 @@ function calcKongWang(yearGan: string, yearZhi: string): string[] {
   return [ZHI_LIST[(zhiStart + 10) % 12], ZHI_LIST[(zhiStart + 11) % 12]];
 }
 
+export const SHENSHA_HANJA: Record<string, string> = {
+  지살:     "地殺",
+  도화살:   "桃花殺",
+  월살:     "月殺",
+  망신살:   "亡身殺",
+  장성살:   "將星殺",
+  반안살:   "攀鞍殺",
+  역마살:   "驛馬殺",
+  육해살:   "六害殺",
+  화개살:   "華蓋殺",
+  겁살:     "劫殺",
+  재살:     "災殺",
+  천살:     "天殺",
+  천을귀인: "天乙貴人",
+  천덕귀인: "天德貴人",
+  월덕귀인: "月德貴人",
+  문창귀인: "文昌貴人",
+  홍염살:   "紅艶殺",
+  양인살:   "羊刃殺",
+  백호살:   "白虎殺",
+  괴강살:   "魁罡殺",
+  공망:     "空亡",
+  태극귀인: "太極貴人",
+  현침살:   "懸針殺",
+  낙정관살: "落井關殺",
+  귀문관살: "鬼門關殺",
+  원진살:   "怨嗔殺",
+  학당귀인: "學堂貴人",
+  천의성:   "天醫星",
+  고란살:   "孤鸞殺",
+  협록:     "夾祿",
+};
+
 export const SHENSHA_DESC: Record<string, string> = {
   // ── 12신살 ──
   지살:     "새로운 시작과 개척의 기운. 활동력이 강하고 주도적으로 길을 열어가요.",
@@ -78,6 +111,15 @@ export const SHENSHA_DESC: Record<string, string> = {
   백호살:   "강한 집중력과 폭발력. 결단력이 탁월하며 돌발 상황에 주의하면 대성해요.",
   괴강살:   "우두머리의 기질과 강한 리더십. 총명하고 결단력이 있어 큰일을 해내요.",
   공망:     "기운이 비어있는 자리. 세속적 욕심을 비우고 독창적인 길을 가면 유리해요.",
+  태극귀인: "천지 음양의 기운을 온전히 갖춘 길성. 큰 위기에서도 반드시 재기하는 강한 회복력이 있어요.",
+  현침살:   "날카로운 바늘처럼 예민하고 섬세한 기운. 의료·예술·기술 분야에서 두각을 나타낼 수 있어요.",
+  낙정관살: "뜻밖의 구설이나 함정에 빠질 수 있는 기운. 언행과 처신을 신중히 하면 화를 피할 수 있어요.",
+  귀문관살: "신비롭고 독특한 사고방식. 직관과 예감이 뛰어나며 종교·철학·심리 분야에 강한 기질이 있어요.",
+  원진살:   "서로 끌리면서도 갈등하는 기운. 가까운 사람과 오해와 감정 충돌이 생기기 쉬우니 소통이 중요해요.",
+  학당귀인: "학문과 배움의 복이 따르는 길성. 공부·교육·연구 분야에서 성과를 내기 쉬워요.",
+  천의성:   "치유와 의료의 기운. 남을 돕고 치료하는 적성이 있으며 의료·상담 분야에 인연이 있어요.",
+  고란살:   "배우자와 인연이 늦거나 독립적인 삶을 걷는 기운. 자유로운 개인 영역을 소중히 여겨요.",
+  협록:     "일간의 록이 사주 안에 숨겨진 길성. 겉으로 드러나진 않지만 든든한 내공과 재력이 쌓여요.",
 };
 
 export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
@@ -93,27 +135,24 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
   const result: ShenShaInfo[] = [];
   function push(name: string) {
     if (!result.some(r => r.name === name)) {
-      result.push({ name, desc: SHENSHA_DESC[name] ?? "" });
+      result.push({ name, hanja: SHENSHA_HANJA[name], desc: SHENSHA_DESC[name] ?? "" });
     }
   }
 
-  // ── 1. 삼합국 기반 12신살 (월/일/시 지지 판별) ──
-  const group = sanHapGroup(yearZhi);
-  if (group) {
-    const m = SHISHA_ZHI[group];
-    if (otherZhis.includes(m["지살"]))   push("지살");
-    if (otherZhis.includes(m["년살"]))   push("도화살");   // 년살 = 도화살
-    if (otherZhis.includes(m["월살"]))   push("월살");
-    if (otherZhis.includes(m["망신살"])) push("망신살");
-    if (otherZhis.includes(m["장성살"])) push("장성살");
-    if (otherZhis.includes(m["반안살"])) push("반안살");
-    if (otherZhis.includes(m["역마살"])) push("역마살");
-    if (otherZhis.includes(m["육해살"])) push("육해살");
-    if (otherZhis.includes(m["화개살"])) push("화개살");
-    if (otherZhis.includes(m["겁살"]))   push("겁살");
-    if (otherZhis.includes(m["재살"]))   push("재살");
-    if (otherZhis.includes(m["천살"]))   push("천살");
+  // ── 1. 삼합국 기반 12신살 (연지 + 일지 두 기준, 만세력 앱과 동일 방식) ──
+  const dayZhi = pillars[2]?.zhi ?? "";
+  // 12신살 키 → 표시 이름 (년살은 도화살로 표기)
+  const SHISHA_NAME: Record<string, string> = { 년살: "도화살" };
+  function applyShiSha(refZhi: string) {
+    const g = sanHapGroup(refZhi);
+    if (!g) return;
+    const m = SHISHA_ZHI[g];
+    for (const [key, zhi] of Object.entries(m)) {
+      if (allZhis.includes(zhi)) push(SHISHA_NAME[key] ?? key);
+    }
   }
+  applyShiSha(yearZhi);  // 연지 기준
+  applyShiSha(dayZhi);   // 일지 기준
 
   // ── 2. 일간(日干) 기준 길성 & 신살 ──
 
@@ -188,6 +227,86 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
   // 공망: 연간지의 순중공망 지지가 월/일/시 지지에 있으면 성립
   const kongWang = calcKongWang(yearGan, yearZhi);
   if (kongWang.some(k => otherZhis.includes(k))) push("공망");
+
+  // ── 6. 일간(日干) 기준 길성 ──
+
+  // 태극귀인: 일간에 따라 정해진 지지가 4기둥 지지에 있으면 성립 (일간 기준 표준 공식)
+  const TAEGEUK_ILGAN: Record<string, string[]> = {
+    甲: ["子","午"], 乙: ["子","午"],
+    丙: ["卯","酉"], 丁: ["卯","酉"],
+    戊: ["辰","戌","丑","未"], 己: ["辰","戌","丑","未"],
+    庚: ["寅","亥"], 辛: ["寅","亥"],
+    壬: ["巳","申"], 癸: ["巳","申"],
+  };
+  if ((TAEGEUK_ILGAN[dayGan] ?? []).some(z => allZhis.includes(z))) push("태극귀인");
+
+  // ── 7. 천간(天干) 기준 신살 ──
+
+  // 현침살: 4기둥 천간에 甲·辛·丁 중 하나라도 있으면 성립 (바늘 형태 천간)
+  const HYUNCHIM_GAN = ["甲","辛","丁"];
+  if (allGans.some(g => HYUNCHIM_GAN.includes(g))) push("현침살");
+
+  // ── 8. 월지(月支) 기준 신살 추가 ──
+
+  // 낙정관살: 일간을 기준으로 정해진 지지가 4기둥 지지에 있으면 성립 (일간 기준 표준 공식)
+  const NACKJEONG_ILGAN: Record<string, string> = {
+    甲:"巳", 己:"巳",
+    乙:"子", 庚:"子",
+    丙:"申", 辛:"申",
+    丁:"戌", 壬:"戌",
+    戊:"卯", 癸:"卯",
+  };
+  if (NACKJEONG_ILGAN[dayGan] && allZhis.includes(NACKJEONG_ILGAN[dayGan])) push("낙정관살");
+
+  // 천의성: 월지의 대칭 지지가 4기둥에 있으면 성립 (치유·의료 기운)
+  const CHEONUI: Record<string, string> = {
+    子:"丑", 丑:"子", 寅:"亥", 卯:"戌",
+    辰:"酉", 巳:"申", 午:"未", 未:"午",
+    申:"巳", 酉:"辰", 戌:"卯", 亥:"寅",
+  };
+  if (CHEONUI[monthZhi] && allZhis.includes(CHEONUI[monthZhi])) push("천의성");
+
+  // ── 9. 지지(地支) 조합 신살 ──
+
+  // 귀문관살: 4기둥에 특정 지지 쌍이 공존하면 성립 (신비·직관의 기운)
+  const GWIMUN_PAIRS: [string,string][] = [
+    ["子","酉"],["丑","午"],["寅","未"],["卯","申"],["辰","亥"],["巳","戌"],
+  ];
+  if (GWIMUN_PAIRS.some(([a,b]) => allZhis.includes(a) && allZhis.includes(b))) push("귀문관살");
+
+  // 원진살: 4기둥에 특정 지지 쌍이 공존하면 성립 (갈등·반목의 기운)
+  const WONJIN_PAIRS: [string,string][] = [
+    ["子","未"],["丑","午"],["寅","酉"],["卯","申"],["辰","亥"],["巳","戌"],
+  ];
+  if (WONJIN_PAIRS.some(([a,b]) => allZhis.includes(a) && allZhis.includes(b))) push("원진살");
+
+  // 학당귀인: 일간에 따른 학문의 지지가 4기둥에 있으면 성립
+  const HAKDANG: Record<string,string> = {
+    甲:"亥", 乙:"午", 丙:"寅", 丁:"酉",
+    戊:"申", 己:"卯", 庚:"巳", 辛:"子",
+    壬:"申", 癸:"卯",
+  };
+  if (HAKDANG[dayGan] && allZhis.includes(HAKDANG[dayGan])) push("학당귀인");
+
+  // ── 10. 일주(日柱) 기준 추가 신살 ──
+
+  // 고란살: 특정 일주에 해당하면 성립 (배우자 인연이 늦거나 독립적 기질)
+  const GORAN_ILJU = ["甲寅","乙巳","丙午","丁巳","戊午","戊申","辛亥","壬子","壬申","癸亥"];
+  if (GORAN_ILJU.includes(pillars[2]?.ganZhi ?? "")) push("고란살");
+
+  // 협록: 일간의 록지(祿地)가 4기둥에서 인접한 두 지지 사이에 끼어있으면 성립
+  const ROKJI: Record<string,string> = {
+    甲:"寅", 乙:"卯", 丙:"巳", 丁:"午",
+    戊:"巳", 己:"午", 庚:"申", 辛:"酉",
+    壬:"亥", 癸:"子",
+  };
+  const rokZhi = ROKJI[dayGan];
+  if (rokZhi) {
+    const zi = ZHI_LIST.indexOf(rokZhi);
+    const prev = ZHI_LIST[(zi - 1 + 12) % 12];
+    const next = ZHI_LIST[(zi + 1) % 12];
+    if (allZhis.includes(prev) && allZhis.includes(next)) push("협록");
+  }
 
   return result;
 }

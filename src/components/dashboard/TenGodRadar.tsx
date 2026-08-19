@@ -111,8 +111,8 @@ export default function TenGodRadar({ shiShenCount }: Props) {
               </tspan>
               <tspan
                 x={bx + ox}
-                dy="11.5"
-                fontSize="8.5"
+                dy="12.5"
+                fontSize="10"
                 fontWeight="400"
                 fill="rgba(184,206,224,0.8)"
               >
