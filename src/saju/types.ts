@@ -38,6 +38,7 @@ export interface SeWunInfo {
 
 export interface ShenShaInfo {
   name: string;
+  hanja?: string;
   desc: string;
 }
 

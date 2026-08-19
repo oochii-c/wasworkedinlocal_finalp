@@ -53,6 +53,30 @@ function calcKongWang(yearGan: string, yearZhi: string): string[] {
   return [ZHI_LIST[(zhiStart + 10) % 12], ZHI_LIST[(zhiStart + 11) % 12]];
 }
 
+export const SHENSHA_HANJA: Record<string, string> = {
+  지살:     "地殺",
+  도화살:   "桃花殺",
+  월살:     "月殺",
+  망신살:   "亡身殺",
+  장성살:   "將星殺",
+  반안살:   "攀鞍殺",
+  역마살:   "驛馬殺",
+  육해살:   "六害殺",
+  화개살:   "華蓋殺",
+  겁살:     "劫殺",
+  재살:     "災殺",
+  천살:     "天殺",
+  천을귀인: "天乙貴人",
+  천덕귀인: "天德貴人",
+  월덕귀인: "月德貴人",
+  문창귀인: "文昌貴人",
+  홍염살:   "紅艶殺",
+  양인살:   "羊刃殺",
+  백호살:   "白虎殺",
+  괴강살:   "魁罡殺",
+  공망:     "空亡",
+};
+
 export const SHENSHA_DESC: Record<string, string> = {
   // ── 12신살 ──
   지살:     "새로운 시작과 개척의 기운. 활동력이 강하고 주도적으로 길을 열어가요.",
@@ -93,7 +117,7 @@ export function calcShenSha(pillars: Pillar[], dayGan: string): ShenShaInfo[] {
   const result: ShenShaInfo[] = [];
   function push(name: string) {
     if (!result.some(r => r.name === name)) {
-      result.push({ name, desc: SHENSHA_DESC[name] ?? "" });
+      result.push({ name, hanja: SHENSHA_HANJA[name], desc: SHENSHA_DESC[name] ?? "" });
     }
   }
 
