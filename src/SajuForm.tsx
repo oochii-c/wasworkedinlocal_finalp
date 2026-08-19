@@ -234,14 +234,11 @@ function TimeInputGroup({ value, unknown, onChange, onUnknownChange }: TimeInput
   const minutes: number[] = []; for (let m = 0; m <= 59; m++) minutes.push(m);
   return (
     <div className="saju-time-row">
-      {unknown ? (
-        <div className="saju-time-unknown-box">생시없이 봐드려요</div>
-      ) : (
-        <>
-          <NumberField value={value.hour} options={hours} placeholder="시" unit="시" maxLen={2} min={0} max={23} ariaLabel="출생 시" onChange={(v) => onChange({ ...value, hour: v })} />
-          <NumberField value={value.minute} options={minutes} placeholder="분" unit="분" maxLen={2} min={0} max={59} ariaLabel="출생 분" onChange={(v) => onChange({ ...value, minute: v })} />
-        </>
-      )}
+      <div className={`saju-time-fields${unknown ? " is-unknown" : ""}`}>
+        <NumberField value={value.hour} options={hours} placeholder="시" unit="시" maxLen={2} min={0} max={23} ariaLabel="출생 시" disabled={unknown} onChange={(v) => onChange({ ...value, hour: v })} />
+        <NumberField value={value.minute} options={minutes} placeholder="분" unit="분" maxLen={2} min={0} max={59} ariaLabel="출생 분" disabled={unknown} onChange={(v) => onChange({ ...value, minute: v })} />
+        {unknown && <div className="saju-time-unknown-box">생시없이 봐드려요</div>}
+      </div>
       <ToggleSwitch checked={unknown} onChange={onUnknownChange} label="시간 모름" />
     </div>
   );

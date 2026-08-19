@@ -420,13 +420,22 @@
   align-items: center;
   gap: clamp(5px, 1.8cqw, 9px);
 }
-.saju-time-unknown-box {
+.saju-time-fields {
   flex: 2;
   min-width: 0;
   display: flex;
+  gap: clamp(5px, 1.8cqw, 9px);
+  position: relative;
+}
+.saju-time-fields.is-unknown .saju-input-box {
+  visibility: hidden;
+}
+.saju-time-unknown-box {
+  position: absolute;
+  inset: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(40px, 12cqw, 52px);
   background: rgba(152, 204, 255, 0.3);
   border: 1px solid #7FB0D8;
   border-radius: 16px;
