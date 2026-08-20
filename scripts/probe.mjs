@@ -1,3 +1,15 @@
+/*
+ * probe.mjs — lunar-typescript API 탐색 스크립트 (앱 미사용 · 개발 참고용)
+ *
+ * 실행: node scripts/probe.mjs
+ * 용도: lunar-typescript(EightChar/Lunar)가 제공하는 값들을 콘솔로 확인한다.
+ *   A. 원국(사주팔자) 기둥별 간지·오행·십신·납음·십이운성·공망
+ *   B. 대운 / 유년(세운) 흐름
+ *   C. 기간 운세 (오늘 일진·올해 세운·이번달 월운·띠)
+ *   D. 신살·방위·택일 (충·살·길신·흉살·재물방위·좋은일/꺼릴일)
+ *
+ * 참고: C·D 섹션은 "오늘의 운세" 기능 구현 시 필요한 API 레퍼런스.
+ */
 import { Solar } from "lunar-typescript"
 
 // 생일: 1990-02-03 22:58, 남자 (진태양시 보정 전)
