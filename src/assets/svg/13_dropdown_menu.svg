@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" preserveAspectRatio="none">
-<defs><filter id="s"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-opacity=".3"/></filter></defs>
-<rect x="3" y="3" width="634" height="294" rx="20" fill="#0A2742" stroke="#EACB8A" stroke-width="1.5" filter="url(#s)"/>
-<rect x="12" y="12" width="616" height="276" rx="15" fill="none" stroke="#2C5874" stroke-width=".8"/>
-<path d="M20 88h600M20 156h600M20 224h600" stroke="#284F68" stroke-width="1"/>
-<circle cx="590" cy="54" r="10" fill="#FFD67A"/>
-<path d="M585 54l4 4 7-8" fill="none" stroke="#0B2744" stroke-width="1.7"/>
-</svg>
