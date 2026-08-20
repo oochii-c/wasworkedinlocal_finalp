@@ -1,4 +1,4 @@
-import SajuForm from "./SajuForm";
+import SajuForm from "./pages/SajuForm";
 
 export default function App() {
   return <SajuForm />;

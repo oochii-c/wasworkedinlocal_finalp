@@ -1,9 +1,9 @@
 import { useState } from "react";
-import "./styles/saju.css";
-import { computeSajuExtended, type SajuExtended } from "./saju";
-import { getReading, type Story } from "./services/sajuApi";
-import Dashboard from "./components/dashboard/Dashboard";
-import titleLogo from "./assets/img/Group 27.png";
+import "../styles/saju.css";
+import { computeSajuExtended, type SajuExtended } from "../saju";
+import { getReading, type Story } from "../services/sajuApi";
+import Dashboard from "./dashboard/Dashboard";
+import titleLogo from "../assets/img/Group 27.png";
 import {
   SectionHeader,
   SajuTextInput,
@@ -14,7 +14,7 @@ import {
   type PillOption,
   type SajuDateValue,
   type SajuTimeValue,
-} from "./components/form";
+} from "../components/form";
 
 /* ============================================================
    SajuForm.tsx

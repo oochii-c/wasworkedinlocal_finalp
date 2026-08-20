@@ -7,7 +7,7 @@ import TenGodRadar from "./TenGodRadar";
 import ShenShaList from "./ShenShaList";
 import AiStories from "./AiStories";
 import DaYunFlow from "./DaYunFlow";
-import BottomNav from "../BottomNav";
+import BottomNav from "../../components/layout/BottomNav";
 
 export default function Dashboard(props: DashboardProps) {
   const { chart, stories, loading, onRetry, name, gender, date, time, timeUnknown, onBack } = props;
