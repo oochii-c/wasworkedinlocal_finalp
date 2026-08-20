@@ -1,0 +1,52 @@
+/* ============================================================
+   variables.css
+   공통 컬러 + 컴포넌트 비율(aspect-ratio) 토큰
+   ※ 모든 비율은 원본 SVG viewBox 기준(width 640 고정)입니다.
+   ============================================================ */
+
+:root {
+  /* ---- Colors (README 공통 컬러) ---- */
+  --c-navy-900: #0B1F38;
+  --c-navy-800: #0B2744;
+  --c-navy-850: #09233D;
+  --c-blue-700: #134264;
+  --c-blue-500: #1E6E93;
+
+  --c-gold-300: #EACB8A;
+  --c-gold-600: #A97935;
+  --c-gold-400: #FFD67A;
+
+  --c-red-400:  #F45B5B;
+  --c-ivory-50: #F6FAFE;
+
+  /* ---- Text colors (배경 대비용, 임의 지정 - 취향껏 조정) ---- */
+  --text-primary:   var(--c-ivory-50);
+  --text-secondary: #9BB8CB;
+  --text-disabled:  #5C7488;
+  --text-error:     var(--c-red-400);
+
+  /* ---- Aspect Ratio 토큰 : width 640 기준 ----
+     CSS aspect-ratio 로 잠그면 preserveAspectRatio="none" SVG를
+     폭(%)에 맞춰 늘려도 절대 찌그러지지 않습니다. */
+  --ratio-text-input:   640 / 96;   /* 01 02 03 */
+  --ratio-select:       640 / 96;   /* 04 05 */
+  --ratio-option-item:  640 / 78;   /* 06 07 08 14 15 */
+  --ratio-option-group: 640 / 340;  /* 09 (내부 아이템 개수에 따라 auto 권장) */
+  --ratio-segment:      640 / 94;   /* 10 11 12 */
+  --ratio-dropdown:     640 / 300;  /* 13 (4행 고정 기준) */
+  --ratio-label:        640 / 50;   /* 16 */
+
+  /* ---- SVG 내부 안전영역(패딩) : 각 svg 좌표 기준 %로 환산 ----
+     예) text-input: inner rect x=9,y=9 w=622 h=78 / outer 640x96
+         left/right = 9/640 = 1.406%   */
+  --pad-text-input-x: 4%;      /* 시각적 여유를 위해 실사용 패딩은 살짝 키움(원본 1.4% → 4%) */
+  --pad-select-right: 13%;     /* 우측 화살표(≈590~610px / 640) 영역 회피 */
+  --pad-option-item-x: 4%;
+  --pad-option-item-selected-right: 15%; /* 우측 체크 아이콘(cx=600,r=11) 회피 */
+  --pad-radio-left: 9.5%;      /* 좌측 라디오 원(cx=34,r=13) 회피 */
+  --pad-group-x: 1.6%;         /* option-list-group 내부 프레임(x=10/640) */
+  --pad-group-y: 2.95%;        /* option-list-group 내부 프레임(y=10/340) */
+
+  /* ---- 공용 폭 규칙 : 컴포넌트는 항상 부모 폭의 100%를 채움 ---- */
+  --control-max-width: 100%;
+}

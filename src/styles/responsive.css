@@ -1,0 +1,38 @@
+/* ============================================================
+   responsive.css
+   컴포넌트 자체는 %/aspect-ratio 로 이미 유동적입니다.
+   여기서는 "폼 전체 컨테이너 폭"과 "폰트 베이스"만 브레이크포인트별로 조정합니다.
+   ============================================================ */
+
+.form-wrap {
+  width: 100%;
+  max-width: 640px;   /* 원본 디자인 기준 폭 (필요시 조정) */
+  margin-inline: auto;
+  padding-inline: 5%;
+}
+
+/* Mobile (기본, ~480px) */
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+  .form-wrap { padding-inline: 6%; }
+}
+
+/* Tablet */
+@media (min-width: 481px) and (max-width: 768px) {
+  html { font-size: 16px; }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  html { font-size: 17px; }
+  .form-wrap { padding-inline: 0; }
+}
+
+/* 아주 넓은 화면에서 컨트롤이 과도하게 두꺼워지지 않도록 상한선 */
+.text-input, .select, .segment {
+  max-height: 4.25rem;
+}
+.option-list-item, .radio-option {
+  max-height: 3.5rem;
+}
+.form-label { max-height: 3rem; }

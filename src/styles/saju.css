@@ -1,0 +1,669 @@
+/* ============================================================
+   saju.css - "당신의 사주를 봅니다" 용궁(바닷속) 다크 테마
+   ----------------------------------------------------------
+   [반응형 원칙]
+   1) .saju-page 를 컨테이너 쿼리 기준(container-type: inline-size)으로 잡고,
+      내부 폰트/간격/아이콘을 cqw(컨테이너 폭 %) + clamp 로 스케일.
+      → 폼이 320px든 600px든 넣는 폭에 맞춰 비율 그대로 유연하게 커지고 줄어듦.
+   2) 각 컨트롤 높이는 aspect-ratio 로 고정(찌그러짐 방지).
+   3) 색상 팔레트: #0B1F3B #134264 #1E6E93 #66B2D6 #EACB8A #F45B5B
+   ============================================================ */
+
+:root {
+  --saju-navy-900: #0B1F3B;
+  --saju-navy-800: #0F243F;
+  --saju-blue-700: #134264;
+  --saju-blue-500: #1E6E93;
+  --saju-blue-300: #66B2D6;
+  --saju-gold:     #EACB8A;
+  --saju-gold-bright: #FFD67A;
+  --saju-red:      #F45B5B;
+
+  --saju-text:        #EAF2FB;
+  --saju-text-muted:  #B8CEE0;
+  --saju-text-faint:  #8CA8C0;
+
+  /* 폼 부품 SVG 경로 */
+  --svg-text-default:  url("/assets/svg/01_text_input_default.svg");
+  --svg-text-focus:    url("/assets/svg/02_text_input_focus.svg");
+  --svg-text-error:    url("/assets/svg/03_text_input_error.svg");
+  --svg-select-closed: url("/assets/svg/04_select_closed.svg");
+  --svg-select-open:   url("/assets/svg/05_select_open.svg");
+}
+
+/* ============================================================
+   반응형 스케일 변수
+   - --u : 기준 단위. 컨테이너 폭의 1% 를 기본으로, 최소/최대 clamp.
+   - 폰트/간격을 전부 이 변수 배수로 잡아 폭에 비례해 유연하게.
+   ============================================================ */
+.saju-page {
+  container-type: inline-size;
+  --u: clamp(3.2px, 1cqw, 5px);      /* 기준 단위 */
+  --fs-title:   clamp(20px, 6.2cqw, 34px);
+  --fs-h3:      clamp(16px, 4.6cqw, 22px);
+  --fs-body:    clamp(14px, 3.8cqw, 18px);
+  --fs-small:   clamp(11px, 3.1cqw, 14px);
+  --fs-tiny:    clamp(10px, 2.7cqw, 12.5px);
+  --pad-card:   clamp(12px, 3.6cqw, 20px);
+  --gap-card:   clamp(10px, 3cqw, 18px);
+  --radius-card: clamp(12px, 3.5cqw, 18px);
+  --radius-input: clamp(10px, 3cqw, 16px);
+  --pad-x: clamp(14px, 5cqw, 28px);
+  --pad-top: clamp(24px, 8cqw, 48px);
+
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: var(--pad-top) var(--pad-x) clamp(24px, 7cqw, 40px);
+  color: var(--saju-text);
+  font-family: "ChosunSg", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+
+  background-color: #0A1428;
+  background-image:
+    linear-gradient(180deg, rgba(6, 14, 32, 0.96) 0%, rgba(6, 14, 32, 0.6) 30%, rgba(6, 14, 32, 0) 55%),
+    url("../assets/img/background_vertical_v1r1.png");
+  background-size: 100% 340px, cover;
+  background-position: top center, top center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: local, local;
+}
+
+/* ---------- 헤더 ---------- */
+.saju-header {
+  margin-top: calc(-1 * var(--pad-top));
+  margin-inline: calc(-1 * var(--pad-x));
+  padding: var(--pad-top) var(--pad-x) clamp(20px, 6cqw, 34px);
+  margin-bottom: clamp(10px, 3cqw, 18px);
+  text-align: center;
+}
+.saju-brand {
+  margin-bottom: clamp(6px, 2cqw, 12px);
+}
+.saju-header h1 {
+  font-family: "BMYeonSung", "Pretendard", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0 0 clamp(5px, 1.6cqw, 10px);
+  white-space: nowrap;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+.saju-header p {
+  font-family: "BMYeonSung", "Pretendard", sans-serif;
+  font-size: 24px;
+  color: var(--saju-text);
+  margin: 0;
+}
+
+/* ---------- 카드(섹션) ---------- */
+.saju-section {
+  background: rgba(11, 31, 59, 0.55);
+  border: 1px solid #1E3A5A;
+  border-radius: var(--radius-card);
+  padding: var(--pad-card);
+  margin-bottom: var(--gap-card);
+  backdrop-filter: blur(3px);
+  box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06);
+}
+
+/* ---------- SectionHeader (제목) ---------- */
+.saju-section-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(5px, 1.8cqw, 10px);
+  margin-bottom: clamp(9px, 2.8cqw, 16px);
+}
+.saju-section-title-row h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+}
+.saju-section-title-row .saju-title-sub {
+  font-size: var(--fs-small);
+  color: var(--saju-text-muted);
+  font-weight: 400;
+}
+.saju-section-kicker,
+.saju-section-rule { display: none; }
+
+/* ============================================================
+   공용 입력 필드 (이름 / 날짜 / 셀렉트) - 텍스트 진하게 강제
+   ============================================================ */
+.saju-field-text {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;   /* 브라우저가 select/input 글자색 덮어쓰는 것 방지 */
+  color-scheme: dark;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+.saju-field-placeholder::placeholder {
+  color: #9BB6CD;
+  -webkit-text-fill-color: #9BB6CD;
+  font-weight: 400;
+}
+
+/* ---------- TextInput (이름) : 01/02/03.svg ---------- */
+.saju-text-input-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 640 / 96;
+}
+.saju-text-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: rgba(152, 204, 255, 0.2);
+  border: 1px solid #7FB0D8;
+  border-radius: 16px;
+  outline: none;
+  font-size: var(--fs-body);
+  /* 색/굵기는 .saju-field-text 에서 강제 (아래 합성 선택자로 보강) */
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  color-scheme: dark;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  padding: 0 clamp(14px, 4cqw, 22px) 0 clamp(38px, 11cqw, 56px); /* 왼쪽 아이콘 자리 */
+}
+.saju-text-input::placeholder {
+  color: #9BB6CD;
+  -webkit-text-fill-color: #9BB6CD;
+  font-weight: 400;
+}
+.saju-text-input.is-focus { background-image: var(--svg-text-focus); }
+.saju-text-input.is-error { background-image: var(--svg-text-error); }
+
+.saju-text-input-icon {
+  position: absolute;
+  left: clamp(12px, 3.4cqw, 18px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(15px, 4.2cqw, 20px);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.95;
+}
+
+/* ---------- PillToggleGroup (성별 2단) : 검은 배경 ---------- */
+.saju-pill-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+}
+.saju-pill-group--framed {
+  aspect-ratio: 640 / 94;
+  background: rgba(152, 204, 255, 0.3);
+  border: 1px solid #1E3A5A;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  padding: 0;
+  gap: clamp(4px, 1.2cqw, 6px);
+}
+.saju-pill-group--framed .saju-pill {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-input);
+  color: #ffffff;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.2cqw, 7px);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.saju-pill-group--framed .saju-pill.is-active {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  box-shadow: inset 0 0 0 1px var(--saju-gold);
+}
+
+/* ---------- 양력/음력/평달/윤달 4단 (인라인) ---------- */
+.saju-pill-group--inline {
+  gap: 0;
+  background: rgba(15, 36, 63, 0.9);
+  border: 1px solid #1E3A5A;
+  border-radius: var(--radius-input);
+  padding: clamp(3px, 1cqw, 5px);
+}
+.saju-pill-group--inline .saju-pill {
+  flex: 1;
+  padding: clamp(8px, 2.4cqw, 12px) clamp(3px, 1cqw, 6px);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-input) - 3px);
+  color: var(--saju-text-muted);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+.saju-pill-group--inline .saju-pill.is-active {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  box-shadow: inset 0 0 0 1px var(--saju-gold);
+}
+.saju-pill-group--inline .saju-pill.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---------- 안내문구(달 아이콘 줄) ---------- */
+.saju-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(4px, 1.2cqw, 7px);
+  font-size: var(--fs-tiny);
+  color: var(--saju-text-muted);
+  margin: clamp(8px, 2.4cqw, 12px) 0 clamp(10px, 3cqw, 15px);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   날짜 직접입력 / 셀렉트 공용 박스
+   ============================================================ */
+.saju-select-row {
+  display: flex;
+  gap: clamp(5px, 1.8cqw, 9px);
+  margin-bottom: clamp(6px, 2cqw, 10px);
+  position: relative;
+}
+
+/* 날짜 직접 입력 박스 */
+.saju-input-box {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 200 / 76;
+  min-width: 0;
+}
+.saju-date-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: rgba(152, 204, 255, 0.3);
+  border: 1px solid #7FB0D8;
+  border-radius: 16px;
+  outline: none;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  color-scheme: dark;
+  font-size: clamp(13px, 3.6cqw, 18px);
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  padding: 0 clamp(36px, 12cqw, 52px) 0 clamp(8px, 2.4cqw, 13px);
+  text-align: left;
+}
+.saju-date-input::placeholder {
+  color: #7C97B0;
+  -webkit-text-fill-color: #7C97B0;
+  font-weight: 500;
+}
+.saju-input-box .saju-select-unit {
+  position: absolute;
+  right: clamp(24px, 7.5cqw, 34px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(10px, 2.7cqw, 12px);
+  color: #C6D8E8;
+  pointer-events: none;
+  z-index: 2;
+}
+/* 오른쪽 ▾ 버튼 (드롭다운 열기) — 배경 svg의 기존 화살표를 덮음 */
+.saju-date-caret {
+  position: absolute;
+  right: clamp(4px, 1.4cqw, 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(16px, 5cqw, 22px);
+  height: clamp(18px, 5.4cqw, 24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0A2038;
+  border: none;
+  border-radius: 5px;
+  color: var(--saju-gold);
+  font-size: clamp(9px, 2.6cqw, 12px);
+  cursor: pointer;
+  z-index: 3;
+  padding: 0;
+}
+/* 아래로 펼쳐지는 목록 */
+.saju-date-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: clamp(140px, 40vh, 240px);
+  overflow-y: auto;
+  background: #0F243F;
+  border: 1px solid var(--saju-gold);
+  border-radius: clamp(8px, 2.5cqw, 12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.saju-date-option {
+  padding: clamp(7px, 2cqw, 10px) clamp(8px, 2.5cqw, 12px);
+  border-radius: clamp(6px, 2cqw, 9px);
+  color: #EAF2FB;
+  font-size: var(--fs-small);
+  cursor: pointer;
+  text-align: left;
+}
+.saju-date-option:hover {
+  background: rgba(102, 178, 214, 0.18);
+}
+.saju-date-option.is-selected {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 셀렉트 박스(현재 미사용이지만 유지) */
+.saju-select-box {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 200 / 76;
+  min-width: 0;
+}
+.saju-select-box select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-image: var(--svg-select-closed);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border: none;
+  outline: none;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  color-scheme: dark;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  padding: 0 clamp(30px, 8cqw, 40px) 0 clamp(10px, 3cqw, 15px);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.saju-select-box select option { background: #0F243F; color: #fff; }
+.saju-select-box select:disabled {
+  opacity: 0.4; cursor: not-allowed;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.4);
+}
+.saju-select-box .saju-select-unit {
+  position: absolute;
+  right: clamp(26px, 7cqw, 34px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--fs-small);
+  color: #C6D8E8;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---------- 시간 선택 row (버튼 + 시간모름 토글) ---------- */
+.saju-time-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(5px, 1.8cqw, 9px);
+}
+.saju-time-fields {
+  flex: 2;
+  min-width: 0;
+  display: flex;
+  gap: clamp(5px, 1.8cqw, 9px);
+  position: relative;
+}
+.saju-time-fields.is-unknown .saju-input-box {
+  visibility: hidden;
+}
+.saju-time-unknown-box {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(152, 204, 255, 0.3);
+  border: 1px solid #7FB0D8;
+  border-radius: 16px;
+  color: #EAF2FB;
+  font-weight: 600;
+  font-size: clamp(13px, 3.6cqw, 16px);
+  text-align: center;
+}
+.saju-time-trigger {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(5px, 1.6cqw, 9px);
+  padding: clamp(11px, 3.2cqw, 15px) clamp(12px, 3.6cqw, 18px);
+  border: 1px solid #1E3A5A;
+  border-radius: var(--radius-input);
+  background: rgba(15, 36, 63, 0.9);
+  color: var(--saju-text);
+  font-size: var(--fs-small);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.saju-time-trigger:hover:not(:disabled) {
+  border-color: var(--saju-blue-300);
+  box-shadow: 0 0 0 2px rgba(102, 178, 214, 0.2);
+}
+.saju-time-trigger.is-placeholder { color: var(--saju-text-faint); }
+.saju-time-trigger:disabled { opacity: 0.4; cursor: not-allowed; }
+.saju-time-trigger .saju-time-caret { color: var(--saju-text-muted); flex-shrink: 0; }
+
+/* ---------- ToggleSwitch ---------- */
+.saju-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 1.4cqw, 7px);
+  flex-shrink: 0;
+}
+.saju-toggle {
+  width: clamp(38px, 11cqw, 48px);
+  height: clamp(22px, 6.2cqw, 27px);
+  border-radius: 999px;
+  background: #1E2C43;
+  border: 1px solid #2C4763;
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+.saju-toggle.is-on { background: var(--saju-blue-300); border-color: var(--saju-blue-300); }
+.saju-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(clamp(22px, 6.2cqw, 27px) - 6px);
+  height: calc(clamp(22px, 6.2cqw, 27px) - 6px);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+.saju-toggle.is-on .saju-toggle-knob {
+  transform: translateX(calc(clamp(38px, 11cqw, 48px) - clamp(22px, 6.2cqw, 27px)));
+}
+.saju-toggle-label {
+  font-size: var(--fs-small);
+  color: var(--saju-text-muted);
+  white-space: nowrap;
+}
+
+/* ---------- InfoBanner ---------- */
+.saju-info-note {
+  font-size: var(--fs-tiny);
+  color: var(--saju-text-muted);
+  margin: clamp(9px, 2.6cqw, 14px) 0 clamp(8px, 2.2cqw, 11px);
+  line-height: 1.5;
+}
+.saju-info-warning {
+  display: flex;
+  gap: clamp(5px, 1.4cqw, 8px);
+  align-items: flex-start;
+  background: #2A1010;
+  border: 1px solid var(--saju-red);
+  border-radius: var(--radius-input);
+  padding: clamp(8px, 2.4cqw, 12px) clamp(10px, 3cqw, 14px);
+  font-size: var(--fs-tiny);
+  line-height: 1.5;
+  color: #FCA5A5;
+}
+.saju-info-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--saju-gold);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- SubmitButton ---------- */
+.saju-submit-button {
+  width: 100%;
+  padding: clamp(13px, 3.8cqw, 18px);
+  border: 1.5px solid var(--saju-gold);
+  border-radius: var(--radius-card);
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+  color: #fff;
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(5px, 1.6cqw, 9px);
+  box-shadow: 0 6px 20px rgba(11, 31, 59, 0.5), inset 0 0 12px rgba(234, 203, 138, 0.12);
+  transition: filter 0.15s ease;
+  margin-top: clamp(5px, 1.6cqw, 9px);
+}
+.saju-submit-button:hover:not(:disabled) { filter: brightness(1.1); }
+.saju-submit-button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ---------- Modal (12간지 시간표) ---------- */
+.saju-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: clamp(14px, 5vw, 24px);
+}
+.saju-modal {
+  width: 100%;
+  max-width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--saju-navy-800);
+  border: 1px solid var(--saju-gold);
+  color: var(--saju-text);
+  border-radius: 16px;
+  padding: clamp(14px, 4vw, 20px);
+}
+.saju-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(10px, 3vw, 16px);
+}
+.saju-modal-header h4 { margin: 0; font-size: clamp(15px, 4vw, 18px); }
+.saju-modal-close {
+  background: none;
+  border: none;
+  color: var(--saju-text);
+  font-size: clamp(16px, 4.5vw, 20px);
+  cursor: pointer;
+}
+.saju-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(13px, 3.6vw, 15px);
+}
+.saju-modal-table th,
+.saju-modal-table td {
+  padding: clamp(7px, 2vw, 10px) clamp(5px, 1.5vw, 8px);
+  text-align: center;
+  border-bottom: 1px solid rgba(102, 178, 214, 0.12);
+}
+.saju-modal-table th { color: var(--saju-gold); }
+.saju-modal-row { cursor: pointer; transition: background 0.12s ease; }
+.saju-modal-row:hover { background: rgba(102, 178, 214, 0.1); }
+.saju-modal-row.is-selected {
+  background: linear-gradient(180deg, var(--saju-blue-700), var(--saju-blue-500));
+}
+.saju-modal-row.is-selected td { color: #fff; font-weight: 600; }
+
+/* ---------- 유효성 에러 ---------- */
+.saju-info-error {
+  margin-top: clamp(8px, 2.2cqw, 11px);
+  background: #2A1010;
+  border: 1px solid var(--saju-red);
+  border-radius: var(--radius-input);
+  padding: clamp(8px, 2.4cqw, 12px) clamp(10px, 3cqw, 14px);
+  font-size: var(--fs-tiny);
+  line-height: 1.5;
+  color: #FCA5A5;
+}
+
+/* ---------- 원국 결과 표 ---------- */
+.saju-chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--saju-text);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+.saju-chart-table th,
+.saju-chart-table td {
+  border: 1px solid rgba(102, 178, 214, 0.18);
+  padding: clamp(6px, 1.8cqw, 10px) clamp(4px, 1.4cqw, 8px);
+}
+.saju-chart-table thead th { color: var(--saju-gold); font-weight: 600; }
+.saju-chart-table tbody th { color: var(--saju-text-muted); font-weight: 500; }
+.saju-chart-ganzhi {
+  font-size: var(--fs-body, 1.1rem);
+  font-weight: 700;
+  color: var(--saju-gold);
+}
+
+/* ---------- 풀이 이야기 ---------- */
+.saju-story {
+  margin-bottom: clamp(14px, 3.6cqw, 22px);
+  padding-bottom: clamp(12px, 3cqw, 18px);
+  border-bottom: 1px solid rgba(102, 178, 214, 0.14);
+}
+.saju-story:last-child { border-bottom: none; }
+.saju-story-title {
+  color: var(--saju-gold);
+  font-size: var(--fs-body, 1.15rem);
+  font-weight: 700;
+  margin: 0 0 clamp(6px, 1.6cqw, 10px);
+}
+.saju-story-body {
+  color: var(--saju-text);
+  font-size: var(--fs-small);
+  line-height: 1.7;
+  margin: 0;
+}

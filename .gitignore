@@ -1,12 +1,10 @@
-# Claude Code
-.claude/
-
-# API 키, 비밀번호 환경변수 파일
-.env
-.env.*
-!.env.example
-*.key
-
-# Dependencies / cache
 node_modules/
-__pycache__/
+dist/
+.vscode/
+*.log
+*.tsbuildinfo
+.env
+**/.env
+.claude/
+server/data/
+docs/
