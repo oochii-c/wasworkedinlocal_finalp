@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1180" viewBox="0 0 1080 1180" font-family="Segoe UI, Pretendard, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1330"/><stop offset="1" stop-color="#060e20"/>
+    </linearGradient>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#EACB8A"/></marker>
+    <marker id="ab" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5f7bb0"/></marker>
+  </defs>
+  <rect width="1080" height="1180" fill="url(#bg2)"/>
+
+  <text x="540" y="44" text-anchor="middle" font-size="26" font-weight="700" fill="#EACB8A">사주 연산 파이프라인  ·  src/saju/</text>
+  <text x="540" y="68" text-anchor="middle" font-size="13" fill="#8fa3c8">computeSajuExtended(input) — 100% 클라이언트, 순수 함수</text>
+
+  <!-- INPUT -->
+  <rect x="360" y="90" width="360" height="66" rx="10" fill="#132550" stroke="#31518a"/>
+  <text x="540" y="114" text-anchor="middle" font-size="14" font-weight="700" fill="#dbe6fb">INPUT · SajuInput</text>
+  <text x="540" y="135" text-anchor="middle" font-size="12" fill="#9db4dc">date{y·m·d} · time{h·m} · timeUnknown · calendarType</text>
+  <path d="M540,156 L540,182" stroke="#5f7bb0" stroke-width="1.6" marker-end="url(#ab)"/>
+
+  <!-- STAGE 1: 음양력 -->
+  <rect x="120" y="182" width="840" height="150" rx="12" fill="#10233f" stroke="#3a6b46"/>
+  <text x="144" y="208" font-size="15" font-weight="700" fill="#9fe0b0">① 음양력 변환  —  calculator.ts</text>
+  <text x="144" y="228" font-size="11.5" fill="#6f9a7c">calendarType 분기 → 항상 양력(solar) 기준일로 통일</text>
+  <!-- branch solar -->
+  <rect x="150" y="244" width="360" height="72" rx="8" fill="#132550" stroke="#31518a"/>
+  <text x="170" y="266" font-size="12.5" font-weight="600" fill="#cfe0fb">solar (양력)</text>
+  <text x="170" y="286" font-size="12" fill="#9db4dc">그대로 사용</text>
+  <text x="170" y="305" font-size="12" fill="#9db4dc">baseY/M/D = date</text>
+  <!-- branch lunar -->
+  <rect x="540" y="244" width="390" height="72" rx="8" fill="#132550" stroke="#31518a"/>
+  <text x="560" y="266" font-size="12.5" font-weight="600" fill="#cfe0fb">lunar / leap-month (음력·윤달)</text>
+  <text x="560" y="286" font-size="12" fill="#9db4dc">Lunar.fromYmd(y, ±m, d).getSolar()</text>
+  <text x="560" y="305" font-size="11.5" fill="#c9a15a">윤달 = 월을 음수(-m)로 전달</text>
+  <path d="M540,332 L540,360" stroke="#5f7bb0" stroke-width="1.6" marker-end="url(#ab)"/>
+  <text x="552" y="352" font-size="11" fill="#8fa3c8">baseYear / baseMonth / baseDay</text>
+
+  <!-- STAGE 2: 시간 보정 -->
+  <rect x="120" y="360" width="840" height="196" rx="12" fill="#10233f" stroke="#3a6b46"/>
+  <text x="144" y="386" font-size="15" font-weight="700" fill="#9fe0b0">② 시간 보정  —  timeCorrection.ts</text>
+  <text x="144" y="406" font-size="11.5" fill="#6f9a7c">timeUnknown 분기</text>
+  <!-- branch unknown -->
+  <rect x="150" y="422" width="300" height="112" rx="8" fill="#132550" stroke="#31518a"/>
+  <text x="170" y="444" font-size="12.5" font-weight="600" fill="#cfe0fb">timeUnknown = true</text>
+  <text x="170" y="466" font-size="12" fill="#9db4dc">보정 스킵</text>
+  <text x="170" y="486" font-size="12" fill="#9db4dc">시각 = 午시 12:00 고정</text>
+  <text x="170" y="510" font-size="11" fill="#7d93bb">→ 시주 신뢰 낮음</text>
+  <!-- branch correct -->
+  <rect x="480" y="422" width="450" height="112" rx="8" fill="#17223f" stroke="#7a5a2a"/>
+  <text x="500" y="444" font-size="12.5" font-weight="600" fill="#e7cf9a">timeUnknown = false → correctToSaju()</text>
+  <text x="500" y="466" font-size="12" fill="#d9c39a">진태양시  −32분  (서울 127.5° vs 동경 135°)</text>
+  <text x="500" y="486" font-size="12" fill="#d9c39a">DST 기간이면  추가 −60분</text>
+  <text x="500" y="506" font-size="11" fill="#b79b64">DST_PERIODS: 1948~1960 · 1987~1988 (12구간)</text>
+  <text x="500" y="524" font-size="11" fill="#b79b64">Date(±offset) 재계산 → 날짜 넘어가면 y/m/d도 이동</text>
+  <path d="M540,556 L540,584" stroke="#5f7bb0" stroke-width="1.6" marker-end="url(#ab)"/>
+  <text x="552" y="576" font-size="11" fill="#8fa3c8">보정된 finalY/M/D/H/M ( + dstApplied )</text>
+
+  <!-- STAGE 3: EightChar -->
+  <rect x="120" y="584" width="840" height="230" rx="12" fill="#10233f" stroke="#3a6b46"/>
+  <text x="144" y="610" font-size="15" font-weight="700" fill="#9fe0b0">③ 간지 산출  —  lunar-typescript</text>
+  <text x="144" y="630" font-size="11.5" fill="#6f9a7c">Solar.fromYmdHms(보정값) → .getLunar() → .getEightChar()</text>
+  <!-- 4 pillars table -->
+  <g font-size="12">
+    <rect x="150" y="646" width="192" height="150" rx="8" fill="#132550" stroke="#31518a"/>
+    <rect x="352" y="646" width="192" height="150" rx="8" fill="#132550" stroke="#31518a"/>
+    <rect x="554" y="646" width="192" height="150" rx="8" fill="#132550" stroke="#31518a"/>
+    <rect x="756" y="646" width="174" height="150" rx="8" fill="#132550" stroke="#31518a"/>
+    <text x="246" y="670" text-anchor="middle" font-weight="700" fill="#EACB8A">연주 (Year)</text>
+    <text x="448" y="670" text-anchor="middle" font-weight="700" fill="#EACB8A">월주 (Month)</text>
+    <text x="650" y="670" text-anchor="middle" font-weight="700" fill="#EACB8A">일주 (Day)</text>
+    <text x="843" y="670" text-anchor="middle" font-weight="700" fill="#EACB8A">시주 (Time)</text>
+  </g>
+  <g font-size="11.5" fill="#bcd0ef">
+    <text x="246" y="694" text-anchor="middle">gan · zhi · ganZhi</text>
+    <text x="246" y="712" text-anchor="middle">hideGan 지장간</text>
+    <text x="246" y="730" text-anchor="middle">wuXing 오행</text>
+    <text x="246" y="748" text-anchor="middle">shiShen 십성</text>
+    <text x="246" y="766" text-anchor="middle">diShi 십이운성</text>
+    <text x="246" y="784" text-anchor="middle">naYin·xunKong</text>
+    <text x="448" y="694" text-anchor="middle">〃</text><text x="650" y="694" text-anchor="middle">〃 (일간=나)</text><text x="843" y="694" text-anchor="middle">〃</text>
+    <text x="448" y="730" text-anchor="middle">〃</text><text x="650" y="730" text-anchor="middle">〃</text><text x="843" y="730" text-anchor="middle">〃</text>
+    <text x="448" y="766" text-anchor="middle">〃</text><text x="650" y="766" text-anchor="middle">〃</text><text x="843" y="766" text-anchor="middle">〃</text>
+  </g>
+  <text x="540" y="808" text-anchor="middle" font-size="11.5" fill="#8fb8dc">+ dayGan(일간) · baZi(팔자 8글자) · shengXiao(띠)   →   SajuChart</text>
+  <path d="M540,814 L540,840" stroke="#5f7bb0" stroke-width="1.6" marker-end="url(#ab)"/>
+
+  <!-- STAGE 4: 집계 -->
+  <rect x="120" y="840" width="840" height="196" rx="12" fill="#10233f" stroke="#3a6b46"/>
+  <text x="144" y="866" font-size="15" font-weight="700" fill="#9fe0b0">④ 확장 집계  —  computeSajuExtended</text>
+  <g font-size="12" fill="#cfe0fb">
+    <rect x="150" y="882" width="188" height="130" rx="8" fill="#132550" stroke="#31518a"/>
+    <text x="244" y="906" text-anchor="middle" font-weight="600">오행 집계</text>
+    <text x="244" y="928" text-anchor="middle" font-size="11" fill="#9db4dc">8자 + 지장간</text>
+    <text x="244" y="946" text-anchor="middle" font-size="11" fill="#9db4dc">wuXingCount</text>
+    <text x="244" y="964" text-anchor="middle" font-size="11" fill="#7d93bb">木火土金水</text>
+
+    <rect x="350" y="882" width="188" height="130" rx="8" fill="#132550" stroke="#31518a"/>
+    <text x="444" y="906" text-anchor="middle" font-weight="600">십성 5분류</text>
+    <text x="444" y="928" text-anchor="middle" font-size="11" fill="#9db4dc">SIPSHEN_GROUP</text>
+    <text x="444" y="946" text-anchor="middle" font-size="11" fill="#9db4dc">shiShenCount</text>
+    <text x="444" y="964" text-anchor="middle" font-size="10.5" fill="#7d93bb">비겁·식상·재성·관성·인성</text>
+
+    <rect x="550" y="882" width="188" height="130" rx="8" fill="#132550" stroke="#31518a"/>
+    <text x="644" y="906" text-anchor="middle" font-weight="600">신살 · shenSha.ts</text>
+    <text x="644" y="928" text-anchor="middle" font-size="11" fill="#9db4dc">calcShenSha</text>
+    <text x="644" y="946" text-anchor="middle" font-size="11" fill="#9db4dc">(pillars, dayGan)</text>
+    <text x="644" y="964" text-anchor="middle" font-size="11" fill="#7d93bb">신살·길성 21종</text>
+
+    <rect x="750" y="882" width="180" height="130" rx="8" fill="#132550" stroke="#31518a"/>
+    <text x="840" y="906" text-anchor="middle" font-weight="600">운세 · fortune.ts</text>
+    <text x="840" y="928" text-anchor="middle" font-size="11" fill="#9db4dc">calcFortuneFlow</text>
+    <text x="840" y="946" text-anchor="middle" font-size="11" fill="#9db4dc">(input, dayGan)</text>
+    <text x="840" y="964" text-anchor="middle" font-size="11" fill="#7d93bb">대운 · 세운</text>
+  </g>
+  <text x="540" y="1000" text-anchor="middle" font-size="11" fill="#6f9a7c">hanja.ts: 간체→번체 한자 정규화 (naYin·shiShen 라벨 통일)</text>
+  <path d="M540,1036 L540,1062" stroke="#EACB8A" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- OUTPUT -->
+  <rect x="300" y="1062" width="480" height="66" rx="10" fill="#17223f" stroke="#7a5a2a"/>
+  <text x="540" y="1088" text-anchor="middle" font-size="14" font-weight="700" fill="#EACB8A">OUTPUT · SajuExtended</text>
+  <text x="540" y="1109" text-anchor="middle" font-size="11.5" fill="#d9c39a">pillars · dayGan · baZi · wuXingCount · shiShenCount · shenSha · daYun · seWun</text>
+
+  <text x="540" y="1156" text-anchor="middle" font-size="11.5" fill="#7fb0ff">→ Dashboard 7블록 렌더  ·  AI 호출 시 이 chart를 /api/reading 으로 전송</text>
+</svg>

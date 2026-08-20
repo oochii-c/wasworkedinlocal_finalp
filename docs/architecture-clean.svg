@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="900" viewBox="0 0 2000 900" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#1a1a1a"/></marker>
+    <marker id="ah0" markerWidth="12" markerHeight="12" refX="1" refY="4" orient="auto"><path d="M9,0 L0,4 L9,8 Z" fill="#1a1a1a"/></marker>
+  </defs>
+  <rect width="2000" height="900" fill="#ffffff"/>
+
+  <!-- USER -->
+  <circle cx="105" cy="430" r="72" fill="#ffffff" stroke="#1a1a1a" stroke-width="2.5"/>
+  <text x="105" y="438" text-anchor="middle" font-size="26" font-weight="600" fill="#1a1a1a">USER</text>
+  <!-- USER <-> Front-end -->
+  <line x1="178" y1="430" x2="392" y2="430" stroke="#1a1a1a" stroke-width="3" marker-end="url(#ah)" marker-start="url(#ah0)"/>
+
+  <!-- BROWSER outer -->
+  <rect x="330" y="70" width="960" height="760" rx="22" fill="#ffffff" stroke="#8a8a8a" stroke-width="2"/>
+  <text x="366" y="118" font-size="26" font-weight="600" fill="#1a1a1a">🖥  BROWSER</text>
+  <text x="366" y="142" font-size="14" fill="#7a7a7a">Vite dev · :5173</text>
+
+  <!-- React SPA inner -->
+  <rect x="366" y="162" width="888" height="640" rx="18" fill="#ffffff" stroke="#b0b0b0" stroke-width="1.6"/>
+  <text x="398" y="196" font-size="18" font-weight="600" fill="#1a1a1a">React 18 + TypeScript</text>
+  <text x="398" y="216" font-size="13" fill="#7a7a7a">라우터 없음 · state 전환 SPA</text>
+
+  <!-- Front-end -->
+  <rect x="398" y="238" width="250" height="150" rx="14" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.6"/>
+  <text x="523" y="280" text-anchor="middle" font-size="20" font-weight="600" fill="#1a1a1a">입력 화면</text>
+  <text x="523" y="306" text-anchor="middle" font-size="14" fill="#444">SajuForm</text>
+  <text x="523" y="332" text-anchor="middle" font-size="12.5" fill="#7a7a7a">폼 · 검증 · 라우팅</text>
+  <text x="523" y="356" text-anchor="middle" font-size="12.5" fill="#7a7a7a">CSS 토큰 · SVG · 폰트</text>
+
+  <!-- Dashboard -->
+  <rect x="398" y="430" width="250" height="184" rx="14" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.6"/>
+  <text x="523" y="470" text-anchor="middle" font-size="20" font-weight="600" fill="#1a1a1a">대시보드</text>
+  <text x="523" y="494" text-anchor="middle" font-size="13" fill="#7a7a7a">결과 7블록</text>
+  <text x="523" y="522" text-anchor="middle" font-size="12.5" fill="#444">캐릭터 · 원국8자 · 오행</text>
+  <text x="523" y="544" text-anchor="middle" font-size="12.5" fill="#444">십성 · 신살 · AI총운 · 대운</text>
+  <text x="523" y="576" text-anchor="middle" font-size="12" fill="#7a7a7a">BottomNav</text>
+
+  <!-- front <-> dashboard -->
+  <line x1="523" y1="388" x2="523" y2="430" stroke="#1a1a1a" stroke-width="2" marker-end="url(#ah)" marker-start="url(#ah0)"/>
+
+  <!-- Saju Engine (AI-Model 위치) -->
+  <rect x="686" y="210" width="540" height="560" rx="16" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.6"/>
+  <text x="716" y="250" font-size="21" font-weight="600" fill="#1a1a1a">사주 연산 엔진</text>
+  <text x="716" y="272" font-size="13" fill="#7a7a7a">src/saju · 순수 함수 (네트워크 X)</text>
+  <text x="716" y="298" font-size="15" font-weight="600" fill="#2b6cb0">lunar-typescript</text>
+
+  <g font-size="14" fill="#1a1a1a">
+    <rect x="716" y="316" width="480" height="66" rx="12" fill="#ffffff" stroke="#9a9a9a"/>
+    <text x="736" y="344" font-weight="600">① 음양력 변환</text>
+    <text x="736" y="366" font-size="12.5" fill="#7a7a7a">calendarType 분기 → 양력 통일 (윤달=월 음수)</text>
+
+    <rect x="716" y="394" width="480" height="66" rx="12" fill="#ffffff" stroke="#9a9a9a"/>
+    <text x="736" y="422" font-weight="600">② 시간 보정</text>
+    <text x="736" y="444" font-size="12.5" fill="#7a7a7a">진태양시 −32분 · DST −60분 · 야자시</text>
+
+    <rect x="716" y="472" width="480" height="66" rx="12" fill="#ffffff" stroke="#9a9a9a"/>
+    <text x="736" y="500" font-weight="600">③ 간지 산출 · EightChar</text>
+    <text x="736" y="522" font-size="12.5" fill="#7a7a7a">연·월·일·시 8자 + 지장간·납음·십이운성</text>
+
+    <rect x="716" y="550" width="480" height="66" rx="12" fill="#ffffff" stroke="#9a9a9a"/>
+    <text x="736" y="578" font-weight="600">④ 확장 집계</text>
+    <text x="736" y="600" font-size="12.5" fill="#7a7a7a">오행 · 십성 5분류 · 신살 21종 · 대운/세운</text>
+  </g>
+  <line x1="956" y1="382" x2="956" y2="394" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#ah)"/>
+  <line x1="956" y1="460" x2="956" y2="472" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#ah)"/>
+  <line x1="956" y1="538" x2="956" y2="550" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#ah)"/>
+  <rect x="806" y="632" width="300" height="40" rx="10" fill="#f4f7fb" stroke="#9a9a9a"/>
+  <text x="956" y="658" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1a1a1a">→ SajuExtended (chart)</text>
+  <line x1="956" y1="616" x2="956" y2="632" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#ah)"/>
+
+  <!-- 입력화면 <-> 엔진 -->
+  <line x1="648" y1="300" x2="686" y2="300" stroke="#1a1a1a" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="655" y="290" font-size="11.5" fill="#7a7a7a">compute</text>
+  <line x1="686" y1="652" x2="648" y2="652" stroke="#1a1a1a" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="655" y="644" font-size="11.5" fill="#7a7a7a">chart</text>
+
+  <!-- 정적 자산 (top-right, feeds front-end) -->
+  <rect x="1350" y="90" width="300" height="180" rx="14" fill="#ffffff" stroke="#9a9a9a" stroke-width="1.6"/>
+  <text x="1372" y="126" font-size="17" font-weight="600" fill="#1a1a1a">정적 자산</text>
+  <g font-size="13.5" fill="#444">
+    <text x="1372" y="154">배경 이미지 (해저)</text>
+    <text x="1372" y="180">입력 SVG · 사주 아이콘</text>
+    <text x="1372" y="206">폰트: ChosunSg · BMYeonSung</text>
+    <text x="1372" y="230">한자: Zen Maru Gothic</text>
+  </g>
+  <path d="M1350,200 C1300,210 1280,150 1254,180" fill="none" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#ah)"/>
+
+  <!-- Server -->
+  <rect x="1350" y="320" width="300" height="210" rx="14" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.6"/>
+  <text x="1372" y="358" font-size="19" font-weight="600" fill="#1a1a1a">server/index.js</text>
+  <text x="1372" y="380" font-size="14" font-weight="600" fill="#2b6cb0">Express · :8000</text>
+  <rect x="1372" y="398" width="256" height="46" rx="10" fill="#ffffff" stroke="#9a9a9a"/>
+  <text x="1500" y="426" text-anchor="middle" font-size="13.5" fill="#1a1a1a">POST /api/reading</text>
+  <rect x="1372" y="456" width="256" height="46" rx="10" fill="#ffffff" stroke="#9a9a9a"/>
+  <text x="1500" y="484" text-anchor="middle" font-size="13.5" fill="#1a1a1a">POST /api/year-fortune</text>
+
+  <!-- pillars.jsonl (RDS-like) -->
+  <rect x="1350" y="560" width="300" height="90" rx="14" fill="#ffffff" stroke="#1a1a1a" stroke-width="1.6"/>
+  <text x="1372" y="596" font-size="17" font-weight="600" fill="#1a1a1a">📄 pillars.jsonl</text>
+  <text x="1372" y="622" font-size="13" fill="#7a7a7a">팔자 append 로그 (DB 없음)</text>
+  <line x1="1500" y1="530" x2="1500" y2="560" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#ah)"/>
+
+  <!-- Browser <-> Server (proxy) -->
+  <path d="M1254,440 L1350,420" fill="none" stroke="#1a1a1a" stroke-width="2.4" marker-end="url(#ah)"/>
+  <text x="1266" y="410" font-size="12" fill="#7a7a7a">/api ▶</text>
+  <path d="M1350,470 L1254,490" fill="none" stroke="#1a1a1a" stroke-width="2.4" marker-end="url(#ah)"/>
+  <text x="1262" y="512" font-size="12" fill="#7a7a7a">◀ stories</text>
+  <text x="1290" y="548" font-size="11.5" fill="#9a9a9a" font-style="italic">vite proxy → :8000</text>
+
+  <!-- OpenRouter (external) -->
+  <rect x="1720" y="360" width="230" height="150" rx="16" fill="#ffffff" stroke="#1a1a1a" stroke-width="2"/>
+  <text x="1835" y="418" text-anchor="middle" font-size="19" font-weight="600" fill="#1a1a1a">OpenRouter</text>
+  <text x="1835" y="446" text-anchor="middle" font-size="14" fill="#444">Gemini</text>
+  <text x="1835" y="474" text-anchor="middle" font-size="12.5" fill="#7a7a7a">외부 LLM API</text>
+  <path d="M1650,415 L1720,415" fill="none" stroke="#1a1a1a" stroke-width="2.4" marker-end="url(#ah)"/>
+  <path d="M1720,455 L1650,455" fill="none" stroke="#1a1a1a" stroke-width="2.4" marker-end="url(#ah)"/>
+  <text x="1660" y="405" font-size="11.5" fill="#7a7a7a">chat ▶</text>
+  <text x="1662" y="475" font-size="11.5" fill="#7a7a7a">◀ JSON</text>
+
+  <!-- caption -->
+  <text x="40" y="860" font-size="13" fill="#9a9a9a">용왕집 (finalp) · System Architecture — 사주 계산 100% 클라이언트, AI 텍스트만 서버 프록시 경유</text>
+</svg>

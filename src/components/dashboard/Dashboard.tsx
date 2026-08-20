@@ -10,13 +10,13 @@ import DaYunFlow from "./DaYunFlow";
 import BottomNav from "../BottomNav";
 
 export default function Dashboard(props: DashboardProps) {
-  const { chart, stories, name, gender, date, time, timeUnknown, onBack } = props;
+  const { chart, stories, loading, onRetry, name, gender, date, time, timeUnknown, onBack } = props;
 
   return (
     <div className="db-page">
       {/* 상단 바 */}
       <header className="db-topbar">
-        <span className="db-logo">용궁 · 사주 풀이</span>
+        <span className="db-logo">용왕님 말씀</span>
         <button type="button" className="db-back-btn" onClick={onBack} aria-label="입력으로 돌아가기">
           ← 다시 입력
         </button>
@@ -46,7 +46,7 @@ export default function Dashboard(props: DashboardProps) {
         <ShenShaList shenSha={chart.shenSha} />
 
         {/* 블록 6: AI 총운 */}
-        <AiStories stories={stories} />
+        <AiStories stories={stories} loading={loading} onRetry={onRetry} />
 
         {/* 블록 7: 대운 */}
         <DaYunFlow

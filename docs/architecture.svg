@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="920" viewBox="0 0 1120 920" font-family="Segoe UI, Pretendard, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a1330"/>
+      <stop offset="1" stop-color="#060e20"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#EACB8A"/>
+    </marker>
+    <marker id="arrowB" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#5f7bb0"/>
+    </marker>
+    <marker id="arrowR" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#7fdca0"/>
+    </marker>
+  </defs>
+
+  <rect width="1120" height="920" fill="url(#bg)"/>
+
+  <!-- title -->
+  <text x="560" y="46" text-anchor="middle" font-size="28" font-weight="700" fill="#EACB8A">용궁 사주 — System Architecture</text>
+  <text x="560" y="70" text-anchor="middle" font-size="13" fill="#8fa3c8">React SPA · 로컬 사주 연산 + OpenRouter AI 프록시</text>
+
+  <!-- BROWSER container -->
+  <rect x="40" y="92" width="1040" height="560" rx="14" fill="#0e1b3d" stroke="#26406f" stroke-width="1.5"/>
+  <text x="62" y="120" font-size="15" font-weight="700" fill="#7fb0ff">BROWSER  ·  Vite dev :5173</text>
+
+  <!-- entry -->
+  <rect x="70" y="138" width="360" height="52" rx="10" fill="#132550" stroke="#31518a"/>
+  <text x="90" y="162" font-size="14" font-weight="600" fill="#dbe6fb">Entry</text>
+  <text x="90" y="181" font-size="12.5" fill="#9db4dc">main.tsx → App.tsx → SajuForm</text>
+
+  <!-- input screen -->
+  <rect x="70" y="208" width="360" height="120" rx="10" fill="#132550" stroke="#31518a"/>
+  <text x="90" y="232" font-size="14" font-weight="600" fill="#dbe6fb">입력 화면 · SajuForm.tsx</text>
+  <text x="90" y="254" font-size="12.5" fill="#9db4dc">name · gender · calendar · date · time</text>
+  <text x="90" y="273" font-size="12.5" fill="#9db4dc">timeUnknown 토글 · 검증 · 폼↔대시보드 전환</text>
+  <text x="90" y="298" font-size="12" fill="#7d93bb">UI: components/input/*, yong-component/*</text>
+  <text x="90" y="316" font-size="12" fill="#7d93bb">(TextInput·Select·Radio·Segment·DateInputGroup)</text>
+
+  <!-- saju engine -->
+  <rect x="70" y="348" width="360" height="150" rx="10" fill="#10233f" stroke="#3a6b46"/>
+  <text x="90" y="372" font-size="14" font-weight="700" fill="#9fe0b0">src/saju/  —  순수 연산 (네트워크 X)</text>
+  <text x="90" y="396" font-size="12.5" fill="#bfe6c9">calculator.ts  ← lunar-typescript (음력·간지)</text>
+  <text x="90" y="416" font-size="12.5" fill="#bfe6c9">timeCorrection  ← 진태양시 / 야자시 보정</text>
+  <text x="90" y="436" font-size="12.5" fill="#bfe6c9">hanja · shenSha(신살 21) · fortune(대운·세운·오행)</text>
+  <text x="90" y="462" font-size="12.5" fill="#e6f2ea">→ SajuExtended  chart</text>
+  <text x="90" y="484" font-size="11.5" fill="#6f9a7c" font-style="italic">사주 계산 100% 클라이언트</text>
+
+  <!-- dashboard -->
+  <rect x="500" y="208" width="540" height="290" rx="10" fill="#132550" stroke="#31518a"/>
+  <text x="522" y="232" font-size="14" font-weight="700" fill="#dbe6fb">Dashboard  ·  결과 7블록</text>
+  <g font-size="12.5" fill="#cfe0fb">
+    <rect x="522" y="248" width="240" height="34" rx="6" fill="#1b3060"/><text x="534" y="270">CharacterCard</text>
+    <rect x="778" y="248" width="240" height="34" rx="6" fill="#1b3060"/><text x="790" y="270">OriginChart · 원국 8글자</text>
+    <rect x="522" y="292" width="240" height="34" rx="6" fill="#1b3060"/><text x="534" y="314">ElementStar · 오행</text>
+    <rect x="778" y="292" width="240" height="34" rx="6" fill="#1b3060"/><text x="790" y="314">TenGodRadar · 십성</text>
+    <rect x="522" y="336" width="240" height="34" rx="6" fill="#1b3060"/><text x="534" y="358">ShenShaList · 신살</text>
+    <rect x="778" y="336" width="240" height="34" rx="6" fill="#3a2f50"/><text x="790" y="358" fill="#e7d6ff">AiStories · AI 총운  ★</text>
+    <rect x="522" y="380" width="240" height="34" rx="6" fill="#3a2f50"/><text x="534" y="402" fill="#e7d6ff">DaYunFlow · 대운그래프  ★</text>
+    <rect x="778" y="380" width="240" height="34" rx="6" fill="#1b3060"/><text x="790" y="402">BottomNav</text>
+  </g>
+  <text x="522" y="440" font-size="11.5" fill="#8a7fb5">★ = 서버 호출 블록</text>
+  <text x="522" y="472" font-size="11.5" fill="#7d93bb">스타일: ChosunSm(본문) · 강원모루(h1) · Zen Maru(한자) · title img</text>
+
+  <!-- flow arrows inside browser -->
+  <path d="M250,190 L250,208" stroke="#5f7bb0" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+  <path d="M250,328 L250,348" stroke="#5f7bb0" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+  <text x="258" y="343" font-size="11" fill="#8fa3c8">computeSajuExtended()</text>
+  <path d="M430,430 C470,430 470,350 500,350" stroke="#5f7bb0" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+  <text x="440" y="378" font-size="11" fill="#8fa3c8">chart</text>
+
+  <!-- API arrows to backend (request down / response up) -->
+  <!-- reading: request -->
+  <path d="M600,498 L600,700" stroke="#EACB8A" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="466" y="556" font-size="12" fill="#EACB8A" text-anchor="end">POST /api/reading ▼</text>
+  <text x="466" y="573" font-size="10.5" fill="#b79b64" text-anchor="end">(chart 전체)</text>
+  <!-- reading: response -->
+  <path d="M648,700 L648,498" stroke="#7fdca0" stroke-width="2" fill="none" marker-end="url(#arrowR)"/>
+  <text x="664" y="628" font-size="12" fill="#7fdca0">▲ 200 stories[4]</text>
+  <text x="664" y="645" font-size="10.5" fill="#5f9c73">→ SajuForm state → AiStories</text>
+
+  <!-- year-fortune: request -->
+  <path d="M862,498 L862,700" stroke="#EACB8A" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="854" y="556" font-size="12" fill="#EACB8A" text-anchor="end">POST /api/year-fortune ▼</text>
+  <text x="854" y="573" font-size="10.5" fill="#b79b64" text-anchor="end">(선택 세운)</text>
+  <!-- year-fortune: response -->
+  <path d="M910,700 L910,498" stroke="#7fdca0" stroke-width="2" fill="none" marker-end="url(#arrowR)"/>
+  <text x="926" y="628" font-size="12" fill="#7fdca0">▲ 200 운세 텍스트</text>
+  <text x="926" y="645" font-size="10.5" fill="#5f9c73">→ DaYunFlow state</text>
+
+  <text x="600" y="688" font-size="10.5" fill="#8fa3c8" font-style="italic" text-anchor="middle">vite proxy /api → :8000</text>
+
+  <!-- BACKEND container -->
+  <rect x="500" y="700" width="540" height="130" rx="14" fill="#101c33" stroke="#2c4b6f" stroke-width="1.5"/>
+  <text x="522" y="726" font-size="15" font-weight="700" fill="#7fd0ff">server/index.js  ·  Express :8000</text>
+  <text x="522" y="750" font-size="12.5" fill="#bcd6ef">/api/reading      → 팔자→프롬프트 → OpenRouter → stories[4]</text>
+  <text x="522" y="770" font-size="12.5" fill="#bcd6ef">/api/year-fortune → OpenRouter → 연도별 운세</text>
+  <text x="522" y="790" font-size="12.5" fill="#8fb8dc">+ pillars.jsonl append 로그  (DB 없음, stateless)</text>
+  <text x="522" y="812" font-size="11.5" fill="#6f8db0">OPENROUTER_API_KEY / MODEL  ←  server/.env</text>
+
+  <!-- OpenRouter (request down / completion up) -->
+  <path d="M745,830 L745,868" stroke="#EACB8A" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="640" y="852" font-size="10.5" fill="#b79b64" text-anchor="end">chat/completions ▼</text>
+  <path d="M795,868 L795,830" stroke="#7fdca0" stroke-width="2" fill="none" marker-end="url(#arrowR)"/>
+  <text x="808" y="852" font-size="10.5" fill="#5f9c73">▲ JSON 응답</text>
+  <rect x="430" y="868" width="680" height="40" rx="10" fill="#2a1f14" stroke="#7a5a2a"/>
+  <text x="770" y="893" text-anchor="middle" font-size="13.5" font-weight="600" fill="#EACB8A">OpenRouter API  (Gemini)  —  외부</text>
+
+  <!-- legend left-bottom -->
+  <text x="40" y="884" font-size="11" fill="#5f7391">■ 초록블록=로컬연산  ■ 파랑=UI  ▼골드=요청  ▲연두=응답</text>
+</svg>

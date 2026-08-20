@@ -20,7 +20,7 @@
   background-attachment: local;
   display: flex;
   flex-direction: column;
-  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  font-family: "ChosunSg", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
   color: var(--saju-text);
   max-width: 480px;
   margin: 0 auto;
@@ -44,7 +44,7 @@
 }
 
 .db-logo {
-  font-family: "강원모루", "GangwonEdu", "Pretendard", sans-serif;
+  font-family: "BMYeonSung", "Pretendard", sans-serif;
   font-weight: 700;
   font-size: 19px;
   color: var(--saju-gold);
@@ -126,6 +126,7 @@
 }
 
 .db-hanja {
+  font-family: "Zen Maru Gothic", serif;
   font-size: 42px;
   font-weight: 700;
   color: var(--saju-gold);
@@ -202,6 +203,7 @@
 }
 
 .db-wg-hanja {
+  font-family: "Zen Maru Gothic", serif;
   font-size: 28px;
   font-weight: 700;
   line-height: 1;
@@ -440,16 +442,14 @@
   bottom: 0;
   display: flex;
   align-items: flex-end;
-  background: radial-gradient(
-    100% 120% at 50% 100%,
-    rgba(6, 14, 32, 0.96) 0%,
-    rgba(9, 23, 56, 0.94) 70%,
-    rgba(11, 31, 59, 0.92) 100%
+  background: linear-gradient(
+    180deg,
+    rgba(6, 14, 32, 0) 0%,
+    rgba(9, 23, 56, 0.85) 55%,
+    rgba(11, 31, 59, 0.96) 100%
   );
-  border-top: 1px solid rgba(102, 178, 214, 0.18);
   backdrop-filter: blur(16px);
   padding: 6px 4px 14px;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45);
   z-index: 50;
 }
 

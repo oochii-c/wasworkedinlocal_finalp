@@ -1,4 +1,5 @@
 import type { SajuChart } from "./saju";
+import titleLogo from "./assets/img/Group 27.png";
 
 export interface Story {
   title: string;
@@ -30,7 +31,7 @@ export default function SajuReading({ chart, stories, name, timeUnknown, onBack 
   return (
     <div className="saju-page">
       <header className="saju-header">
-        <div className="saju-brand">용궁</div>
+        <img className="saju-brand" src={titleLogo} alt="용궁" style={{ height: "clamp(40px, 12cqw, 72px)", width: "auto" }} />
         <h1>{name ? `${name} 님의 사주 풀이` : "사주 풀이"}</h1>
         <p>일간 {chart.dayGan} · 띠 {chart.shengXiao}</p>
       </header>

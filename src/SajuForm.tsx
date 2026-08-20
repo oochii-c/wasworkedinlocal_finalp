@@ -3,6 +3,7 @@ import "./styles/saju.css";
 import { computeSajuExtended, type SajuExtended } from "./saju";
 import { type Story } from "./SajuReading";
 import Dashboard from "./components/dashboard/Dashboard";
+import titleLogo from "./assets/img/Group 27.png";
 
 /* ============================================================
    SajuForm.tsx
@@ -151,10 +152,10 @@ function NumberField({
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           const digits = e.target.value.replace(/[^0-9]/g, "").slice(0, maxLen);
           onChange(digits === "" ? 0 : Number(digits));
-          setOpen(true);
+          setOpen(digits.length < maxLen);
         }}
         onFocus={() => { if (!disabled) setOpen(true); }}
-        onBlur={() => commit(value)}
+        onBlur={() => { commit(value); setOpen(false); }}
       />
       <span className="saju-select-unit">{unit}</span>
       <button
@@ -194,9 +195,9 @@ function DateInputGroup({ value, onChange, yearRange = [1930, 2026] }: DateInput
   const days: number[] = []; for (let d = 1; d <= 31; d++) days.push(d);
   return (
     <div className="saju-select-row">
-      <NumberField value={value.year} options={years} placeholder="YYYY" unit="년" maxLen={4} min={1900} max={2100} ariaLabel="출생 연도" onChange={(v) => onChange({ ...value, year: v })} />
-      <NumberField value={value.month} options={months} placeholder="MM" unit="월" maxLen={2} min={1} max={12} ariaLabel="출생 월" onChange={(v) => onChange({ ...value, month: v })} />
-      <NumberField value={value.day} options={days} placeholder="DD" unit="일" maxLen={2} min={1} max={31} ariaLabel="출생 일" onChange={(v) => onChange({ ...value, day: v })} />
+      <NumberField value={value.year} options={years} placeholder="2003" unit="년" maxLen={4} min={1900} max={2100} ariaLabel="출생 연도" onChange={(v) => onChange({ ...value, year: v })} />
+      <NumberField value={value.month} options={months} placeholder="2" unit="월" maxLen={2} min={1} max={12} ariaLabel="출생 월" onChange={(v) => onChange({ ...value, month: v })} />
+      <NumberField value={value.day} options={days} placeholder="16" unit="일" maxLen={2} min={1} max={31} ariaLabel="출생 일" onChange={(v) => onChange({ ...value, day: v })} />
     </div>
   );
 }
@@ -233,25 +234,13 @@ function TimeInputGroup({ value, unknown, onChange, onUnknownChange }: TimeInput
   const minutes: number[] = []; for (let m = 0; m <= 59; m++) minutes.push(m);
   return (
     <div className="saju-time-row">
-      <NumberField value={value.hour} options={hours} placeholder="시" unit="시" maxLen={2} min={0} max={23} ariaLabel="출생 시" disabled={unknown} onChange={(v) => onChange({ ...value, hour: v })} />
-      <NumberField value={value.minute} options={minutes} placeholder="분" unit="분" maxLen={2} min={0} max={59} ariaLabel="출생 분" disabled={unknown} onChange={(v) => onChange({ ...value, minute: v })} />
-      <ToggleSwitch checked={unknown} onChange={onUnknownChange} label="시간모름" />
+      <div className={`saju-time-fields${unknown ? " is-unknown" : ""}`}>
+        <NumberField value={value.hour} options={hours} placeholder="시" unit="시" maxLen={2} min={0} max={23} ariaLabel="출생 시" disabled={unknown} onChange={(v) => onChange({ ...value, hour: v })} />
+        <NumberField value={value.minute} options={minutes} placeholder="분" unit="분" maxLen={2} min={0} max={59} ariaLabel="출생 분" disabled={unknown} onChange={(v) => onChange({ ...value, minute: v })} />
+        {unknown && <div className="saju-time-unknown-box">생시없이 봐드려요</div>}
+      </div>
+      <ToggleSwitch checked={unknown} onChange={onUnknownChange} label="시간 모름" />
     </div>
-  );
-}
-
-/* ------------------------------------------------------------
-   STEP 7. InfoBanner (유효성 경고 + 시간모름 안내)
-   - timeUnknown 이 true 일 때만 "사주 없이 계산됩니다" 안내가 나타남
-   ------------------------------------------------------------ */
-interface InfoBannerProps { timeUnknown: boolean; }
-function InfoBanner({ timeUnknown }: InfoBannerProps) {
-  return (
-    <>
-      {timeUnknown && (
-        <div className="saju-info-note">시간 모름 — 시각 값 비활성 · "사주 없이 계산됩니다"</div>
-      )}
-    </>
   );
 }
 
@@ -274,20 +263,23 @@ const GENDER_OPTIONS: PillOption[] = [
   { value: "male", label: "♂ 남자" },
   { value: "female", label: "♀ 여자" },
 ];
-const CALENDAR_OPTIONS: PillOption[] = [
+const CALENDAR_BASE_OPTIONS: PillOption[] = [
   { value: "solar", label: "양력" },
   { value: "lunar", label: "음력" },
-  { value: "normal-month", label: "평달" },
-  { value: "leap-month", label: "윤달" },
+];
+const LEAP_OPTIONS: PillOption[] = [
+  { value: "normal", label: "평달" },
+  { value: "leap", label: "윤달" },
 ];
 
 export default function SajuForm() {
-  const [name, setName] = useState("홍길동");
+  const [name, setName] = useState("");
   const [gender, setGender] = useState("male");
-  const [calendarType, setCalendarType] = useState("solar");
-  const [date, setDate] = useState<SajuDateValue>({ year: 1990, month: 6, day: 15 });
+  const [calendarBase, setCalendarBase] = useState("solar"); // "solar" | "lunar"
+  const [isLeapMonth, setIsLeapMonth] = useState(false);     // 음력일 때만 의미
+  const [date, setDate] = useState<SajuDateValue>({ year: 0, month: 0, day: 0 });
   const [time, setTime] = useState<SajuTimeValue>({ hour: 0, minute: 0 });
-  const [timeUnknown, setTimeUnknown] = useState(true);
+  const [timeUnknown, setTimeUnknown] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [chart, setChart] = useState<SajuExtended | null>(null);
@@ -301,6 +293,8 @@ export default function SajuForm() {
 
     let computed: SajuExtended;
     try {
+      const calendarType =
+        calendarBase === "solar" ? "solar" : isLeapMonth ? "leap-month" : "lunar";
       computed = computeSajuExtended({ gender, calendarType, date, time, timeUnknown });
     } catch {
       setError("해당 날짜로 원국을 만들 수 없습니다. 윤달 여부·날짜를 확인해 주세요.");
@@ -308,7 +302,12 @@ export default function SajuForm() {
     }
 
     setError("");
+    setStories(null);
     setChart(computed);
+    fetchReading(computed);
+  };
+
+  const fetchReading = async (computed: SajuExtended) => {
     setLoading(true);
     try {
       const res = await fetch("/api/reading", {
@@ -319,19 +318,22 @@ export default function SajuForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "풀이 생성 실패");
       setStories(data.stories as Story[]);
+      setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "풀이 생성 실패");
-      setChart(null);
+      setStories(null);
     } finally {
       setLoading(false);
     }
   };
 
-  if (chart && stories) {
+  if (chart) {
     return (
       <Dashboard
         chart={chart}
         stories={stories}
+        loading={loading}
+        onRetry={() => fetchReading(chart)}
         name={name}
         gender={gender}
         date={date}
@@ -348,15 +350,15 @@ export default function SajuForm() {
   return (
     <div className="saju-page">
       <header className="saju-header">
-        <div className="saju-brand">용궁</div>
-        <h1>당신의 사주를 봅니다</h1>
-        <p>생년월일시로 원국을 그립니다</p>
+        <img className="saju-brand" src={titleLogo} alt="용궁" style={{ height: "clamp(40px, 12cqw, 72px)", width: "auto" }} />
+        <h1>용왕님이 살펴주는</h1>
+        <p>너란 <span style={{ color: "#E6B45A" }}>생원</span></p>
       </header>
 
       {/* 이름 */}
       <section className="saju-section">
         <SectionHeader title="이름" />
-        <SajuTextInput value={name} onChange={setName} placeholder="홍길동" icon="🐚" />
+        <SajuTextInput value={name} onChange={setName} placeholder="김토끼" icon="🐚" />
       </section>
 
       {/* 성별 */}
@@ -367,9 +369,26 @@ export default function SajuForm() {
 
       {/* 생년월일시 */}
       <section className="saju-section">
-        <SectionHeader title="생년월일시" />
+        <SectionHeader title="태어난 날과 시간" />
 
-        <PillToggleGroup options={CALENDAR_OPTIONS} value={calendarType} onChange={setCalendarType} variant="inline" />
+        <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <PillToggleGroup
+              options={CALENDAR_BASE_OPTIONS}
+              value={calendarBase}
+              onChange={(v) => { setCalendarBase(v); if (v === "solar") setIsLeapMonth(false); }}
+              variant="inline"
+            />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <PillToggleGroup
+              options={LEAP_OPTIONS.map((o) => ({ ...o, disabled: calendarBase === "solar" }))}
+              value={isLeapMonth ? "leap" : "normal"}
+              onChange={(v) => setIsLeapMonth(v === "leap")}
+              variant="inline"
+            />
+          </div>
+        </div>
 
         <div style={{ height: "0.75rem" }} />
 
@@ -385,7 +404,6 @@ export default function SajuForm() {
           }}
         />
 
-        <InfoBanner timeUnknown={timeUnknown} />
         {error && <div className="saju-info-error">{error}</div>}
       </section>
 
