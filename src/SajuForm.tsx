@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, type ChangeEvent, type ReactNode } from "react";
 import "./styles/saju.css";
 import { computeSajuExtended, type SajuExtended } from "./saju";
-import { type Story } from "./SajuReading";
+import { getReading, type Story } from "./services/sajuApi";
 import Dashboard from "./components/dashboard/Dashboard";
 import titleLogo from "./assets/img/Group 27.png";
 
@@ -310,14 +310,8 @@ export default function SajuForm() {
   const fetchReading = async (computed: SajuExtended) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/reading", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, gender, chart: computed }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "풀이 생성 실패");
-      setStories(data.stories as Story[]);
+      const stories = await getReading({ name, gender, chart: computed });
+      setStories(stories);
       setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "풀이 생성 실패");
