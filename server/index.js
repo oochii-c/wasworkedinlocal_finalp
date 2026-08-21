@@ -129,12 +129,12 @@ app.post("/api/reading", async (req, res) => {
 
 // 주제별 사주 리딩 — 6개 주제 요약(별점 + 한줄) 일괄 생성
 const THEME_DEFS = [
-  { key: "love", label: "애정" },
-  { key: "wealth", label: "재물" },
-  { key: "health", label: "건강" },
-  { key: "business", label: "사업" },
-  { key: "study", label: "학업" },
-  { key: "relations", label: "인간관계" },
+  { key: "love", label: "애정운" },
+  { key: "wealth", label: "재물운" },
+  { key: "health", label: "건강운" },
+  { key: "business", label: "사업운" },
+  { key: "study", label: "학업운" },
+  { key: "relations", label: "인간관계운" },
 ];
 
 app.post("/api/themes", async (req, res) => {
@@ -151,7 +151,7 @@ app.post("/api/themes", async (req, res) => {
     const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
     const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다.`;
     const themeList = THEME_DEFS.map((t) => `${t.key}(${t.label})`).join(", ");
-    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 아래 6개 주제 각각에 대해 별점(1~5 정수)과 한 줄 요약(공백 포함 30자 이내)을 생성한다.
+    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 아래 6개 주제 각각에 대해 별점(1~5 정수)과 요약(공백 포함 70자 이내, 1~2문장)을 생성한다.
 주제: ${themeList}
 원국의 실제 간지·십신·오행 근거로 판단하되, 원국에 없는 간지·오행을 지어내지 않는다. 단정보다 격려의 톤.
 반드시 아래 JSON만 출력한다(코드블록·설명 없이):
@@ -207,6 +207,83 @@ key는 주어진 6개(${THEME_DEFS.map((t) => t.key).join(", ")})를 모두 포�
     res.json({ themes });
   } catch (e) {
     res.status(500).json({ error: "주제 풀이 생성 실패", detail: String(e) });
+  }
+});
+
+// 주제 상세 깊은 리딩 — 한 주제를 섹션 3개로 풀이 (on-demand)
+app.post("/api/theme-detail", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY가 설정되지 않았습니다. server/.env를 확인하세요." });
+  }
+
+  const { name, gender, chart, theme } = req.body || {};
+  if (!chart || !chart.pillars) {
+    return res.status(400).json({ error: "원국 데이터가 없습니다." });
+  }
+  const def = THEME_DEFS.find((t) => t.key === theme);
+  if (!def) {
+    return res.status(400).json({ error: "알 수 없는 주제입니다." });
+  }
+
+  try {
+    const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
+    const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다.`;
+    const system = `너는 '용왕집'의 주인이자 사주대가 용왕님. 자신을 알고자 찾아온 길 잃은 아해의 원국(팔자)을 바탕으로 "${def.label}" 주제 하나를 깊이 있게 풀이한다.
+원국의 실제 간지·십신·오행 근거를 녹여 서로 다른 3개 섹션으로 작성한다:
+1) 타고난 흐름 — 이 주제에서 원국이 말하는 기본 성향·기운
+2) 강점과 주의점 — 살릴 점과 조심할 점
+3) 실천 조언 — 구체적이고 따뜻한 제안
+원국에 없는 간지·오행을 지어내지 않는다. 근엄하되 격려의 톤.
+요약문은 2~3문장으로 작성한다.
+반드시 아래 JSON만 출력한다(코드블록·설명 없이):
+{"sections":[{"heading":"타고난 흐름","body":"..."},{"heading":"강점과 주의점","body":"..."},{"heading":"실천 조언","body":"..."}]}
+각 body는 3~4문장.`;
+    const userMsg = `${anchor}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n주제: ${def.label}\n\n[사주 원국]\n${chartToText(chart)}`;
+
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.9,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : null;
+    }
+
+    if (!parsed || !Array.isArray(parsed.sections)) {
+      return res.status(502).json({ error: "상세 풀이 형식 오류", raw: content });
+    }
+
+    const sections = parsed.sections
+      .map((s) => ({ heading: String(s.heading || "").trim(), body: String(s.body || "").trim() }))
+      .filter((s) => s.body);
+
+    res.json({ theme: def.key, label: def.label, sections });
+  } catch (e) {
+    res.status(500).json({ error: "상세 풀이 생성 실패", detail: String(e) });
   }
 });
 

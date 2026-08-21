@@ -44,3 +44,21 @@ export async function getThemes(req: ReadingRequest): Promise<ThemeSummary[]> {
   if (!res.ok) throw new Error(data.error || "주제 풀이 생성 실패");
   return data.themes as ThemeSummary[];
 }
+
+// 주제 상세 깊은 리딩 섹션 (서버 /api/theme-detail 응답)
+export interface ThemeSection {
+  heading: string;
+  body: string;
+}
+
+// 특정 주제 하나의 깊은 풀이(섹션 3개) 요청. 실패 시 throw.
+export async function getThemeDetail(req: ReadingRequest & { theme: string }): Promise<ThemeSection[]> {
+  const res = await fetch("/api/theme-detail", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "상세 풀이 생성 실패");
+  return data.sections as ThemeSection[];
+}

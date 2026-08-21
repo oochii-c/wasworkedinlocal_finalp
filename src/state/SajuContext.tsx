@@ -20,14 +20,16 @@ export interface SajuInputs {
   timeUnknown: boolean;
 }
 
-export type SajuView = "form" | "home" | "topics";
+export type SajuView = "form" | "home" | "topics" | "theme";
 
 interface SajuCtx {
   inputs: SajuInputs | null;
   chart: SajuExtended | null;
   view: SajuView;
+  selectedTheme: string | null;           // 상세 화면에서 보고 있는 주제 key
   commit: (inputs: SajuInputs) => void;   // 입력 → 계산 → 저장 → 홈. 실패 시 throw
   navigate: (view: SajuView) => void;     // chart 보존한 채 화면만 전환
+  openTheme: (key: string) => void;       // 주제 상세 화면 진입
   readCache: <T>(key: string) => T | undefined;
   writeCache: (key: string, val: unknown) => void;
 }
@@ -57,6 +59,7 @@ export function SajuProvider({ children }: { children: ReactNode }) {
   const [inputs, setInputs] = useState<SajuInputs | null>(() => loadInputs());
   const [chart, setChart] = useState<SajuExtended | null>(null);
   const [view, setView] = useState<SajuView>("form");
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const cache = useRef<Record<string, unknown>>({});
 
   const commit = (next: SajuInputs) => {
@@ -75,11 +78,12 @@ export function SajuProvider({ children }: { children: ReactNode }) {
   };
 
   const navigate = (v: SajuView) => setView(v);
+  const openTheme = (key: string) => { setSelectedTheme(key); setView("theme"); };
   const readCache = <T,>(key: string): T | undefined => cache.current[key] as T | undefined;
   const writeCache = (key: string, val: unknown) => { cache.current[key] = val; };
 
   return (
-    <Ctx.Provider value={{ inputs, chart, view, commit, navigate, readCache, writeCache }}>
+    <Ctx.Provider value={{ inputs, chart, view, selectedTheme, commit, navigate, openTheme, readCache, writeCache }}>
       {children}
     </Ctx.Provider>
   );

@@ -117,3 +117,26 @@
   opacity: 1;
   text-decoration: underline;
 }
+
+/* ---- 상세 화면 ---- */
+.tp-back {
+  align-self: flex-start;
+  background: rgba(11, 31, 59, 0.7);
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  border-radius: 999px;
+  color: var(--saju-text-muted);
+  font-size: 13.5px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tp-back:hover {
+  background: rgba(19, 66, 100, 0.9);
+  color: #fff;
+  border-color: var(--saju-gold);
+}
+
+.tp-detail-head .tp-card-summary {
+  margin-bottom: 0;
+}

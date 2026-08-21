@@ -9,6 +9,7 @@ import AiStories from "./AiStories";
 import DaYunFlow from "./DaYunFlow";
 import BottomNav from "../../components/layout/BottomNav";
 import TopicList from "../topics/TopicList";
+import ThemeDetail from "../topics/ThemeDetail";
 import BubbleField from "../../components/effects/BubbleField";
 import { useSaju } from "../../state/SajuContext";
 import { getReading, type Story } from "../../services/sajuApi";
@@ -63,7 +64,9 @@ export default function Dashboard() {
       </header>
 
       <main className="db-main">
-        {view === "topics" ? (
+        {view === "theme" ? (
+          <ThemeDetail />
+        ) : view === "topics" ? (
           <TopicList />
         ) : (
           <>
@@ -106,7 +109,7 @@ export default function Dashboard() {
 
       {/* 하단 네비 */}
       <BottomNav
-        active={view === "topics" ? "topics" : "home"}
+        active={view === "topics" || view === "theme" ? "topics" : "home"}
         onSelect={(id) => navigate(id === "topics" ? "topics" : "home")}
       />
     </div>

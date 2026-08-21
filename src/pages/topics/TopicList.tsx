@@ -3,12 +3,8 @@ import "./topics.css";
 import { getThemes, type ThemeSummary } from "../../services/sajuApi";
 import { useSaju } from "../../state/SajuContext";
 
-interface Props {
-  onOpenTheme?: (key: string) => void; // 상세 화면 이동 (다음 단계)
-}
-
 // 주제 key → 아이콘. 백엔드 THEME_DEFS 순서와 짝. 항목 추가 시 여기에 아이콘만 더하면 됨.
-const THEME_ICON: Record<string, string> = {
+export const THEME_ICON: Record<string, string> = {
   love: "💕",
   wealth: "💰",
   health: "🌿",
@@ -17,13 +13,13 @@ const THEME_ICON: Record<string, string> = {
   relations: "🤝",
 };
 
-function starRow(stars: number): string {
+export function starRow(stars: number): string {
   const n = Math.min(5, Math.max(0, stars));
   return "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
 }
 
-export default function TopicList({ onOpenTheme }: Props) {
-  const { chart, inputs, readCache, writeCache } = useSaju();
+export default function TopicList() {
+  const { chart, inputs, openTheme, readCache, writeCache } = useSaju();
   const key = chart ? `themes:${chart.baZi.join("")}` : "";
   const [themes, setThemes] = useState<ThemeSummary[] | null>(() => (key ? readCache<ThemeSummary[]>(key) ?? null : null));
   const [loading, setLoading] = useState(!themes);
@@ -75,7 +71,7 @@ export default function TopicList({ onOpenTheme }: Props) {
             <span className="tp-card-stars" aria-label={`별점 ${t.stars}점`}>{starRow(t.stars)}</span>
           </div>
           <p className="tp-card-summary">{t.summary}</p>
-          <button type="button" className="tp-card-more" onClick={() => onOpenTheme?.(t.key)}>
+          <button type="button" className="tp-card-more" onClick={() => openTheme(t.key)}>
             자세히 보기 →
           </button>
         </section>
