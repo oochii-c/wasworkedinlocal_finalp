@@ -107,6 +107,8 @@
 
 /* ---------- 카드(섹션) ---------- */
 .saju-section {
+  position: relative;
+  z-index: 1; /* backdrop-filter로 생긴 stacking context를 제출버튼(:hover filter)보다 위로 고정 → 날짜 드롭다운이 버튼에 안 가림 */
   background: rgba(11, 31, 59, 0.55);
   border: 1px solid #1E3A5A;
   border-radius: var(--radius-card);
