@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { getYearGanZhi, getMonthInGanZhi, getOhaengRelation, getElementRelation, ganZhiToHanja } from "./ganzhi";
+import { getYearGanZhi, getOhaengRelation, getElementRelation, ganZhiToHanja, getChartYearRange } from "./ganzhi";
+import { SajuExtended } from "./types";
 
 describe("getYearGanZhi", () => {
   it("returns 병오 for 2026", () => {
@@ -8,18 +9,6 @@ describe("getYearGanZhi", () => {
 
   it("returns 갑자 for 1984", () => {
     expect(getYearGanZhi(1984)).toEqual({ gan: "갑", ji: "자" });
-  });
-});
-
-describe("getMonthInGanZhi", () => {
-  it("is deterministic for the same year and month", () => {
-    const first = getMonthInGanZhi(2026, 3);
-    const second = getMonthInGanZhi(2026, 3);
-    expect(first).toEqual(second);
-  });
-
-  it("throws for a month outside 1-12", () => {
-    expect(() => getMonthInGanZhi(2026, 13)).toThrow();
   });
 });
 
@@ -54,5 +43,24 @@ describe("getElementRelation", () => {
 describe("ganZhiToHanja", () => {
   it("converts 병오 to 丙午", () => {
     expect(ganZhiToHanja({ gan: "병", ji: "오" })).toBe("丙午");
+  });
+});
+
+describe("getChartYearRange", () => {
+  it("derives min/max from the chart's birth year", () => {
+    const chart: SajuExtended = {
+      birthDate: "1998-01-01",
+      calendarType: "solar",
+      gender: "F",
+      pillars: {
+        year: { gan: "무", ji: "인" },
+        month: { gan: "을", ji: "묘" },
+        day: { gan: "경", ji: "진" },
+        hour: null,
+      },
+      dayMaster: "경",
+      ohaeng: { 목: 2, 화: 1, 토: 2, 금: 2, 수: 1 },
+    };
+    expect(getChartYearRange(chart)).toEqual({ min: 1999, max: 2098 });
   });
 });

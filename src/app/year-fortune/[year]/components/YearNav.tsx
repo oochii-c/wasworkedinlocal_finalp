@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { GanZhi } from "@/saju/types";
-import { ganZhiToHanja } from "@/saju/mock/ganzhi";
+import { ganZhiToHanja } from "@/saju/ganzhi";
 import { StarRating } from "./StarRating";
 import styles from "./YearNav.module.css";
 

@@ -1,5 +1,6 @@
 import { SajuExtended } from "@/saju/types";
-import { getYearGanZhi, getMonthInGanZhi } from "@/saju/mock/ganzhi";
+import { getYearGanZhi, getChartYearRange } from "@/saju/ganzhi";
+import { getMonthInGanZhi } from "@/saju/mock/monthGanzhi";
 import { computeDomainScores, computeOverallScore, computeMonthlyScores } from "@/saju/mock/scoring";
 import { YearNav } from "./components/YearNav";
 import { DomainStars } from "./components/DomainStars";
@@ -21,9 +22,7 @@ export function YearFortuneDetail({ chart, year, summary }: YearFortuneDetailPro
   const monthlyScores = computeMonthlyScores(chart, year);
   const monthlyGanZhi = Array.from({ length: 12 }, (_, i) => getMonthInGanZhi(year, i + 1));
 
-  const birthYear = new Date(chart.birthDate).getFullYear();
-  const minYear = birthYear + 1;
-  const maxYear = birthYear + 100;
+  const { min: minYear, max: maxYear } = getChartYearRange(chart);
 
   return (
     <div className={styles.page}>

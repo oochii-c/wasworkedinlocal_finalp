@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { GanZhi } from "@/saju/types";
-import { ganZhiToHanja } from "@/saju/mock/ganzhi";
+import { ganZhiToHanja } from "@/saju/ganzhi";
 import styles from "./MonthlyFlow.module.css";
 
 export interface MonthlyFlowProps {
