@@ -1,0 +1,42 @@
+/* ============================================================
+   bubbles.css — 배경 물방울 상승 효과
+   페이지 배경 위·콘텐츠 아래(z-index:-1)에 고정 레이어로 깔림
+   ============================================================ */
+
+.bubble-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;           /* 페이지 배경보다 위, 콘텐츠보다 아래 (페이지가 stacking context여야 함) */
+  overflow: hidden;
+  pointer-events: none;  /* 클릭 방해 X */
+}
+
+.bubble {
+  position: absolute;
+  bottom: -40px;         /* 화면 아래에서 출발 */
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(180, 220, 255, 0.35) 40%,
+    rgba(120, 180, 230, 0.12) 70%,
+    rgba(120, 180, 230, 0) 100%
+  );
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: bubble-rise;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+
+@keyframes bubble-rise {
+  0%   { transform: translate(0, 0) scale(0.6);            opacity: 0; }
+  10%  { opacity: var(--bubble-opacity, 0.5); }
+  90%  { opacity: var(--bubble-opacity, 0.5); }
+  100% { transform: translate(var(--drift, 0), -110vh) scale(1); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble { animation: none; opacity: 0; }
+}

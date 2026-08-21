@@ -1,0 +1,119 @@
+/* ============================================================
+   topics.css
+   주제별 사주 리딩 리스트 (db-section 카드 스타일 재사용)
+   ============================================================ */
+
+.tp-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---- 상단 가로 스크롤 탭 ---- */
+.tp-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  margin: -2px 0;
+  scrollbar-width: none;
+  background: linear-gradient(180deg, rgba(6, 14, 32, 0.92) 60%, rgba(6, 14, 32, 0));
+}
+
+.tp-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-tab {
+  flex: 0 0 auto;
+  background: rgba(11, 31, 59, 0.7);
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  border-radius: 999px;
+  color: var(--saju-text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.tp-tab:hover {
+  background: rgba(19, 66, 100, 0.9);
+  color: #fff;
+  border-color: var(--saju-gold);
+}
+
+/* ---- 상태 메시지 ---- */
+.tp-status {
+  color: var(--saju-text-muted);
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.tp-status-err {
+  color: #e88;
+  font-style: normal;
+}
+
+/* ---- 주제 카드 (.db-section 위에 얹음) ---- */
+.tp-card {
+  scroll-margin-top: 52px; /* sticky 탭 높이만큼 여백 */
+}
+
+.tp-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.tp-card-ico {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tp-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--saju-text);
+}
+
+.tp-card-stars {
+  margin-left: auto;
+  color: var(--saju-gold);
+  letter-spacing: 1px;
+  font-size: 15px;
+}
+
+.tp-card-summary {
+  font-size: 14.5px;
+  color: var(--saju-text);
+  line-height: 1.7;
+  word-break: keep-all;
+  margin-bottom: 10px;
+}
+
+.tp-card-more {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--saju-gold);
+  cursor: pointer;
+  padding: 2px 0;
+  opacity: 0.85;
+}
+
+.tp-card-more:hover {
+  opacity: 1;
+  text-decoration: underline;
+}

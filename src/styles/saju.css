@@ -49,6 +49,8 @@
   margin-inline: auto;
   min-height: 100vh;
   box-sizing: border-box;
+  position: relative;
+  z-index: 0; /* stacking context — 배경 물방울 레이어(z-index:-1)가 배경 위·콘텐츠 아래에 오도록 */
   padding: var(--pad-top) var(--pad-x) clamp(24px, 7cqw, 40px);
   color: var(--saju-text);
   font-family: "ChosunSg", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
@@ -89,9 +91,26 @@
   color: var(--saju-text);
   margin: 0;
 }
+.saju-resume-btn {
+  margin-top: clamp(8px, 2.5cqw, 14px);
+  background: rgba(11, 31, 59, 0.7);
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  border-radius: 999px;
+  color: var(--saju-gold);
+  font-size: 13.5px;
+  cursor: pointer;
+  padding: 6px 16px;
+  transition: all 0.15s ease;
+}
+.saju-resume-btn:hover {
+  background: rgba(19, 66, 100, 0.9);
+  border-color: var(--saju-gold);
+}
 
 /* ---------- 카드(섹션) ---------- */
 .saju-section {
+  position: relative;
+  z-index: 1; /* backdrop-filter로 생긴 stacking context를 제출버튼(:hover filter)보다 위로 고정 → 날짜 드롭다운이 버튼에 안 가림 */
   background: rgba(11, 31, 59, 0.55);
   border: 1px solid #1E3A5A;
   border-radius: var(--radius-card);

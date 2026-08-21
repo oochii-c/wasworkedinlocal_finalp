@@ -4,7 +4,6 @@ interface NavItem {
   id: string;
   label: string;
   icon: ReactNode;
-  active?: boolean;
   center?: boolean;
 }
 
@@ -12,7 +11,6 @@ const NAV_ITEMS: NavItem[] = [
   {
     id: "home",
     label: "홈",
-    active: true,
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M3 10.5L12 3l9 7.5" />
@@ -87,25 +85,34 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-export default function BottomNav() {
+interface BottomNavProps {
+  active?: string;
+  onSelect?: (id: string) => void;
+}
+
+export default function BottomNav({ active = "home", onSelect }: BottomNavProps) {
   return (
     <nav className="db-bottomnav" aria-label="하단 탭 네비게이션">
-      {NAV_ITEMS.map(({ id, label, icon, active, center }) => (
+      {NAV_ITEMS.map(({ id, label, icon, center }) => {
+        const isActive = active === id;
+        return (
         <button
           key={id}
           type="button"
           className={[
             "db-navitem",
-            active ? "is-active" : "",
+            isActive ? "is-active" : "",
             center ? "is-center" : "",
           ].filter(Boolean).join(" ")}
-          aria-current={active ? "page" : undefined}
+          aria-current={isActive ? "page" : undefined}
           aria-label={label}
+          onClick={() => onSelect?.(id)}
         >
           <span className="db-nav-ico">{icon}</span>
           <span className="db-nav-label">{label}</span>
         </button>
-      ))}
+        );
+      })}
     </nav>
   );
 }
