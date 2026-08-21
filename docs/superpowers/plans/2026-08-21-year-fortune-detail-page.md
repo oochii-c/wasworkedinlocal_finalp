@@ -1017,7 +1017,7 @@ git commit -m "feat: add DomainStars component"
 
 **Interfaces:**
 - Consumes: `GanZhi` from `@/saju/types`; `ganZhiToHanja` from `@/saju/mock/ganzhi`
-- Produces: `MonthlyFlow({ year, monthlyScores, monthlyGanZhi })` — Client Component. Renders 12 bars (height ∝ score, gold if `score >= 3` else pink) each labeled `"{n}월"`, plus a single "?" button next to the "월별 흐름" heading that toggles a popup listing `"{n}월 {hanja}"` for all 12 months.
+- Produces: `MonthlyFlow({ monthlyScores, monthlyGanZhi })` — Client Component. Renders 12 bars (height ∝ score, gold if `score >= 3` else pink) each labeled `"{n}월"`, plus a single "?" button next to the "월별 흐름" heading that toggles a popup listing `"{n}월 {hanja}"` for all 12 months.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1037,7 +1037,7 @@ const monthlyGanZhi = Array.from({ length: 12 }, () => ({
 describe("MonthlyFlow", () => {
   it("renders 12 month labels and hides the popup by default", () => {
     render(
-      <MonthlyFlow year={2026} monthlyScores={Array(12).fill(3)} monthlyGanZhi={monthlyGanZhi} />
+      <MonthlyFlow monthlyScores={Array(12).fill(3)} monthlyGanZhi={monthlyGanZhi} />
     );
     expect(screen.getByText("1월")).toBeInTheDocument();
     expect(screen.getByText("12월")).toBeInTheDocument();
@@ -1047,7 +1047,7 @@ describe("MonthlyFlow", () => {
   it("shows the 12-month ganzhi popup when the info button is clicked", async () => {
     const user = userEvent.setup();
     render(
-      <MonthlyFlow year={2026} monthlyScores={Array(12).fill(3)} monthlyGanZhi={monthlyGanZhi} />
+      <MonthlyFlow monthlyScores={Array(12).fill(3)} monthlyGanZhi={monthlyGanZhi} />
     );
     await user.click(screen.getByLabelText("월별 간지 보기"));
     const popup = screen.getByRole("list");
@@ -1151,7 +1151,6 @@ import { ganZhiToHanja } from "@/saju/mock/ganzhi";
 import styles from "./MonthlyFlow.module.css";
 
 export interface MonthlyFlowProps {
-  year: number;
   monthlyScores: number[];
   monthlyGanZhi: GanZhi[];
 }
@@ -1159,7 +1158,7 @@ export interface MonthlyFlowProps {
 const GOOD_THRESHOLD = 3;
 const MAX_SCORE = 5;
 
-export function MonthlyFlow({ year, monthlyScores, monthlyGanZhi }: MonthlyFlowProps) {
+export function MonthlyFlow({ monthlyScores, monthlyGanZhi }: MonthlyFlowProps) {
   const [showPopup, setShowPopup] = useState(false);
 
   return (
@@ -1201,8 +1200,6 @@ export function MonthlyFlow({ year, monthlyScores, monthlyGanZhi }: MonthlyFlowP
   );
 }
 ```
-
-(The `year` prop is currently unused inside the component but kept in the interface since it's part of the section's identity and later tasks — e.g. wiring from `YearFortuneDetail` — pass it through.)
 
 - [ ] **Step 5: Run test to verify it passes**
 
@@ -1513,7 +1510,7 @@ export function YearFortuneDetail({ chart, year, summary }: YearFortuneDetailPro
         canGoNext={year < maxYear}
       />
       <DomainStars scores={domainScores} />
-      <MonthlyFlow year={year} monthlyScores={monthlyScores} monthlyGanZhi={monthlyGanZhi} />
+      <MonthlyFlow monthlyScores={monthlyScores} monthlyGanZhi={monthlyGanZhi} />
       <GoodBadMonths monthlyScores={monthlyScores} />
       <AiSummary summary={summary} />
     </div>
