@@ -1,0 +1,73 @@
+.section {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heading {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.infoButton {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #999;
+  background: #fff;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.popup {
+  list-style: none;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+  margin-top: 16px;
+}
+
+.barColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.barGood {
+  width: 100%;
+  background: #d4a017;
+  border-radius: 4px 4px 0 0;
+}
+
+.barCaution {
+  width: 100%;
+  background: #e8a0bb;
+  border-radius: 4px 4px 0 0;
+}
+
+.barLabel {
+  font-size: 0.7rem;
+  color: #777;
+  margin-top: 4px;
+}
