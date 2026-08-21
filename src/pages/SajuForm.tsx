@@ -1,8 +1,7 @@
 import { useState } from "react";
 import "../styles/saju.css";
-import { computeSajuExtended, type SajuExtended } from "../saju";
-import { getReading, type Story } from "../services/sajuApi";
-import Dashboard from "./dashboard/Dashboard";
+import { useSaju } from "../state/SajuContext";
+import BubbleField from "../components/effects/BubbleField";
 import titleLogo from "../assets/img/Group 27.png";
 import {
   SectionHeader,
@@ -19,7 +18,7 @@ import {
 /* ============================================================
    SajuForm.tsx
    "당신의 사주를 봅니다" 온보딩 폼 (용궁 다크 테마)
-   폼 부품은 components/form/ 에서 import, 여기선 상태·조립만 담당
+   입력값은 context에 커밋 → 원국 계산·화면 전환은 context가 담당
    ============================================================ */
 
 const GENDER_OPTIONS: PillOption[] = [
@@ -36,80 +35,43 @@ const LEAP_OPTIONS: PillOption[] = [
 ];
 
 export default function SajuForm() {
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState("male");
-  const [calendarBase, setCalendarBase] = useState("solar"); // "solar" | "lunar"
-  const [isLeapMonth, setIsLeapMonth] = useState(false);     // 음력일 때만 의미
-  const [date, setDate] = useState<SajuDateValue>({ year: 0, month: 0, day: 0 });
-  const [time, setTime] = useState<SajuTimeValue>({ hour: 0, minute: 0 });
-  const [timeUnknown, setTimeUnknown] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [chart, setChart] = useState<SajuExtended | null>(null);
-  const [stories, setStories] = useState<Story[] | null>(null);
+  const { inputs, chart, commit, navigate } = useSaju();
 
-  const handleSubmit = async () => {
+  // 폼 필드는 로컬 상태. 초기값은 저장된 입력(context.inputs)에서 복원.
+  const [name, setName] = useState(inputs?.name ?? "");
+  const [gender, setGender] = useState(inputs?.gender ?? "male");
+  const [calendarBase, setCalendarBase] = useState(inputs?.calendarBase ?? "solar");
+  const [isLeapMonth, setIsLeapMonth] = useState(inputs?.isLeapMonth ?? false);
+  const [date, setDate] = useState<SajuDateValue>(inputs?.date ?? { year: 0, month: 0, day: 0 });
+  const [time, setTime] = useState<SajuTimeValue>(inputs?.time ?? { hour: 0, minute: 0 });
+  const [timeUnknown, setTimeUnknown] = useState(inputs?.timeUnknown ?? false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = () => {
     if (!date.year || !date.month || !date.day) {
       setError("생년월일을 모두 입력해 주세요.");
       return;
     }
-
-    let computed: SajuExtended;
     try {
-      const calendarType =
-        calendarBase === "solar" ? "solar" : isLeapMonth ? "leap-month" : "lunar";
-      computed = computeSajuExtended({ gender, calendarType, date, time, timeUnknown });
+      commit({ name, gender, calendarBase, isLeapMonth, date, time, timeUnknown });
     } catch {
       setError("해당 날짜로 원국을 만들 수 없습니다. 윤달 여부·날짜를 확인해 주세요.");
-      return;
-    }
-
-    setError("");
-    setStories(null);
-    setChart(computed);
-    fetchReading(computed);
-  };
-
-  const fetchReading = async (computed: SajuExtended) => {
-    setLoading(true);
-    try {
-      const stories = await getReading({ name, gender, chart: computed });
-      setStories(stories);
-      setError("");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "풀이 생성 실패");
-      setStories(null);
-    } finally {
-      setLoading(false);
     }
   };
-
-  if (chart) {
-    return (
-      <Dashboard
-        chart={chart}
-        stories={stories}
-        loading={loading}
-        onRetry={() => fetchReading(chart)}
-        name={name}
-        gender={gender}
-        date={date}
-        time={time}
-        timeUnknown={timeUnknown}
-        onBack={() => {
-          setChart(null);
-          setStories(null);
-        }}
-      />
-    );
-  }
 
   return (
     <div className="saju-page">
+      <BubbleField />
       <header className="saju-header">
         <img className="saju-brand" src={titleLogo} alt="용궁" style={{ height: "clamp(40px, 12cqw, 72px)", width: "auto" }} />
         <h1>용왕님이 살펴주는</h1>
         <p>너란 <span style={{ color: "#E6B45A" }}>생원</span></p>
+        {/* 이미 원국이 있으면(뒤로 온 경우) 결과로 복귀 */}
+        {chart && (
+          <button type="button" className="saju-resume-btn" onClick={() => navigate("home")}>
+            ← 방금 본 결과로
+          </button>
+        )}
       </header>
 
       {/* 이름 */}
@@ -164,7 +126,7 @@ export default function SajuForm() {
         {error && <div className="saju-info-error">{error}</div>}
       </section>
 
-      <SubmitButton loading={loading} disabled={loading} onClick={handleSubmit} />
+      <SubmitButton loading={false} disabled={false} onClick={handleSubmit} />
     </div>
   );
 }
