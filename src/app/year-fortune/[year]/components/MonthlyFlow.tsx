@@ -51,6 +51,18 @@ export function MonthlyFlow({ monthlyScores, monthlyGanZhi }: MonthlyFlowProps) 
           </div>
         ))}
       </div>
+
+      <div className={styles.legend}>
+        <span>근거: 월운 간지 × 일간 상생상극 점수</span>
+        <span className={styles.legendItem}>
+          <span className={`${styles.legendSwatch} ${styles.legendSwatchGood}`} aria-hidden="true" />
+          좋은 달
+        </span>
+        <span className={styles.legendItem}>
+          <span className={`${styles.legendSwatch} ${styles.legendSwatchCaution}`} aria-hidden="true" />
+          주의 달
+        </span>
+      </div>
     </section>
   );
 }

@@ -5,26 +5,36 @@
 }
 
 .callout {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
   border-radius: 8px;
-  background: #f5f5f5;
+  border: 1px dashed;
 }
 
-.badgeGood {
-  background: #d4a017;
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.75rem;
+.calloutGood {
+  background: #fdf6e8;
+  border-color: #d4a017;
 }
 
-.badgeCaution {
-  background: #e8a0bb;
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 999px;
+.calloutCaution {
+  background: #fbeef3;
+  border-color: #e8a0bb;
+}
+
+.calloutTitle {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.range {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.caption {
   font-size: 0.75rem;
+  color: #666;
 }

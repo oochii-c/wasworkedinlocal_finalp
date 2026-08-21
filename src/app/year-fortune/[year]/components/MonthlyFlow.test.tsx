@@ -18,6 +18,15 @@ describe("MonthlyFlow", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
+  it("shows a legend explaining the scoring basis and bar colors", () => {
+    render(
+      <MonthlyFlow monthlyScores={Array(12).fill(3)} monthlyGanZhi={monthlyGanZhi} />
+    );
+    expect(screen.getByText("근거: 월운 간지 × 일간 상생상극 점수")).toBeInTheDocument();
+    expect(screen.getByText("좋은 달")).toBeInTheDocument();
+    expect(screen.getByText("주의 달")).toBeInTheDocument();
+  });
+
   it("shows the 12-month ganzhi popup when the info button is clicked", async () => {
     const user = userEvent.setup();
     render(

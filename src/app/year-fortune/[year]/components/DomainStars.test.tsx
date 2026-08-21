@@ -11,4 +11,13 @@ describe("DomainStars", () => {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
   });
+
+  it("renders a one-line caption per domain, matching the domain's score tier", () => {
+    render(
+      <DomainStars scores={{ 총운: 3, 애정: 4, 재물: 2, 직업학업: 5, 건강: 3, 인간관계: 4 }} />
+    );
+    expect(screen.getByText("무난한 흐름")).toBeInTheDocument();
+    expect(screen.getByText("상반기 인연")).toBeInTheDocument();
+    expect(screen.getByText("지출 관리 필요")).toBeInTheDocument();
+  });
 });

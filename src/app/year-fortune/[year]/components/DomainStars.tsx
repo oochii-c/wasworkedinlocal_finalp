@@ -1,4 +1,5 @@
 import { Domain, DOMAINS } from "@/saju/mock/scoring";
+import { getDomainCaption } from "@/saju/mock/insights";
 import { StarRating } from "./StarRating";
 import styles from "./DomainStars.module.css";
 
@@ -13,6 +14,7 @@ export function DomainStars({ scores }: DomainStarsProps) {
         <div key={domain} className={styles.cell}>
           <span className={styles.label}>{domain}</span>
           <StarRating score={scores[domain]} />
+          <span className={styles.caption}>{getDomainCaption(domain, scores[domain])}</span>
         </div>
       ))}
     </section>
