@@ -31,10 +31,25 @@
   border: 1px solid #eee;
   border-radius: 8px;
   background: #fafafa;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   font-size: 0.85rem;
+}
+
+.popupItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.popupMonth {
+  font-weight: 700;
+}
+
+.popupInterpretation {
+  font-size: 0.8rem;
+  color: #666;
 }
 
 .bars {

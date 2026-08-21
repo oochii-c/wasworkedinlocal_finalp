@@ -2,6 +2,8 @@
 // 문구 테이블이다. 점수 구간(고/중/저)에 따라 고정된 문구를 고르는 방식으로,
 // 나중에 실제 사주 해석 로직으로 교체되어야 한다.
 import { Domain } from "./scoring";
+import { CheonGan } from "../types";
+import { ElementRelation, getElementRelation } from "../ganzhi";
 
 type Tier = "high" | "mid" | "low";
 
@@ -22,6 +24,31 @@ const DOMAIN_CAPTIONS: Record<Domain, Record<Tier, string>> = {
 
 export function getDomainCaption(domain: Domain, score: number): string {
   return DOMAIN_CAPTIONS[domain][tierOf(score)];
+}
+
+const MONTH_CAPTIONS: Record<Tier, string> = {
+  high: "기운이 좋은 달",
+  mid: "무난한 달",
+  low: "조심이 필요한 달",
+};
+
+// 월간지 팝업(MonthlyFlow)에서 각 달의 점수를 한 줄 해설로 바꿔준다.
+export function getMonthCaption(score: number): string {
+  return MONTH_CAPTIONS[tierOf(score)];
+}
+
+// 월간지의 오행과 일간의 상생상극 관계를 근거로 좀 더 자세한 한 줄 해설을 만든다.
+// scoring.ts의 RELATION_SCORE와 같은 관계 방향(a=월간지 오행, b=일간 오행)을 쓴다.
+const RELATION_INTERPRETATIONS: Record<ElementRelation, string> = {
+  generates: "이 달의 기운이 일간에 힘을 보태줘서 하는 일이 순조롭게 풀립니다",
+  same: "일간과 같은 기운이 겹쳐 자신감 있게 밀어붙이기 좋습니다",
+  controlled_by: "일간이 이 달의 기운을 다스릴 수 있어 유리하게 활용할 수 있습니다",
+  generated_by: "일간이 기운을 많이 내주는 달이라 체력과 감정 관리가 필요합니다",
+  controls: "이 달의 기운이 강해 일간이 눌리기 쉬우니 무리하지 않는 게 좋습니다",
+};
+
+export function getMonthInterpretation(monthGan: CheonGan, dayMaster: CheonGan): string {
+  return RELATION_INTERPRETATIONS[getElementRelation(monthGan, dayMaster)];
 }
 
 // 월별 흐름 막대 색상(MonthlyFlow)도 이 두 기준을 그대로 써서, "좋은 달/주의 달"

@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { GanZhi } from "@/saju/types";
+import { CheonGan, GanZhi } from "@/saju/types";
 import { ganZhiToHanja } from "@/saju/ganzhi";
-import { GOOD_MONTH_THRESHOLD, CAUTION_MONTH_THRESHOLD } from "@/saju/mock/insights";
+import { GOOD_MONTH_THRESHOLD, CAUTION_MONTH_THRESHOLD, getMonthInterpretation } from "@/saju/mock/insights";
 import styles from "./MonthlyFlow.module.css";
 
 export interface MonthlyFlowProps {
   monthlyScores: number[];
   monthlyGanZhi: GanZhi[];
+  dayMaster: CheonGan;
 }
 
 const MAX_SCORE = 5;
@@ -19,7 +20,7 @@ function barClassName(score: number): string {
   return styles.barNeutral;
 }
 
-export function MonthlyFlow({ monthlyScores, monthlyGanZhi }: MonthlyFlowProps) {
+export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster }: MonthlyFlowProps) {
   const [showPopup, setShowPopup] = useState(false);
 
   return (
@@ -39,8 +40,13 @@ export function MonthlyFlow({ monthlyScores, monthlyGanZhi }: MonthlyFlowProps) 
       {showPopup && (
         <ul className={styles.popup} role="list">
           {monthlyGanZhi.map((gz, i) => (
-            <li key={i}>
-              {i + 1}월 {ganZhiToHanja(gz)}
+            <li key={i} className={styles.popupItem}>
+              <span className={styles.popupMonth}>
+                {i + 1}월 {ganZhiToHanja(gz)}
+              </span>
+              <span className={styles.popupInterpretation}>
+                {getMonthInterpretation(gz.gan, dayMaster)}
+              </span>
             </li>
           ))}
         </ul>

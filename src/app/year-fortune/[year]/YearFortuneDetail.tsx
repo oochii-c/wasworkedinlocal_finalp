@@ -35,7 +35,11 @@ export function YearFortuneDetail({ chart, year, summary, citation }: YearFortun
         canGoNext={year < maxYear}
       />
       <DomainStars scores={domainScores} />
-      <MonthlyFlow monthlyScores={monthlyScores} monthlyGanZhi={monthlyGanZhi} />
+      <MonthlyFlow
+        monthlyScores={monthlyScores}
+        monthlyGanZhi={monthlyGanZhi}
+        dayMaster={chart.dayMaster}
+      />
       <GoodBadMonths monthlyScores={monthlyScores} />
       <AiSummary summary={summary} citation={citation} />
     </div>
