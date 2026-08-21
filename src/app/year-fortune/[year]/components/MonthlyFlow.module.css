@@ -66,6 +66,12 @@
   border-radius: 4px 4px 0 0;
 }
 
+.barNeutral {
+  width: 100%;
+  background: #d9d9d9;
+  border-radius: 4px 4px 0 0;
+}
+
 .barLabel {
   font-size: 0.7rem;
   color: #777;

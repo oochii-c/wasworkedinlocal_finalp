@@ -24,8 +24,10 @@ export function getDomainCaption(domain: Domain, score: number): string {
   return DOMAIN_CAPTIONS[domain][tierOf(score)];
 }
 
-const GOOD_MONTH_THRESHOLD = 4;
-const CAUTION_MONTH_THRESHOLD = 2;
+// 월별 흐름 막대 색상(MonthlyFlow)도 이 두 기준을 그대로 써서, "좋은 달/주의 달"
+// 범례가 아래 좋은/주의 시기 목록과 항상 같은 기준을 가리키게 한다.
+export const GOOD_MONTH_THRESHOLD = 4;
+export const CAUTION_MONTH_THRESHOLD = 2;
 
 // monthlyScores: 길이 12, index 0 = 1월. 반환값은 1~12 사이 월 번호 목록이다.
 export function getGoodMonths(monthlyScores: number[]): number[] {

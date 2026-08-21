@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GanZhi } from "@/saju/types";
 import { ganZhiToHanja } from "@/saju/ganzhi";
+import { GOOD_MONTH_THRESHOLD, CAUTION_MONTH_THRESHOLD } from "@/saju/mock/insights";
 import styles from "./MonthlyFlow.module.css";
 
 export interface MonthlyFlowProps {
@@ -10,8 +11,13 @@ export interface MonthlyFlowProps {
   monthlyGanZhi: GanZhi[];
 }
 
-const GOOD_THRESHOLD = 3;
 const MAX_SCORE = 5;
+
+function barClassName(score: number): string {
+  if (score >= GOOD_MONTH_THRESHOLD) return styles.barGood;
+  if (score <= CAUTION_MONTH_THRESHOLD) return styles.barCaution;
+  return styles.barNeutral;
+}
 
 export function MonthlyFlow({ monthlyScores, monthlyGanZhi }: MonthlyFlowProps) {
   const [showPopup, setShowPopup] = useState(false);
@@ -44,7 +50,7 @@ export function MonthlyFlow({ monthlyScores, monthlyGanZhi }: MonthlyFlowProps) 
         {monthlyScores.map((score, i) => (
           <div key={i} className={styles.barColumn}>
             <div
-              className={score >= GOOD_THRESHOLD ? styles.barGood : styles.barCaution}
+              className={barClassName(score)}
               style={{ height: `${(score / MAX_SCORE) * 100}%` }}
             />
             <span className={styles.barLabel}>{i + 1}월</span>
