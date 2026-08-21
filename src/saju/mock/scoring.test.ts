@@ -30,6 +30,20 @@ describe("computeDomainScores", () => {
     const second = computeDomainScores(testChart, 2026);
     expect(first).toEqual(second);
   });
+
+  it("lowers the 직업학업 score when the chart has zero 수 ohaeng", () => {
+    const base = computeDomainScores(testChart, 2026);
+    const lowSuChart: SajuExtended = { ...testChart, ohaeng: { ...testChart.ohaeng, 수: 0 } };
+    const adjusted = computeDomainScores(lowSuChart, 2026);
+    expect(adjusted.직업학업).toBe(base.직업학업 - 1);
+  });
+
+  it("raises the 직업학업 score when the chart has 3 or more 수 ohaeng", () => {
+    const base = computeDomainScores(testChart, 2026);
+    const highSuChart: SajuExtended = { ...testChart, ohaeng: { ...testChart.ohaeng, 수: 3 } };
+    const adjusted = computeDomainScores(highSuChart, 2026);
+    expect(adjusted.직업학업).toBe(base.직업학업 + 1);
+  });
 });
 
 describe("computeOverallScore", () => {
