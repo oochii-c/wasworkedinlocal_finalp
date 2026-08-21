@@ -49,6 +49,8 @@
   margin-inline: auto;
   min-height: 100vh;
   box-sizing: border-box;
+  position: relative;
+  z-index: 0; /* stacking context — 배경 물방울 레이어(z-index:-1)가 배경 위·콘텐츠 아래에 오도록 */
   padding: var(--pad-top) var(--pad-x) clamp(24px, 7cqw, 40px);
   color: var(--saju-text);
   font-family: "ChosunSg", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
