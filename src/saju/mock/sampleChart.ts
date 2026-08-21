@@ -1,3 +1,5 @@
+// 목업: 온보딩 폼이 아직 없어, 실제로는 온보딩 폼에서 생성될 SajuExtended를
+// 대신하는 하드코딩된 데모 픽스처다.
 import { SajuExtended } from "../types";
 
 export const sampleChart: SajuExtended = {
