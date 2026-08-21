@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   getDomainCaption,
-  getMonthCaption,
   getMonthInterpretation,
   getGoodMonths,
   getCautionMonths,
@@ -21,22 +20,6 @@ describe("getDomainCaption", () => {
   it("returns the low-tier caption for a score of 1 or 2", () => {
     expect(getDomainCaption("건강", 1)).toBe("휴식 필요");
     expect(getDomainCaption("건강", 2)).toBe("휴식 필요");
-  });
-});
-
-describe("getMonthCaption", () => {
-  it("returns the high-tier caption for a score of 4 or 5", () => {
-    expect(getMonthCaption(4)).toBe("기운이 좋은 달");
-    expect(getMonthCaption(5)).toBe("기운이 좋은 달");
-  });
-
-  it("returns the mid-tier caption for a score of 3", () => {
-    expect(getMonthCaption(3)).toBe("무난한 달");
-  });
-
-  it("returns the low-tier caption for a score of 1 or 2", () => {
-    expect(getMonthCaption(1)).toBe("조심이 필요한 달");
-    expect(getMonthCaption(2)).toBe("조심이 필요한 달");
   });
 });
 

@@ -26,18 +26,7 @@ export function getDomainCaption(domain: Domain, score: number): string {
   return DOMAIN_CAPTIONS[domain][tierOf(score)];
 }
 
-const MONTH_CAPTIONS: Record<Tier, string> = {
-  high: "기운이 좋은 달",
-  mid: "무난한 달",
-  low: "조심이 필요한 달",
-};
-
-// 월간지 팝업(MonthlyFlow)에서 각 달의 점수를 한 줄 해설로 바꿔준다.
-export function getMonthCaption(score: number): string {
-  return MONTH_CAPTIONS[tierOf(score)];
-}
-
-// 월간지의 오행과 일간의 상생상극 관계를 근거로 좀 더 자세한 한 줄 해설을 만든다.
+// 월간지의 오행과 일간의 상생상극 관계를 근거로 한 줄 해설을 만든다.
 // scoring.ts의 RELATION_SCORE와 같은 관계 방향(a=월간지 오행, b=일간 오행)을 쓴다.
 const RELATION_INTERPRETATIONS: Record<ElementRelation, string> = {
   generates: "이 달의 기운이 일간에 힘을 보태줘서 하는 일이 순조롭게 풀립니다",
