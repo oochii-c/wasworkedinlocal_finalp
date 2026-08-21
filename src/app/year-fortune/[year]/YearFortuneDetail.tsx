@@ -13,9 +13,10 @@ export interface YearFortuneDetailProps {
   chart: SajuExtended;
   year: number;
   summary: string;
+  citation?: string;
 }
 
-export function YearFortuneDetail({ chart, year, summary }: YearFortuneDetailProps) {
+export function YearFortuneDetail({ chart, year, summary, citation }: YearFortuneDetailProps) {
   const yearGanZhi = getYearGanZhi(year);
   const domainScores = computeDomainScores(chart, year);
   const overallScore = computeOverallScore(domainScores);
@@ -36,7 +37,7 @@ export function YearFortuneDetail({ chart, year, summary }: YearFortuneDetailPro
       <DomainStars scores={domainScores} />
       <MonthlyFlow monthlyScores={monthlyScores} monthlyGanZhi={monthlyGanZhi} />
       <GoodBadMonths monthlyScores={monthlyScores} />
-      <AiSummary summary={summary} />
+      <AiSummary summary={summary} citation={citation} />
     </div>
   );
 }
