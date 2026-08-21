@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import counselRouter from "./counsel.js";
 
 dotenv.config();
 
@@ -30,6 +31,9 @@ function savePillars({ name, gender, chart }) {
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// AI 용왕 상담 라우터 (server/counsel.js) — POST /api/counsel
+app.use(counselRouter);
 
 // 천간 -> 한글명/오행 매핑. 모델이 한자를 오독하지 않도록 명시용.
 const GAN_INFO = {
