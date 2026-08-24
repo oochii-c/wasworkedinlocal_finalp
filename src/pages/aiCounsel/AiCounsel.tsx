@@ -1,10 +1,14 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
 import BottomNav from "../../components/layout/BottomNav";
+import { getCounsel, guardInput } from "../../services/counselApi";
+import { deriveIdentity } from "./identity";
 import "./aiCounsel.css";
-import type { AiCounselProps } from "./types";
+import type { AiCounselProps, CounselMessage } from "./types";
 
-// 정적 추천 질문 (A단계 하드코딩 · 이후 상수파일/AI 생성으로 교체)
+const DAILY_LIMIT = 5;
+
+// 정적 추천 질문
 const SUGGESTED = [
   "올해 이직해도 될까요?",
   "제 연애운은 언제 들어오나요?",
@@ -16,12 +20,66 @@ const SUGGESTED = [
   "이사나 이동수가 있을까요?",
 ];
 
-// AI 용왕 상담 화면 — 화면 틀(정적) 단계.
-// chart 등 props 는 기능(C) 단계에서 사용. 지금은 구조·디자인만.
-export default function AiCounsel(_props: AiCounselProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
+const WELCOME: CounselMessage = {
+  role: "wang",
+  text: "짐이 그대의 사주를 이미 살펴보았노라. 무엇이 궁금한가, 편히 물으라.",
+};
+
+// 용왕 답변 타자기 효과 — 마운트 시 1회 한 글자씩. reduced-motion이면 즉시 전체 표시.
+function TypewriterText({ text, onTick }: { text: string; onTick?: () => void }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setCount(text.length);
+      return;
+    }
+    setCount(0);
+    const id = window.setInterval(() => {
+      setCount((c) => {
+        if (c >= text.length) {
+          window.clearInterval(id);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 28);
+    return () => window.clearInterval(id);
+  }, [text]);
+
+  // 타이핑되며 채팅이 아래로 따라가도록 (tick jank 방지 위해 즉시 스크롤)
+  useEffect(() => {
+    onTick?.();
+  }, [count, onTick]);
+
+  const done = count >= text.length;
+  return (
+    <>
+      {text.slice(0, count)}
+      {!done && <span className="ac-caret" aria-hidden="true" />}
+    </>
+  );
+}
+
+export default function AiCounsel({ chart }: AiCounselProps) {
+  const [messages, setMessages] = useState<CounselMessage[]>([WELCOME]);
   const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [remaining, setRemaining] = useState(DAILY_LIMIT);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // 새 메시지가 오면 채팅 하단으로 스크롤
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // 타자기 tick마다 하단 유지 (즉시 스크롤)
+  const scrollToEnd = useCallback(() => {
+    chatEndRef.current?.scrollIntoView({ block: "end" });
+  }, []);
 
   // textarea 높이 자동 조절 (최소 1줄 ~ 최대 5줄)
   const autoResize = useCallback(() => {
@@ -34,15 +92,72 @@ export default function AiCounsel(_props: AiCounselProps) {
     el.style.overflowY = natural >= MAX ? "scroll" : "hidden";
   }, []);
 
-  // Enter = 전송, Shift+Enter = 줄바꿈
+  const resetTextarea = useCallback(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.overflowY = "hidden";
+  }, []);
+
+  const handleSend = useCallback(async () => {
+    const text = inputText.trim();
+    if (!text || loading || remaining <= 0) return;
+
+    // 1층 클라이언트 인젝션 방어
+    if (guardInput(text) === null) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "wang",
+          text: "짐은 사주의 이치만을 논하노라. 다른 물음은 받지 않겠노라.",
+        },
+      ]);
+      setInputText("");
+      resetTextarea();
+      return;
+    }
+
+    const userMsg: CounselMessage = { role: "me", text };
+    setMessages((prev) => [...prev, userMsg]);
+    setInputText("");
+    resetTextarea();
+    setLoading(true);
+
+    try {
+      const { reply, src, remaining: left } = await getCounsel({
+        chart,
+        messages: [...messages, userMsg],
+      });
+      setMessages((prev) => [...prev, { role: "wang", text: reply, src }]);
+      setRemaining(left);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "wang", text: "용궁에 파도가 심하여 말씀을 전하기 어렵노라. 잠시 후 다시 물으라." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }, [inputText, loading, remaining, messages, chart, resetTextarea]);
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      // TODO: 전송 로직 (C단계)
+      handleSend();
     }
   };
 
-  // 상단 사주 스트립 가로 이동 — 데스크톱: 마우스 휠(세로→가로) + 클릭 드래그, 모바일: 네이티브 터치
+  // 추천질문 탭 → 입력창 채우기 + 바텀시트 닫기
+  const pickSuggested = (q: string) => {
+    setInputText(q);
+    setSheetOpen(false);
+    setTimeout(() => {
+      autoResize();
+      textareaRef.current?.focus();
+    }, 0);
+  };
+
+  // 상단 사주 스트립 가로 이동 — 데스크톱: 마우스 휠(세로→가로) + 클릭 드래그
   const stripRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ down: false, x: 0, left: 0 });
   const onStripWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
@@ -56,25 +171,26 @@ export default function AiCounsel(_props: AiCounselProps) {
     if (!drag.current.down || !stripRef.current) return;
     stripRef.current.scrollLeft = drag.current.left - (e.clientX - drag.current.x);
   };
-  const endStripDrag = () => {
-    drag.current.down = false;
-  };
+  const endStripDrag = () => { drag.current.down = false; };
+
+  const exhausted = remaining <= 0;
+  const identity = useMemo(() => deriveIdentity(chart), [chart]);
 
   return (
     <div className="db-page ac-page">
       {/* 상단 바 */}
       <header className="db-topbar">
         <span className="db-logo">🐉 용왕님 상담</span>
-        <span className="ac-limit">오늘 3/5</span>
+        <span className="ac-limit">오늘 {DAILY_LIMIT - remaining}/{DAILY_LIMIT}</span>
       </header>
 
       {/* 상단 고정: 용왕이 살펴본 그대 (캐릭터 + 사주 전체 스와이프) */}
       <div className="ac-identity">
         <div className="ac-char">
-          <div className="ac-char-hanja">己</div>
+          <div className="ac-char-hanja">{identity.hanja}</div>
           <div className="ac-char-meta">
-            <div className="ac-char-type">기토 · 넓은 대지</div>
-            <div className="ac-char-tags">#포용 #끈기 #현실감각</div>
+            <div className="ac-char-type">{identity.typeLabel}</div>
+            <div className="ac-char-tags">{identity.tags}</div>
           </div>
         </div>
         <div
@@ -87,35 +203,37 @@ export default function AiCounsel(_props: AiCounselProps) {
           onPointerUp={endStripDrag}
           onPointerLeave={endStripDrag}
         >
-          <span className="ac-chip">土 강 · 金 부족</span>
-          <span className="ac-chip">재성 발달</span>
-          <span className="ac-chip">도화살</span>
-          <span className="ac-chip">역마살</span>
-          <span className="ac-chip">천을귀인</span>
-          <span className="ac-chip">올해 丙午 · 상생</span>
-          <span className="ac-chip">대운 乙亥</span>
+          {identity.chips.map((chip) => (
+            <span key={chip} className="ac-chip">{chip}</span>
+          ))}
         </div>
       </div>
 
-      {/* 채팅 (스크림 위) */}
+      {/* 채팅 */}
       <main className="ac-main">
         <div className="ac-chat">
-          <div className="ac-msg ac-msg--wang">
-            <span className="ac-who">용왕</span>
-            <p className="ac-text">짐이 그대의 사주를 이미 살펴보았노라. 무엇이 궁금한가, 편히 물으라.</p>
-          </div>
-          <div className="ac-msg ac-msg--me">
-            <span className="ac-who">나</span>
-            <p className="ac-text">올해 이직해도 될까요?</p>
-          </div>
-          <div className="ac-msg ac-msg--wang">
-            <span className="ac-who">용왕</span>
-            <p className="ac-text">
-              올해 병오년은 그대의 기운이 강해지는 해라, 새 자리를 찾기에 나쁘지 않으니라. 다만 서두르지 말고 신중히
-              정하거라.
-            </p>
-            <span className="ac-src">근거: 세운 丙午 × 일간 己 상생(+2)</span>
-          </div>
+          {messages.map((msg, i) => (
+            <div key={i} className={`ac-msg ac-msg--${msg.role}`}>
+              <span className="ac-who">{msg.role === "wang" ? "용왕" : "나"}</span>
+              <p className="ac-text">
+                {msg.role === "wang" ? <TypewriterText text={msg.text} onTick={scrollToEnd} /> : msg.text}
+              </p>
+              {msg.src && <span className="ac-src">근거: {msg.src}</span>}
+            </div>
+          ))}
+          {loading && (
+            <div className="ac-msg ac-msg--wang">
+              <span className="ac-who">용왕</span>
+              <p className="ac-text ac-loading">···</p>
+            </div>
+          )}
+          {exhausted && (
+            <div className="ac-msg ac-msg--wang">
+              <span className="ac-who">용왕</span>
+              <p className="ac-text">오늘 짐과 나눌 수 있는 대화가 다하였노라. 내일 다시 오라.</p>
+            </div>
+          )}
+          <div ref={chatEndRef} />
         </div>
       </main>
 
@@ -127,23 +245,30 @@ export default function AiCounsel(_props: AiCounselProps) {
             className="ac-suggest-btn"
             aria-label="추천 질문"
             onClick={() => setSheetOpen(true)}
+            disabled={exhausted}
           >
             ✦
           </button>
           <textarea
             ref={textareaRef}
             className="ac-input"
-            placeholder="궁금한 걸 물어보세요… (Shift+Enter 줄바꿈)"
+            placeholder={exhausted ? "오늘 대화가 마감되었습니다" : "궁금한 걸 물어보세요… (Shift+Enter 줄바꿈)"}
             aria-label="상담 질문 입력"
             rows={1}
             value={inputText}
-            onChange={(e) => {
-              setInputText(e.target.value);
-              autoResize();
-            }}
+            disabled={exhausted || loading}
+            onChange={(e) => { setInputText(e.target.value); autoResize(); }}
             onKeyDown={onKeyDown}
           />
-          <button type="button" className="ac-send" aria-label="전송">↑</button>
+          <button
+            type="button"
+            className="ac-send"
+            aria-label="전송"
+            disabled={exhausted || loading || !inputText.trim()}
+            onClick={handleSend}
+          >
+            {loading ? "…" : "↑"}
+          </button>
         </div>
       </div>
 
@@ -158,7 +283,7 @@ export default function AiCounsel(_props: AiCounselProps) {
             <ul className="ac-sheet-list">
               {SUGGESTED.map((q) => (
                 <li key={q}>
-                  <button type="button" className="ac-sheet-item" onClick={() => setSheetOpen(false)}>
+                  <button type="button" className="ac-sheet-item" onClick={() => pickSuggested(q)}>
                     {q}
                   </button>
                 </li>

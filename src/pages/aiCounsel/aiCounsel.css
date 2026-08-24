@@ -4,6 +4,12 @@
    시그니처: 용왕 말풍선 골드 오라 + 여의주 맥동.
    ============================================================ */
 
+/* db-page의 min-height:100dvh를 고정 높이로 override — 채팅 페이지는 페이지 자체가 늘어나면 안 됨 */
+.ac-page {
+  height: 100dvh;
+  overflow: hidden;
+}
+
 /* 상단 남은 횟수 뱃지 */
 .ac-limit {
   font-size: 13px;
@@ -101,6 +107,23 @@
     rgba(8, 18, 38, 0.78) 42%,
     rgba(8, 18, 38, 0.86) 100%
   );
+}
+.ac-main {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(234, 203, 138, 0.4) transparent;
+}
+.ac-main::-webkit-scrollbar {
+  width: 3px;
+}
+.ac-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ac-main::-webkit-scrollbar-thumb {
+  background: rgba(234, 203, 138, 0.4);
+  border-radius: 999px;
+}
+.ac-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(234, 203, 138, 0.7);
 }
 .ac-chat {
   display: flex;
@@ -327,8 +350,46 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+/* 타자기 커서 — 골드 세로 막대 깜빡임 */
+.ac-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--saju-gold);
+  animation: ac-caret-blink 0.9s step-end infinite;
+}
+@keyframes ac-caret-blink {
+  50% { opacity: 0; }
+}
+
+/* 로딩 말풍선 페이드 */
+.ac-loading {
+  opacity: 0.6;
+  animation: ac-loading-blink 1.2s ease-in-out infinite;
+}
+@keyframes ac-loading-blink {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
+/* 비활성 상태 */
+.ac-send:disabled,
+.ac-suggest-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  animation: none;
+}
+.ac-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ac-send { animation: none; }
   .ac-sheet,
   .ac-sheet-overlay { animation: none; }
+  .ac-loading { animation: none; }
+  .ac-caret { animation: none; }
 }

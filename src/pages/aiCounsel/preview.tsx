@@ -10,16 +10,20 @@ import "../../styles/base.css";
 import "../../styles/saju.css"; // --saju-* 토큰 정의
 import "../dashboard/dashboard.css"; // db-* 클래스 재사용
 
-// 목업 원국 — 기능(C) 단계 전까지 화면 확인용
+// 목업 원국 — 실제 계산기 형식에 맞춤(오행 키: 木火土金水, 십성: 5분류)
 const mockChart = {
   dayGan: "己",
   baZi: ["己", "巳", "丁", "丑", "己", "亥", "乙", "亥"],
   shengXiao: "뱀",
   pillars: [],
-  wuXingCount: { 목: 1, 화: 2, 토: 3, 금: 0, 수: 2 },
-  shiShenCount: { 비견: 2, 편인: 1, 편관: 1 },
-  shenSha: [],
-  daYun: [{ ganZhi: "乙亥", startAge: 5, startYear: 1995 }],
+  wuXingCount: { 木: 1, 火: 2, 土: 3, 金: 0, 水: 2 },
+  shiShenCount: { 비겁: 2, 식상: 0, 재성: 3, 관성: 1, 인성: 1 },
+  shenSha: [
+    { name: "도화살", desc: "" },
+    { name: "역마살", desc: "" },
+    { name: "천을귀인", desc: "" },
+  ],
+  daYun: [{ ganZhi: "乙亥", startAge: 30, startYear: 2020 }],
   seWun: [],
   currentSeWun: { year: 2026, ganZhi: "丙午", rel: "상생(+2)", stars: 4 },
 } as unknown as SajuExtended;
