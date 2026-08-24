@@ -160,38 +160,43 @@
   padding: 10px 12px;
   background: rgba(8, 18, 38, 0.92);
 }
-.ac-inputbar {
+/* 통합 pill: [✦ 추천] [textarea] [여의주] 한 줄. 한 줄일 땐 글자 세로 중앙(center),
+   버튼은 align-self로 하단 고정 → 여러 줄 확장 시에도 아이콘은 바닥에 붙음 */
+.ac-input-wrap {
   display: flex;
-  align-items: flex-end; /* textarea 늘어날 때 버튼들이 하단 고정 */
+  align-items: center;
   gap: 8px;
+  background: rgba(152, 204, 255, 0.14);
+  border: 1px solid var(--saju-blue-300);
+  border-radius: 22px;
+  padding: 6px 6px 6px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+/* 키보드 포커스 링 — textarea 포커스 시 pill 전체에 표시 (a11y) */
+.ac-input-wrap:focus-within {
+  border-color: var(--saju-gold);
+  box-shadow: 0 0 0 2px rgba(234, 203, 138, 0.25);
+}
+/* 추천 질문: 텍스트 pill → 골드 링 안 ✦ 아이콘 */
 .ac-suggest-btn {
   flex-shrink: 0;
-  white-space: nowrap;
-  font-size: 12.5px;
-  font-weight: 600;
+  align-self: flex-end; /* 여러 줄 확장 시 하단 고정 */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
   color: var(--saju-gold);
   background: transparent;
   border: 1px solid rgba(234, 203, 138, 0.5);
-  border-radius: 999px;
-  padding: 9px 12px;
+  border-radius: 50%;
+  padding: 0;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 .ac-suggest-btn:hover {
   background: rgba(234, 203, 138, 0.12);
-}
-/* wrapper: 테두리·배경·padding 담당 — textarea overflow 영향 안 받음 */
-.ac-input-wrap {
-  flex: 1;
-  min-width: 0;
-  background: rgba(152, 204, 255, 0.14);
-  border: 1px solid var(--saju-blue-300);
-  border-radius: 12px;
-  padding: 11px 8px;
-  scrollbar-gutter: stable;
-  display: flex;
-  align-items: flex-start;
 }
 /* textarea: border/bg/padding 없이 scroll만 */
 .ac-input {
@@ -209,7 +214,7 @@
   resize: none;
   display: block;
   min-height: 21px;   /* 1줄 */
-  max-height: 108px;  /* 5줄 ≈ 130px - 22px(wrapper padding) */
+  max-height: 114px;  /* 5줄 ≈ 126px - 12px(wrapper 세로 padding) */
   overflow-y: hidden; /* JS가 max 도달 시 scroll로 전환 */
   /* Firefox 스크롤바 */
   scrollbar-width: thin;
@@ -235,13 +240,14 @@
 /* 시그니처: 여의주 전송 버튼 (은은히 맥동) */
 .ac-send {
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  align-self: flex-end; /* 여러 줄 확장 시 하단 고정 */
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 1.5px solid var(--saju-gold-bright);
   background: radial-gradient(circle at 35% 30%, var(--saju-gold-bright) 0%, var(--saju-gold) 35%, var(--saju-blue-500) 80%, var(--saju-navy-900) 100%);
   color: var(--saju-navy-900);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   display: flex;
   align-items: center;

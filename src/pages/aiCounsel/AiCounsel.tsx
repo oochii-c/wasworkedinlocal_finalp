@@ -27,7 +27,7 @@ export default function AiCounsel(_props: AiCounselProps) {
   const autoResize = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
-    const MAX = 108; // wrapper padding(22px) 제외한 5줄 최대
+    const MAX = 114; // wrapper 세로 padding(12px) 제외한 5줄 최대
     el.style.height = "auto";
     const natural = el.scrollHeight;
     el.style.height = `${Math.min(natural, MAX)}px`;
@@ -119,27 +119,30 @@ export default function AiCounsel(_props: AiCounselProps) {
         </div>
       </main>
 
-      {/* 하단 입력 */}
+      {/* 하단 입력 — 통합 pill: [✦ 추천] [입력] [여의주 전송] 한 줄 */}
       <div className="ac-composer">
-        <div className="ac-inputbar">
-          <button type="button" className="ac-suggest-btn" onClick={() => setSheetOpen(true)}>
-            추천 질문
+        <div className="ac-input-wrap">
+          <button
+            type="button"
+            className="ac-suggest-btn"
+            aria-label="추천 질문"
+            onClick={() => setSheetOpen(true)}
+          >
+            ✦
           </button>
-          <div className="ac-input-wrap">
-            <textarea
-              ref={textareaRef}
-              className="ac-input"
-              placeholder="궁금한 걸 물어보세요… (Shift+Enter 줄바꿈)"
-              aria-label="상담 질문 입력"
-              rows={1}
-              value={inputText}
-              onChange={(e) => {
-                setInputText(e.target.value);
-                autoResize();
-              }}
-              onKeyDown={onKeyDown}
-            />
-          </div>
+          <textarea
+            ref={textareaRef}
+            className="ac-input"
+            placeholder="궁금한 걸 물어보세요… (Shift+Enter 줄바꿈)"
+            aria-label="상담 질문 입력"
+            rows={1}
+            value={inputText}
+            onChange={(e) => {
+              setInputText(e.target.value);
+              autoResize();
+            }}
+            onKeyDown={onKeyDown}
+          />
           <button type="button" className="ac-send" aria-label="전송">↑</button>
         </div>
       </div>
