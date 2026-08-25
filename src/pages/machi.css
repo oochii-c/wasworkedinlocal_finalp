@@ -10,25 +10,29 @@
   --machi-text-muted: #B7C0DE;
 }
 
-/* 공유 배경(용궁 이미지) 위에 이 페이지만의 톤 덧씌우기 */
-.machi-page {
-  position: relative;
-  isolation: isolate;
-}
-.machi-page::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-color: var(--machi-void);
+/* 궁합 뷰 배경 = machi 고유 이미지 하나만.
+   대시보드 고정 배경레이어(db-page::before)를 machi 이미지로 교체해 뷰포트 전체를 덮음 */
+.db-page:has(.machi-page)::before {
+  background-color: #0E1530;
   background-image:
-    linear-gradient(180deg, rgba(8, 12, 30, 0.32) 0%, rgba(8, 12, 30, 0.55) 42%, rgba(8, 12, 30, 0.94) 80%, var(--machi-void) 100%),
+    linear-gradient(180deg, rgba(8, 12, 30, 0.32) 0%, rgba(8, 12, 30, 0.55) 42%, rgba(8, 12, 30, 0.94) 80%, #0E1530 100%),
     url("../assets/img/26.08.21.png");
   background-size: 100% 100%, cover;
   background-position: top center, top center;
   background-repeat: no-repeat, no-repeat;
-  background-attachment: local, local;
+}
+
+.machi-page {
+  position: relative;
+  isolation: isolate;
+}
+/* machi 자체 ::before 레이어는 끔 (db-page 고정레이어가 배경 담당, 중복 방지) */
+.db-page:has(.machi-page) .machi-page::before {
+  display: none;
+}
+/* .saju-page가 element에 칠하는 기본(용궁) 배경 제거 — 아래 machi 고정레이어가 비치도록 투명화 */
+.db-page .machi-page {
+  background: none;
 }
 
 .machi-page .saju-section {

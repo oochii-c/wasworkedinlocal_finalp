@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { type DaYunInfo, type SeWunInfo, seWunScore } from "../../saju";
+import { useSaju } from "../../state/SajuContext";
 
 interface Props {
   daYun: DaYunInfo[];
@@ -33,6 +34,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 const W = 320, H = 80, PX = 16, PY = 12;
 
 export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGan }: Props) {
+  const { openYear } = useSaju();
   const currentYear = new Date().getFullYear();
   const currentAge = currentYear - birthYear;
 
@@ -341,7 +343,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
               fortuneText ?? ""
             )}
           </div>
-          <button type="button" className="db-dayun-detail-btn">
+          <button type="button" className="db-dayun-detail-btn" onClick={() => openYear(selectedYear)}>
             그 해 자세히 보기 →
           </button>
         </div>

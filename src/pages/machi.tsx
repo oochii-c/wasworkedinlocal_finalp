@@ -255,7 +255,7 @@ export default function Machi({ chart }: MachiProps) {
 
       <section className="saju-section">
         <SectionHeader title="상대방 이름" />
-        <SajuTextInput value={friendName} onChange={setFriendName} placeholder="예: 지수" icon="🐚" />
+        <SajuTextInput value={friendName} onChange={setFriendName} placeholder="별주부" icon="🐚" />
 
         <div style={{ height: "0.9rem" }} />
 
@@ -263,10 +263,9 @@ export default function Machi({ chart }: MachiProps) {
         <DateInputGroup value={friendDate} onChange={setFriendDate} />
 
         {error && <div className="saju-info-error">{error}</div>}
-
-        <div style={{ height: "1rem" }} />
-        <SubmitButton label="궁합 보기" disabled={!canSubmit} onClick={handleAddFriend} />
       </section>
+
+      <SubmitButton label="궁합 보기" disabled={!canSubmit} onClick={handleAddFriend} />
 
       {participants.length > 0 && (
         <>

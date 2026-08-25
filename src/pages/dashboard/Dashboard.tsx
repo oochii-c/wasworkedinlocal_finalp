@@ -9,6 +9,7 @@ import AiStories from "./AiStories";
 import DaYunFlow from "./DaYunFlow";
 import BottomNav from "../../components/layout/BottomNav";
 import TopicList from "../topics/TopicList";
+import Machi from "../machi";
 import BubbleField from "../../components/effects/BubbleField";
 import { useSaju } from "../../state/SajuContext";
 import { getReading, type Story } from "../../services/sajuApi";
@@ -63,7 +64,9 @@ export default function Dashboard() {
       </header>
 
       <main className="db-main">
-        {view === "topics" ? (
+        {view === "match" ? (
+          <Machi chart={chart} />
+        ) : view === "topics" ? (
           <TopicList />
         ) : (
           <>
@@ -106,8 +109,8 @@ export default function Dashboard() {
 
       {/* 하단 네비 */}
       <BottomNav
-        active={view === "topics" ? "topics" : "home"}
-        onSelect={(id) => navigate(id === "topics" ? "topics" : "home")}
+        active={view === "topics" ? "topics" : view === "match" ? "match" : "home"}
+        onSelect={(id) => navigate(id === "topics" ? "topics" : id === "match" ? "match" : "home")}
       />
     </div>
   );

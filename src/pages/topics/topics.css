@@ -64,6 +64,9 @@
 /* ---- 주제 카드 (.db-section 위에 얹음) ---- */
 .tp-card {
   scroll-margin-top: 52px; /* sticky 탭 높이만큼 여백 */
+  width: 100%;
+  max-width: 350px;
+  margin-inline: auto;
 }
 
 .tp-card-head {

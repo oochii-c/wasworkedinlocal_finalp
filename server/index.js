@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import counselRouter from "./counsel.js";
+import { LANG_RULE } from "./prompt-utils.js";
 
 dotenv.config();
 
@@ -60,7 +61,9 @@ const SYSTEM_PROMPT = `너는 '용궁'이라는 사주 서비스의 사주 명�
 점술적 단정보다 해석과 격려의 톤을 유지한다.
 반드시 아래 JSON 형식만 출력한다(코드블록·설명 없이):
 {"stories":[{"title":"...","body":"..."}, ... 4개]}
-title은 12자 이내 시적인 제목, body는 3~5문장.`;
+title은 12자 이내 시적인 제목, body는 3~5문장.
+
+${LANG_RULE}`;
 
 app.post("/api/reading", async (req, res) => {
   if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
@@ -151,12 +154,14 @@ app.post("/api/themes", async (req, res) => {
     const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
     const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다.`;
     const themeList = THEME_DEFS.map((t) => `${t.key}(${t.label})`).join(", ");
-    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 아래 6개 주제 각각에 대해 별점(1~5 정수)과 한 줄 요약(공백 포함 30자 이내)을 생성한다.
+    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 아래 6개 주제 각각에 대해 별점(1~5 정수)과 요약(공백 포함 60자 이내)을 생성한다.
 주제: ${themeList}
 원국의 실제 간지·십신·오행 근거로 판단하되, 원국에 없는 간지·오행을 지어내지 않는다. 단정보다 격려의 톤.
 반드시 아래 JSON만 출력한다(코드블록·설명 없이):
 {"themes":[{"key":"love","stars":4,"summary":"..."}, ... 6개 모두]}
-key는 주어진 6개(${THEME_DEFS.map((t) => t.key).join(", ")})를 모두 포함한다.`;
+key는 주어진 6개(${THEME_DEFS.map((t) => t.key).join(", ")})를 모두 포함한다.
+
+${LANG_RULE}`;
     const userMsg = `${anchor}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
 
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -245,7 +250,9 @@ app.post("/api/year-fortune", async (req, res) => {
 1. 반드시 3문장으로 작성. 각 문장은 서로 다른 측면(이 해의 기운/실천 방향/구체적 조언)을 담아.
 2. ${zodiac}의 해 특성을 자연스럽게 한 문장에 녹여.
 3. 일간 ${dayGan}(${dayElem}) 기준으로 구체적으로, 따뜻하게.
-4. 반드시 아래 JSON만 출력(코드블록·설명 없이): {"text":"..."}`;
+4. 반드시 아래 JSON만 출력(코드블록·설명 없이): {"text":"..."}
+
+${LANG_RULE}`;
 
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {

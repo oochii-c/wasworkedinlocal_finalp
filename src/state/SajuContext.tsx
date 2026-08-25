@@ -20,14 +20,16 @@ export interface SajuInputs {
   timeUnknown: boolean;
 }
 
-export type SajuView = "form" | "home" | "topics";
+export type SajuView = "form" | "home" | "topics" | "year-fortune" | "match";
 
 interface SajuCtx {
   inputs: SajuInputs | null;
   chart: SajuExtended | null;
   view: SajuView;
+  year: number;                           // 연운 화면에서 보고 있는 연도
   commit: (inputs: SajuInputs) => void;   // 입력 → 계산 → 저장 → 홈. 실패 시 throw
   navigate: (view: SajuView) => void;     // chart 보존한 채 화면만 전환
+  openYear: (year: number) => void;       // 연도 지정 + 연운 화면으로 전환
   readCache: <T>(key: string) => T | undefined;
   writeCache: (key: string, val: unknown) => void;
 }
@@ -57,6 +59,7 @@ export function SajuProvider({ children }: { children: ReactNode }) {
   const [inputs, setInputs] = useState<SajuInputs | null>(() => loadInputs());
   const [chart, setChart] = useState<SajuExtended | null>(null);
   const [view, setView] = useState<SajuView>("form");
+  const [year, setYear] = useState<number>(() => new Date().getFullYear());
   const cache = useRef<Record<string, unknown>>({});
 
   const commit = (next: SajuInputs) => {
@@ -75,11 +78,12 @@ export function SajuProvider({ children }: { children: ReactNode }) {
   };
 
   const navigate = (v: SajuView) => setView(v);
+  const openYear = (y: number) => { setYear(y); setView("year-fortune"); };
   const readCache = <T,>(key: string): T | undefined => cache.current[key] as T | undefined;
   const writeCache = (key: string, val: unknown) => { cache.current[key] = val; };
 
   return (
-    <Ctx.Provider value={{ inputs, chart, view, commit, navigate, readCache, writeCache }}>
+    <Ctx.Provider value={{ inputs, chart, view, year, commit, navigate, openYear, readCache, writeCache }}>
       {children}
     </Ctx.Provider>
   );
