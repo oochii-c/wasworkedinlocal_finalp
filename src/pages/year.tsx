@@ -32,134 +32,9 @@ const ZHI_ZODIAC: Record<string, string> = {
   申: "원숭이", 酉: "닭", 戌: "개", 亥: "돼지",
 };
 
-// 별점 대신 바닷속 동물 5칸 — 영역마다 다른 동물(꽃게·물고기·불가사리·거북이·해파리·고래)을
-// 배정. 채워지면 금빛 실루엣 + 은은한 광채로 빛나고, 비면 무채색 실루엣만 남음.
-type Creature = "pearl" | "crab" | "fish" | "starfish" | "turtle" | "jellyfish" | "whale";
-
-const DOMAIN_CREATURE: Record<Domain, Creature> = {
-  총운: "crab",
-  애정: "fish",
-  재물: "starfish",
-  직업학업: "jellyfish",
-  건강: "turtle",
-  인간관계: "whale",
-};
-
-function CreatureSilhouette({ creature, color }: { creature: Creature; color: string }) {
-  switch (creature) {
-    case "pearl":
-      return <circle cx="10" cy="10" r="5.2" fill={color} />;
-    case "crab":
-      return (
-        <>
-          <ellipse cx="10" cy="12" rx="5.8" ry="4.2" fill={color} />
-          <circle cx="7.5" cy="7.6" r="0.8" fill={color} />
-          <circle cx="12.5" cy="7.6" r="0.8" fill={color} />
-          <line x1="8" y1="9" x2="7.5" y2="8" stroke={color} strokeWidth="0.7" />
-          <line x1="12" y1="9" x2="12.5" y2="8" stroke={color} strokeWidth="0.7" />
-          {/* 집게발 */}
-          <path d="M5 10 Q1.5 8 1 5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <ellipse cx="1" cy="3.3" rx="1.7" ry="1.2" transform="rotate(-35 1 3.3)" fill={color} />
-          <path d="M15 10 Q18.5 8 19 5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <ellipse cx="19" cy="3.3" rx="1.7" ry="1.2" transform="rotate(35 19 3.3)" fill={color} />
-          {/* 다리 */}
-          <line x1="5" y1="13" x2="1.5" y2="14.5" stroke={color} strokeWidth="0.8" strokeLinecap="round" />
-          <line x1="5.5" y1="15" x2="2.5" y2="17" stroke={color} strokeWidth="0.8" strokeLinecap="round" />
-          <line x1="15" y1="13" x2="18.5" y2="14.5" stroke={color} strokeWidth="0.8" strokeLinecap="round" />
-          <line x1="14.5" y1="15" x2="17.5" y2="17" stroke={color} strokeWidth="0.8" strokeLinecap="round" />
-        </>
-      );
-    case "fish":
-      return (
-        <>
-          <path d="M4 10 C4 7 8 6 13 7 C16 7.6 17.5 9 17.5 10 C17.5 11 16 12.4 13 13 C8 14 4 13 4 10 Z" fill={color} />
-          <path d="M4 10 L1 7.5 L2 10 L1 12.5 Z" fill={color} />
-        </>
-      );
-    case "starfish":
-      return (
-        <path
-          d="M10 3 L11.76 7.57 L16.66 7.84 L12.85 10.93 L14.11 15.66 L10 13 L5.89 15.66 L7.15 10.93 L3.34 7.84 L8.24 7.57 Z"
-          fill={color}
-        />
-      );
-    case "turtle":
-      return (
-        <>
-          {/* 옆으로 안 퍼지게 등딱지를 원형에 가깝게, 다리도 몸통에 바짝 붙여서 */}
-          <circle cx="10" cy="11" r="6" fill={color} />
-          <circle cx="10" cy="4.3" r="1.8" fill={color} />
-          <circle cx="4.3" cy="7.5" r="1.3" fill={color} />
-          <circle cx="15.7" cy="7.5" r="1.3" fill={color} />
-          <circle cx="4.6" cy="14.5" r="1.3" fill={color} />
-          <circle cx="15.4" cy="14.5" r="1.3" fill={color} />
-        </>
-      );
-    case "jellyfish":
-      return (
-        <>
-          {/* 둥근 머리(우산) 대신 아래가 평평한 종(bell) 모양으로 문어와 구분 */}
-          <path d="M4 9 A6 6 0 0 1 16 9 Z" fill={color} />
-          <path d="M5.5 9 Q5 13 6 17" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <path d="M8 9 Q7.5 14 8.5 18.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <path d="M10 9 Q10 15 10 19" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <path d="M12 9 Q12.5 14 11.5 18.5" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <path d="M14.5 9 Q15 13 14 17" stroke={color} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-        </>
-      );
-    case "whale":
-      return (
-        <>
-          {/* 통통한 반달 몸통 (꼬리 쪽은 짧게 끝내서 지느러미가 밖으로 튀어나오게) */}
-          <path d="M2 17 Q1 9 8 6.5 Q15 4.5 17 9.5 Q17.6 11.8 14.8 13.2 Q7.5 20 2 17 Z" fill={color} />
-          {/* 꼬리 지느러미 — 몸통 밖으로 확실히 튀어나오는 두 갈래 fluke */}
-          <path d="M14.8 13.2 Q17.5 12 19.5 9.3 Q19.2 12.5 20 14.2 Q18.6 15.8 16.4 15 Q15.4 14.4 14.8 13.2 Z" fill={color} />
-          {/* 가슴 지느러미 */}
-          <path d="M11.5 16.5 Q14 18 12.5 19.3 Q10.8 18.3 11.5 16.5 Z" fill={color} />
-          {/* 눈 */}
-          <circle cx="13" cy="10.8" r="0.6" fill={color} />
-          {/* 두 갈래로 갈라지는 물줄기 */}
-          <path d="M7.7 6.5 Q6.8 3.3 5.3 1.3 Q6.9 1.8 8 4.2 Q9.1 1.8 10.7 1.3 Q9.3 3.5 8.4 6.3 Z" fill={color} />
-          <circle cx="3.8" cy="2.2" r="0.5" fill={color} />
-          <circle cx="12.2" cy="2" r="0.5" fill={color} />
-        </>
-      );
-  }
-}
-
-function CreatureIcon({ creature, filled }: { creature: Creature; filled: boolean }) {
-  const color = filled ? "#FFF6DD" : "rgba(184,206,224,0.16)";
-  const stroke = filled ? "#EACB8A" : "rgba(184,206,224,0.4)";
-  return (
-    <svg className="yr-pearl" viewBox="0 0 20 20" width="22" height="22" aria-hidden="true">
-      {filled && (
-        <>
-          <circle cx="10" cy="10" r="9" fill="#EACB8A" opacity="0.14" />
-          <circle cx="10" cy="10" r="6.6" fill="#EACB8A" opacity="0.22" />
-        </>
-      )}
-      <g stroke={stroke} strokeWidth="0.6" strokeLinejoin="round">
-        <CreatureSilhouette creature={creature} color={color} />
-      </g>
-      {filled && (
-        <g stroke="#ffffff" strokeWidth="0.8" strokeLinecap="round">
-          <line x1="6.9" y1="7.4" x2="9" y2="7.4" />
-          <line x1="7.95" y1="6.35" x2="7.95" y2="8.45" />
-        </g>
-      )}
-    </svg>
-  );
-}
-
-function shellRow(score: number, creature: Creature = "pearl") {
-  const filled = Math.min(5, Math.max(0, Math.round(score)));
-  return (
-    <span className="yr-shell-row">
-      {Array.from({ length: 5 }, (_, i) => (
-        <CreatureIcon key={i} creature={creature} filled={i < filled} />
-      ))}
-    </span>
-  );
+function starsDisplay(score: number): string {
+  const full = Math.min(5, Math.max(0, Math.round(score)));
+  return "★".repeat(full) + "☆".repeat(5 - full);
 }
 
 export default function YearDetail({ year: initialYear, onBack }: Props) {
@@ -243,7 +118,7 @@ export default function YearDetail({ year: initialYear, onBack }: Props) {
             <div className="yr-hero-dok">
               {HANJA_DOK[gan] ?? gan}{HANJA_DOK[zhi] ?? zhi} · {zodiac}의 해
             </div>
-            {shellRow(overallScore)}
+            <div className="yr-hero-stars">{starsDisplay(overallScore)}</div>
           </div>
           <button
             type="button"
@@ -288,7 +163,7 @@ export default function YearDetail({ year: initialYear, onBack }: Props) {
                     ?
                   </button>
                 </div>
-                {shellRow(score, DOMAIN_CREATURE[domain])}
+                <div className="yr-domain-stars">{starsDisplay(score)}</div>
                 <div className="yr-domain-caption">{getDomainCaption(domain, score)}</div>
                 {isOpen && (
                   <p className="yr-domain-desc">{getDomainInterpretation(domain, chart.wuXingCount, dayGan, gan)}</p>

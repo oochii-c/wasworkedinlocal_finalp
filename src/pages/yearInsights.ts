@@ -29,9 +29,11 @@ const RELATION_SCORE: Record<ElementRelation, number> = {
   controls: 1,
 };
 
-export type Domain = "총운" | "애정" | "재물" | "직업학업" | "건강" | "인간관계";
+export type Domain = "총운" | "애정" | "재물" | "직업학업" | "건강" | "인간관계" | "가정" | "평안";
 
-export const DOMAINS: readonly Domain[] = ["총운", "애정", "재물", "직업학업", "건강", "인간관계"] as const;
+export const DOMAINS: readonly Domain[] = [
+  "총운", "애정", "재물", "직업학업", "건강", "인간관계", "가정", "평안",
+] as const;
 
 const DOMAIN_ELEMENT: Record<Exclude<Domain, "총운">, string> = {
   애정: "火",
@@ -39,6 +41,8 @@ const DOMAIN_ELEMENT: Record<Exclude<Domain, "총운">, string> = {
   직업학업: "水",
   건강: "木",
   인간관계: "土",
+  가정: "土",
+  평안: "水",
 };
 
 export function targetElementOf(domain: Domain, dayGan: string): string {
@@ -82,6 +86,8 @@ const DOMAIN_CAPTIONS: Record<Domain, Record<Tier, string>> = {
   직업학업: { high: "실력 인정받음", mid: "꾸준한 성과", low: "재정비 필요" },
   건강: { high: "컨디션 좋음", mid: "컨디션 관리", low: "휴식 필요" },
   인간관계: { high: "귀인 등장", mid: "무난한 관계", low: "갈등 주의" },
+  가정: { high: "화목한 분위기", mid: "무난한 가정사", low: "갈등 조심" },
+  평안: { high: "마음 편안함", mid: "잔잔한 하루하루", low: "스트레스 관리 필요" },
 };
 
 export function getDomainCaption(domain: Domain, score: number): string {

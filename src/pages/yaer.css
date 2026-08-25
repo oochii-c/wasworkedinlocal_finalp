@@ -88,15 +88,17 @@
   margin-bottom: 8px;
 }
 
-/* ---- 진주조개 점수(별점 대체) ---- */
-.yr-shell-row {
-  display: inline-flex;
-  gap: 3px;
-  vertical-align: middle;
+/* ---- 별점 ---- */
+.yr-hero-stars {
+  color: var(--saju-gold);
+  letter-spacing: 1px;
+  font-size: 17px;
 }
 
-.yr-pearl {
-  display: block;
+.yr-domain-stars {
+  color: var(--saju-gold);
+  letter-spacing: 1px;
+  font-size: 15px;
 }
 
 /* ---- 일간 관계 ---- */
