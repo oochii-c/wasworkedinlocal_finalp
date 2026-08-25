@@ -1,0 +1,186 @@
+/* ============================================================
+   machi.css - 귀인지도(궁합) 페이지 전용 스타일
+   saju.css의 --saju-* 토큰/레이아웃(.saju-page, .saju-section 등)은
+   그대로 재사용하고, 이 페이지만의 색/모티브는 --machi-* 로 분리.
+   ============================================================ */
+
+.machi-page {
+  --machi-void: #0E1530;
+  --machi-text: #F3F0FA;
+  --machi-text-muted: #B7C0DE;
+}
+
+/* 공유 배경(용궁 이미지) 위에 이 페이지만의 톤 덧씌우기 */
+.machi-page {
+  position: relative;
+  isolation: isolate;
+}
+.machi-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--machi-void);
+  background-image:
+    linear-gradient(180deg, rgba(8, 12, 30, 0.32) 0%, rgba(8, 12, 30, 0.55) 42%, rgba(8, 12, 30, 0.94) 80%, var(--machi-void) 100%),
+    url("../assets/img/26.08.21.png");
+  background-size: 100% 100%, cover;
+  background-position: top center, top center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: local, local;
+}
+
+.machi-page .saju-section {
+  background: rgba(36, 52, 94, 0.4);
+  border-color: #2E3E6B;
+  box-shadow: inset 0 0 24px rgba(127, 209, 201, 0.06);
+}
+.machi-page .saju-info-note,
+.machi-page .saju-title-sub { color: var(--machi-text-muted); }
+.machi-page .saju-section-title-row h3 { color: var(--machi-text); }
+.machi-page .saju-text-input,
+.machi-page .saju-input-box .saju-date-input,
+.machi-page .saju-pill-group--inline { border-color: #35447A; }
+.machi-page .saju-submit-button {
+  border-color: #EACB8A;
+  background: linear-gradient(180deg, #8F5C82, #E8A9C9);
+  box-shadow: 0 6px 20px rgba(8, 12, 30, 0.55), inset 0 0 12px rgba(255, 255, 255, 0.18);
+  color: #2B1A29;
+}
+.machi-page .saju-info-error {
+  background: #2A1622;
+  border-color: #E8A9C9;
+  color: #F0C4DC;
+}
+
+.machi-gate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================================
+   관계 지도 카드 - 유리구슬(청보라 유리 + 금테) 톤
+   ============================================================ */
+.machi-map-card {
+  position: relative;
+  border-radius: var(--radius-card);
+  padding: clamp(10px, 3cqw, 16px) clamp(10px, 3cqw, 16px) clamp(4px, 1.5cqw, 8px);
+  margin-bottom: clamp(10px, 3cqw, 16px);
+  background: radial-gradient(120% 90% at 30% 12%, #E3F3FC 0%, #7FC1E8 44%, #21567F 100%);
+  border: 3px solid #EACB8A;
+  box-shadow:
+    0 0 0 1px rgba(234, 203, 138, 0.55),
+    inset 0 0 26px rgba(255, 255, 255, 0.3),
+    0 10px 28px rgba(8, 12, 30, 0.45);
+  overflow: hidden;
+  cursor: pointer;
+}
+.machi-map-card--large { margin-bottom: 0; cursor: default; }
+
+.machi-map-modal { max-width: 460px; }
+.machi-map-card::before,
+.machi-map-card::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.05) 70%);
+  pointer-events: none;
+}
+.machi-map-card::before { width: 20px; height: 20px; left: 7%; top: 10%; }
+.machi-map-card::after { width: 13px; height: 13px; right: 10%; bottom: 20%; }
+
+.machi-map-diagram { width: 100%; max-width: 400px; display: block; margin: 0 auto; }
+
+.machi-star { fill: #FFFFFF; opacity: 0.5; }
+.machi-orbit-ring { fill: none; stroke: rgba(255, 255, 255, 0.4); stroke-width: 1; stroke-dasharray: 3 6; }
+
+.machi-map-line { stroke-width: 1.6; stroke-dasharray: 3 5; opacity: 0.85; }
+
+.machi-owner-glow { fill: rgba(255, 255, 255, 0.4); filter: blur(7px); }
+.machi-owner-node {
+  fill: url(#machiOwnerGradient);
+  stroke: #FFFFFF;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.65));
+}
+.machi-owner-node-text {
+  font-family: "BMYeonSung", "Pretendard", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  fill: #163657;
+}
+
+.machi-bead-shine { fill: rgba(255, 255, 255, 0.75); pointer-events: none; }
+
+.machi-part-glow { filter: blur(4px); }
+.machi-part-node { stroke: #FFFFFF; stroke-width: 1.5; }
+.machi-part-node-text { font-size: 17px; }
+.machi-part-name-bg { fill: rgba(8, 20, 36, 0.6); }
+.machi-part-node-name {
+  font-family: "Pretendard", sans-serif;
+  font-size: 10.5px;
+  fill: #FFFFFF;
+  font-weight: 600;
+}
+
+.machi-badge {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-tiny);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(8, 20, 36, 0.6);
+  border: 1px solid;
+  white-space: nowrap;
+}
+.machi-badge-top { top: 3%; left: 50%; transform: translateX(-50%); }
+.machi-badge-left { top: 42%; left: 2%; }
+.machi-badge-right { top: 42%; right: 2%; }
+.machi-badge-bottom-left { bottom: 4%; left: 4%; }
+.machi-badge-bottom-right { bottom: 4%; right: 4%; }
+
+.machi-map-caption {
+  text-align: center;
+  font-size: var(--fs-tiny);
+  color: rgba(255, 255, 255, 0.9);
+  margin: 4px 0 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.machi-map-hint {
+  text-align: center;
+  font-size: var(--fs-tiny);
+  color: var(--machi-text-muted);
+  margin: 0 0 clamp(12px, 3.5cqw, 18px);
+}
+
+.machi-stat-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: clamp(14px, 4cqw, 22px);
+}
+.machi-stat-tile {
+  background: rgba(36, 52, 94, 0.45);
+  border: 1px solid #2E3E6B;
+  border-radius: var(--radius-input);
+  padding: 8px 2px;
+  text-align: center;
+}
+.machi-stat-num { font-family: "IBM Plex Mono", monospace; font-size: var(--fs-h3); font-weight: 700; }
+.machi-stat-label { font-size: 9.5px; color: var(--machi-text-muted); margin-top: 2px; white-space: nowrap; }
+
+.machi-disclaimer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #2E3E6B;
+  font-size: var(--fs-tiny);
+  color: var(--machi-text-muted);
+  line-height: 1.7;
+}
