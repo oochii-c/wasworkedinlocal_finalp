@@ -285,6 +285,8 @@ export default function Machi({ chart }: MachiProps) {
               );
             })}
           </div>
+
+          <SubmitButton label="처음부터 다시" onClick={() => setParticipants([])} />
         </>
       )}
 
