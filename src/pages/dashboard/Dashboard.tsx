@@ -9,6 +9,7 @@ import AiStories from "./AiStories";
 import DaYunFlow from "./DaYunFlow";
 import BottomNav from "../../components/layout/BottomNav";
 import TopicList from "../topics/TopicList";
+import YearDetail from "../year";
 import BubbleField from "../../components/effects/BubbleField";
 import { useSaju } from "../../state/SajuContext";
 import { getReading, type Story } from "../../services/sajuApi";
@@ -48,6 +49,7 @@ function useReading() {
 export default function Dashboard() {
   const { chart, inputs, view, navigate } = useSaju();
   const { stories, loading, error, retry } = useReading();
+  const [yearTarget, setYearTarget] = useState<number | null>(null);
 
   if (!chart) return null; // Router가 보장하지만 타입 가드
 
@@ -65,6 +67,8 @@ export default function Dashboard() {
       <main className="db-main">
         {view === "topics" ? (
           <TopicList />
+        ) : view === "year" && yearTarget ? (
+          <YearDetail year={yearTarget} onBack={() => navigate("home")} />
         ) : (
           <>
             {/* 블록 1: 캐릭터 */}
@@ -99,6 +103,7 @@ export default function Dashboard() {
               currentSeWun={chart.currentSeWun}
               birthYear={inputs?.date.year ?? 0}
               dayGan={chart.dayGan}
+              onOpenYear={(y) => { setYearTarget(y); navigate("year"); }}
             />
           </>
         )}

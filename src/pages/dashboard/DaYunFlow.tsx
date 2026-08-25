@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { type DaYunInfo, type SeWunInfo, seWunScore } from "../../saju";
+import { useSaju } from "../../state/SajuContext";
 
 interface Props {
   daYun: DaYunInfo[];
@@ -7,6 +8,7 @@ interface Props {
   currentSeWun?: SeWunInfo;
   birthYear: number;
   dayGan: string;
+  onOpenYear?: (year: number) => void;
 }
 
 function starsDisplay(n: number) {
@@ -32,7 +34,8 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 
 const W = 320, H = 80, PX = 16, PY = 12;
 
-export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGan }: Props) {
+export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGan, onOpenYear }: Props) {
+  const { readCache, writeCache } = useSaju();
   const currentYear = new Date().getFullYear();
   const currentAge = currentYear - birthYear;
 
@@ -76,15 +79,6 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
     [seWun, selectedYear, currentSeWun]
   );
 
-  /*
-   * fortuneCache: 이미 불러온 연도 운세를 저장해두는 캐시
-   * - key: `일간-연도` (예: "辛-2026")
-   * - value: AI가 생성한 운세 텍스트
-   * - useRef 사용 이유: 값이 바뀌어도 리렌더를 일으키지 않음.
-   *   useState로 만들면 캐시 저장할 때마다 불필요한 리렌더 발생.
-   *   컴포넌트가 화면에 있는 동안 계속 유지됨 (다른 연도 갔다 돌아와도 살아있음).
-   */
-  const fortuneCache = useRef<Record<string, string>>({});
   const [fortuneText, setFortuneText] = useState<string | null>(null);
   const [fortuneLoading, setFortuneLoading] = useState(false);
   const [fortuneError, setFortuneError] = useState(false);
@@ -92,12 +86,13 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
   useEffect(() => {
     if (!selectedSW) return;
 
-    // 같은 일간이라도 연도마다 다른 텍스트를 캐시하기 위해 두 값을 합쳐 키 생성
-    const cacheKey = `${dayGan}-${selectedYear}`;
+    // year.tsx(연도 상세)와 같은 키를 써서 캐시를 공유 → 중복 호출 방지
+    const cacheKey = `yearFortune:${dayGan}-${selectedYear}`;
 
     // 이미 호출한 적 있는 연도면 캐시에서 꺼내서 바로 표시 → API 재호출 없음
-    if (fortuneCache.current[cacheKey]) {
-      setFortuneText(fortuneCache.current[cacheKey]);
+    const cached = readCache<string>(cacheKey);
+    if (cached) {
+      setFortuneText(cached);
       setFortuneLoading(false);
       setFortuneError(false);
       return;
@@ -137,7 +132,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
         const text = typeof data.text === "string" && data.text ? data.text : null;
         if (text) {
           // 성공한 응답만 캐시에 저장 (빈 문자열·오류는 저장 안 함 → 나중에 재시도 가능)
-          fortuneCache.current[cacheKey] = text;
+          writeCache(cacheKey, text);
           setFortuneText(text);
         } else {
           setFortuneError(true);
@@ -341,7 +336,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
               fortuneText ?? ""
             )}
           </div>
-          <button type="button" className="db-dayun-detail-btn">
+          <button type="button" className="db-dayun-detail-btn" onClick={() => onOpenYear?.(selectedYear)}>
             그 해 자세히 보기 →
           </button>
         </div>
