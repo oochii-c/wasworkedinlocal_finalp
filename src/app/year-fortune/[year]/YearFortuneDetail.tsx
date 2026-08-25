@@ -34,7 +34,7 @@ export function YearFortuneDetail({ chart, year, summary, citation }: YearFortun
         canGoPrev={year > minYear}
         canGoNext={year < maxYear}
       />
-      <DomainStars scores={domainScores} />
+      <DomainStars scores={domainScores} chart={chart} year={year} />
       <MonthlyFlow
         monthlyScores={monthlyScores}
         monthlyGanZhi={monthlyGanZhi}

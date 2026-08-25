@@ -15,9 +15,32 @@
   border-radius: 8px;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .label {
   font-size: 0.9rem;
   color: #555;
+}
+
+.infoButton {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #999;
+  background: #fff;
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.description {
+  font-size: 0.7rem;
+  color: #666;
+  text-align: center;
 }
 
 .caption {

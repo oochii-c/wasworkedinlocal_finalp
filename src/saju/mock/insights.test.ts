@@ -1,11 +1,66 @@
 import { describe, it, expect } from "vitest";
 import {
   getDomainCaption,
+  getDomainInterpretation,
   getMonthInterpretation,
   getGoodMonths,
   getCautionMonths,
   formatMonthRanges,
 } from "./insights";
+import { SajuExtended } from "../types";
+
+const testChart: SajuExtended = {
+  birthDate: "1998-04-12",
+  calendarType: "solar",
+  gender: "F",
+  pillars: {
+    year: { gan: "무", ji: "인" },
+    month: { gan: "을", ji: "묘" },
+    day: { gan: "경", ji: "진" },
+    hour: { gan: "병", ji: "술" },
+  },
+  dayMaster: "경",
+  ohaeng: { 목: 2, 화: 1, 토: 2, 금: 2, 수: 1 },
+};
+
+describe("getDomainInterpretation", () => {
+  // 2026년 세운(丙午)의 오행은 화. 애정 영역의 오행도 화이므로 관계는 "same".
+  it("explains a domain whose element matches this year's element as reinforcing", () => {
+    expect(getDomainInterpretation("애정", testChart, 2026)).toBe(
+      "올해 세운의 기운이 애정 영역에 그대로 겹쳐 자신감 있게 밀어붙이기 좋은 해입니다."
+    );
+  });
+
+  // 화가 금을 극하므로(재물의 오행은 금), 관계는 "controls".
+  it("explains a domain this year's element controls as a strain", () => {
+    expect(getDomainInterpretation("재물", testChart, 2026)).toBe(
+      "올해 세운의 기운이 강해 재물 영역에 부담이 실리기 쉬우니 무리하지 않는 게 좋습니다."
+    );
+  });
+
+  it("uses the day master's element as the target for 총운", () => {
+    // 일간 경(금)을 화가 극하므로 관계는 "controls".
+    expect(getDomainInterpretation("총운", testChart, 2026)).toBe(
+      "올해 세운의 기운이 강해 총운에 부담이 실리기 쉬우니 무리하지 않는 게 좋습니다."
+    );
+  });
+
+  it("notes when the chart's ohaeng for the target element is abundant (3+)", () => {
+    const richChart = { ...testChart, ohaeng: { ...testChart.ohaeng, 화: 3 } };
+    expect(getDomainInterpretation("애정", richChart, 2026)).toBe(
+      "올해 세운의 기운이 애정 영역에 그대로 겹쳐 자신감 있게 밀어붙이기 좋은 해입니다." +
+        " 사주 원국에 관련 오행이 풍부해 그 효과가 한층 강하게 작용합니다."
+    );
+  });
+
+  it("notes when the chart's ohaeng for the target element is absent (0)", () => {
+    const emptyChart = { ...testChart, ohaeng: { ...testChart.ohaeng, 화: 0 } };
+    expect(getDomainInterpretation("애정", emptyChart, 2026)).toBe(
+      "올해 세운의 기운이 애정 영역에 그대로 겹쳐 자신감 있게 밀어붙이기 좋은 해입니다." +
+        " 다만 사주 원국에 해당 오행이 없어 그 영향력은 다소 약해집니다."
+    );
+  });
+});
 
 describe("getDomainCaption", () => {
   it("returns the high-tier caption for a score of 4 or 5", () => {

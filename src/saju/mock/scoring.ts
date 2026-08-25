@@ -10,7 +10,7 @@ export const DOMAINS: readonly Domain[] = [
   "총운", "애정", "재물", "직업학업", "건강", "인간관계",
 ] as const;
 
-const DOMAIN_ELEMENT: Record<Exclude<Domain, "총운">, Ohaeng> = {
+export const DOMAIN_ELEMENT: Record<Exclude<Domain, "총운">, Ohaeng> = {
   애정: "화",
   재물: "금",
   직업학업: "수",

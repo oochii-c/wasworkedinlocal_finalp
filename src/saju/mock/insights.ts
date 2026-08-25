@@ -1,9 +1,9 @@
 // 목업: 이 파일의 코멘트/설명 문구는 실제 십성(十神) 해석이 아니라 v0.1 목업
 // 문구 테이블이다. 점수 구간(고/중/저)에 따라 고정된 문구를 고르는 방식으로,
 // 나중에 실제 사주 해석 로직으로 교체되어야 한다.
-import { Domain } from "./scoring";
-import { CheonGan } from "../types";
-import { ElementRelation, getElementRelation } from "../ganzhi";
+import { Domain, DOMAIN_ELEMENT } from "./scoring";
+import { CheonGan, SajuExtended } from "../types";
+import { ElementRelation, getElementRelation, getOhaengRelation, getYearGanZhi, GAN_TO_OHAENG } from "../ganzhi";
 
 type Tier = "high" | "mid" | "low";
 
@@ -24,6 +24,44 @@ const DOMAIN_CAPTIONS: Record<Domain, Record<Tier, string>> = {
 
 export function getDomainCaption(domain: Domain, score: number): string {
   return DOMAIN_CAPTIONS[domain][tierOf(score)];
+}
+
+// 세운(그 해 연간지)의 오행과, 영역이 배정된 오행(총운은 일간) 간의 상생상극
+// 관계를 근거로 한 상세 해설을 만든다. computeDomainScores와 같은 관계 방향
+// (a=세운 오행, b=영역 오행)을 쓴다.
+function domainLabel(domain: Domain): string {
+  return domain === "총운" ? "총운" : `${domain} 영역`;
+}
+
+const DOMAIN_RELATION_INTERPRETATIONS: Record<ElementRelation, (domain: Domain) => string> = {
+  generates: (domain) =>
+    `올해 세운의 기운이 ${domainLabel(domain)}에 힘을 보태줘서 좋은 흐름으로 이어지기 쉬운 해입니다.`,
+  same: (domain) =>
+    `올해 세운의 기운이 ${domainLabel(domain)}에 그대로 겹쳐 자신감 있게 밀어붙이기 좋은 해입니다.`,
+  controlled_by: (domain) =>
+    `${domainLabel(domain)}에 쌓인 기운으로 올해 세운을 다스릴 수 있어 유리하게 활용하기 좋은 해입니다.`,
+  generated_by: (domain) =>
+    `올해 세운에 ${domainLabel(domain)}의 기운을 많이 내어주는 해라 체력과 감정 관리가 필요합니다.`,
+  controls: (domain) =>
+    `올해 세운의 기운이 강해 ${domainLabel(domain)}에 부담이 실리기 쉬우니 무리하지 않는 게 좋습니다.`,
+};
+
+export function getDomainInterpretation(domain: Domain, chart: SajuExtended, year: number): string {
+  const yearElement = GAN_TO_OHAENG[getYearGanZhi(year).gan];
+  const dayMasterElement = GAN_TO_OHAENG[chart.dayMaster];
+  const targetElement = domain === "총운" ? dayMasterElement : DOMAIN_ELEMENT[domain];
+
+  const base = DOMAIN_RELATION_INTERPRETATIONS[getOhaengRelation(yearElement, targetElement)](domain);
+
+  const ohaengCount = chart.ohaeng[targetElement];
+  const adjustment =
+    ohaengCount >= 3
+      ? " 사주 원국에 관련 오행이 풍부해 그 효과가 한층 강하게 작용합니다."
+      : ohaengCount === 0
+        ? " 다만 사주 원국에 해당 오행이 없어 그 영향력은 다소 약해집니다."
+        : "";
+
+  return base + adjustment;
 }
 
 // 월간지의 오행과 일간의 상생상극 관계를 근거로 한 줄 해설을 만든다.
