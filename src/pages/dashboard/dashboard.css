@@ -35,7 +35,7 @@
   width: 100%;
   max-width: 480px;
   height: 100dvh;
-  background: url("../../assets/img/background_vertical_v1r1.png") top center / cover no-repeat;
+  background: url("../../assets/img/background_default_vertical_v1r1.png") top center / cover no-repeat;
   z-index: -1;
   pointer-events: none;
 }

@@ -1,0 +1,138 @@
+.section {
+  padding: 16px;
+  background: rgba(11, 31, 59, 0.62);
+  border: 1px solid #1E3A5A;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heading {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--saju-gold);
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.infoButton {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(234, 203, 138, 0.4);
+  background: rgba(15, 36, 63, 0.85);
+  color: var(--saju-gold);
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.popup {
+  list-style: none;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(234, 203, 138, 0.3);
+  border-radius: 10px;
+  background: rgba(8, 22, 44, 0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.popupItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.popupMonth {
+  font-weight: 700;
+  color: var(--saju-gold);
+}
+
+.popupInterpretation {
+  font-size: 0.8rem;
+  color: var(--saju-text-muted);
+  line-height: 1.6;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+  margin-top: 16px;
+}
+
+.barColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.barGood {
+  width: 100%;
+  background: linear-gradient(180deg, var(--saju-gold-bright), var(--saju-gold));
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 0 8px rgba(234, 203, 138, 0.35);
+}
+
+.barCaution {
+  width: 100%;
+  background: var(--saju-red);
+  border-radius: 4px 4px 0 0;
+}
+
+.barNeutral {
+  width: 100%;
+  background: rgba(102, 178, 214, 0.35);
+  border-radius: 4px 4px 0 0;
+}
+
+.barLabel {
+  font-size: 0.7rem;
+  color: var(--saju-text-faint);
+  margin-top: 4px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: var(--saju-text-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendSwatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.legendSwatchGood {
+  background: var(--saju-gold);
+}
+
+.legendSwatchCaution {
+  background: var(--saju-red);
+}

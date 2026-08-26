@@ -126,7 +126,7 @@ export default function SajuForm() {
         {error && <div className="saju-info-error">{error}</div>}
       </section>
 
-      <SubmitButton loading={false} disabled={false} onClick={handleSubmit} />
+      <SubmitButton icon="🌊" loading={false} disabled={false} onClick={handleSubmit} />
     </div>
   );
 }

@@ -1,0 +1,33 @@
+.section {
+  padding: 16px;
+  background: rgba(8, 22, 44, 0.7);
+  border: 1px solid #1E3A5A;
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 16px rgba(102, 178, 214, 0.04), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.heading {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--saju-gold);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.text {
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--saju-text);
+  word-break: keep-all;
+}
+
+.citation {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(102, 178, 214, 0.2);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--saju-text-muted);
+}

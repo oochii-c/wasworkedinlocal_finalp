@@ -44,3 +44,17 @@ export async function getThemes(req: ReadingRequest): Promise<ThemeSummary[]> {
   if (!res.ok) throw new Error(data.error || "주제 풀이 생성 실패");
   return data.themes as ThemeSummary[];
 }
+
+// 특정 주제 하나의 상세 풀이 요청. 실패 시 throw.
+export async function getThemeDetail(
+  req: ReadingRequest & { key: string; label: string }
+): Promise<string> {
+  const res = await fetch("/api/theme-detail", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "주제 상세 생성 실패");
+  return data.text as string;
+}
