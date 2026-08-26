@@ -5,6 +5,7 @@ import { type SajuExtended } from "../../saju";
 
 export interface Identity {
   hanja: string;       // 일간 한자 (己)
+  color: string;       // 일간 오행색 (갑목 #3a7a3a 등)
   typeLabel: string;   // "기토 · 넓은 대지"
   tags: string;        // "#포용 #끈기 #현실감각"
   chips: string[];     // 스트립 칩 목록
@@ -48,5 +49,5 @@ export function deriveIdentity(chart: SajuExtended): Identity {
     [...daYun].filter((d) => d.startYear <= curYear).sort((a, b) => b.startYear - a.startYear)[0] ?? daYun[0];
   if (current) chips.push(`대운 ${current.ganZhi}`);
 
-  return { hanja, typeLabel, tags, chips };
+  return { hanja, color: info?.color ?? "#3a7a3a", typeLabel, tags, chips };
 }

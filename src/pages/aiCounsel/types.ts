@@ -14,4 +14,5 @@ export interface AiCounselProps {
   chart: SajuExtended;
   name?: string;
   onBack?: () => void;
+  onSelect?: (id: string) => void;
 }

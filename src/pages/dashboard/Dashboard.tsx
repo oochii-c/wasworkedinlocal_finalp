@@ -10,6 +10,8 @@ import DaYunFlow from "./DaYunFlow";
 import BottomNav from "../../components/layout/BottomNav";
 import TopicList from "../topics/TopicList";
 import Machi from "../machi";
+import AiCounsel from "../aiCounsel/AiCounsel";
+import type { SajuView } from "../../state/SajuContext";
 import BubbleField from "../../components/effects/BubbleField";
 import { useSaju } from "../../state/SajuContext";
 import { getReading, type Story } from "../../services/sajuApi";
@@ -51,6 +53,14 @@ export default function Dashboard() {
   const { stories, loading, error, retry } = useReading();
 
   if (!chart) return null; // Router가 보장하지만 타입 가드
+
+  // 하단 네비 공용 핸들러. today는 아직 미구현이라 no-op.
+  const handleNav = (id: string) => {
+    if (id === "today") return;
+    navigate(id as SajuView);
+  };
+
+  if (view === "ai") return <AiCounsel chart={chart} name={inputs?.name} onSelect={handleNav} />;
 
   return (
     <div className="db-page">
@@ -110,7 +120,7 @@ export default function Dashboard() {
       {/* 하단 네비 */}
       <BottomNav
         active={view === "topics" ? "topics" : view === "match" ? "match" : "home"}
-        onSelect={(id) => navigate(id === "topics" ? "topics" : id === "match" ? "match" : "home")}
+        onSelect={handleNav}
       />
     </div>
   );

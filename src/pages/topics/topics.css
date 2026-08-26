@@ -9,44 +9,6 @@
   gap: 14px;
 }
 
-/* ---- 상단 가로 스크롤 탭 ---- */
-.tp-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 4px 2px 8px;
-  margin: -2px 0;
-  scrollbar-width: none;
-  background: linear-gradient(180deg, rgba(6, 14, 32, 0.92) 60%, rgba(6, 14, 32, 0));
-}
-
-.tp-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.tp-tab {
-  flex: 0 0 auto;
-  background: rgba(11, 31, 59, 0.7);
-  border: 1px solid rgba(102, 178, 214, 0.25);
-  border-radius: 999px;
-  color: var(--saju-text-muted);
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 6px 14px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s ease;
-}
-
-.tp-tab:hover {
-  background: rgba(19, 66, 100, 0.9);
-  color: #fff;
-  border-color: var(--saju-gold);
-}
-
 /* ---- 상태 메시지 ---- */
 .tp-status {
   color: var(--saju-text-muted);
@@ -100,6 +62,29 @@
   line-height: 1.7;
   word-break: keep-all;
   margin-bottom: 10px;
+}
+
+/* ---- 자세히 보기 상세 (인라인 확장) ---- */
+.tp-card-detail {
+  border-top: 1px solid rgba(102, 178, 214, 0.18);
+  margin-bottom: 10px;
+  padding-top: 10px;
+}
+
+.tp-card-detail p {
+  font-size: 14.5px;
+  color: var(--saju-text);
+  line-height: 1.7;
+  word-break: keep-all;
+  margin: 0;
+}
+
+.tp-detail-loading {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--saju-text-muted);
 }
 
 .tp-card-more {

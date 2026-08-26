@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import "../styles/saju.css";
 import "./machi.css";
+import resetIcon from "../assets/icons/reset_whirl.svg";
 import { computeSaju, computeSajuExtended, type SajuExtended, type SajuChart } from "../saju";
 import {
   SectionHeader,
@@ -263,13 +264,20 @@ export default function Machi({ chart }: MachiProps) {
         <DateInputGroup value={friendDate} onChange={setFriendDate} />
 
         {error && <div className="saju-info-error">{error}</div>}
-      </section>
 
-      <SubmitButton label="궁합 보기" disabled={!canSubmit} onClick={handleAddFriend} />
+        <div style={{ height: "1rem" }} />
+        <SubmitButton label="궁합 보기" disabled={!canSubmit} onClick={handleAddFriend} />
+      </section>
 
       {participants.length > 0 && (
         <>
-          <SectionHeader title="관계 지도" sub={`${participants.length + 1}명`} />
+          <div className="machi-map-header">
+            <SectionHeader title="관계 지도" sub={`${participants.length + 1}명`} />
+            <button type="button" className="machi-reset-btn" onClick={() => setParticipants([])}>
+              <img src={resetIcon} alt="" aria-hidden="true" className="machi-reset-icon" />
+              초기화
+            </button>
+          </div>
           <MapDiagram participants={participants} onClick={() => setShowFullMap(true)} />
           <p className="machi-map-hint">지도를 누르면 크게 볼 수 있어요</p>
 

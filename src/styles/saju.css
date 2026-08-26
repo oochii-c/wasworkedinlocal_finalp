@@ -568,13 +568,22 @@
   font-size: var(--fs-h3);
   font-weight: 600;
   cursor: pointer;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(5px, 1.6cqw, 9px);
   box-shadow: 0 6px 20px rgba(11, 31, 59, 0.5), inset 0 0 12px rgba(234, 203, 138, 0.12);
   transition: filter 0.15s ease;
   margin-top: clamp(5px, 1.6cqw, 9px);
+}
+/* 아이콘은 왼쪽 고정, 라벨 텍스트는 버튼 정중앙 유지 */
+.saju-submit-button > span {
+  position: absolute;
+  left: clamp(14px, 4.5cqw, 22px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
 }
 .saju-submit-button:hover:not(:disabled) { filter: brightness(1.1); }
 .saju-submit-button:disabled { opacity: 0.55; cursor: not-allowed; }

@@ -1,0 +1,10 @@
+@keyframes whirl-spin {
+  to { transform: rotate(360deg); }
+}
+
+.whirl-loader {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 7px;
+  animation: whirl-spin 0.9s linear infinite;
+}

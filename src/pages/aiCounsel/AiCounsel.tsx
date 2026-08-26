@@ -61,7 +61,7 @@ function TypewriterText({ text, onTick }: { text: string; onTick?: () => void })
   );
 }
 
-export default function AiCounsel({ chart }: AiCounselProps) {
+export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
   const [messages, setMessages] = useState<CounselMessage[]>([WELCOME]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -187,7 +187,11 @@ export default function AiCounsel({ chart }: AiCounselProps) {
       {/* 상단 고정: 용왕이 살펴본 그대 (캐릭터 + 사주 전체 스와이프) */}
       <div className="ac-identity">
         <div className="ac-char">
-          <div className="ac-char-hanja">{identity.hanja}</div>
+          <div
+            className="ac-char-hanja"
+            style={{ background: `linear-gradient(135deg, ${identity.color}55, ${identity.color}22)`,
+                     borderColor: `${identity.color}66` }}
+          >{identity.hanja}</div>
           <div className="ac-char-meta">
             <div className="ac-char-type">{identity.typeLabel}</div>
             <div className="ac-char-tags">{identity.tags}</div>
@@ -272,7 +276,7 @@ export default function AiCounsel({ chart }: AiCounselProps) {
         </div>
       </div>
 
-      <BottomNav active="ai" />
+      <BottomNav active="ai" onSelect={onSelect} />
 
       {/* 추천질문 바텀시트 */}
       {sheetOpen && (

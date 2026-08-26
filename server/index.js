@@ -215,6 +215,70 @@ ${LANG_RULE}`;
   }
 });
 
+// 주제별 상세 풀이 — 한 주제에 대해 원국 근거로 깊이 있는 풀이 1편 생성
+app.post("/api/theme-detail", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY가 설정되지 않았습니다. server/.env를 확인하세요." });
+  }
+
+  const { key, label, name, gender, chart } = req.body || {};
+  if (!chart || !chart.pillars || !key) {
+    return res.status(400).json({ error: "원국 데이터 또는 주제가 없습니다." });
+  }
+
+  try {
+    const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
+    const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다.`;
+    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 '${label}' 주제 하나에 대해 깊이 있는 풀이를 작성한다.
+원국의 실제 간지·십신·오행 근거를 자연스럽게 녹여 4~6문장으로 구체적으로 서술한다. 원국에 없는 간지·오행을 지어내지 않으며, 단정보다 해석과 격려의 톤을 유지한다.
+반드시 아래 JSON만 출력한다(코드블록·설명 없이): {"text":"..."}
+
+${LANG_RULE}`;
+    const userMsg = `${anchor}\n\n주제: ${label}\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.9,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : null;
+    }
+
+    if (!parsed?.text) {
+      return res.status(502).json({ error: "주제 상세 응답 형식 오류", raw: content });
+    }
+
+    res.json({ text: parsed.text });
+  } catch (e) {
+    res.status(500).json({ error: "주제 상세 생성 실패", detail: String(e) });
+  }
+});
+
 // 지지 → 띠 매핑
 const ZHI_ZODIAC = {
   子: "쥐", 丑: "소", 寅: "호랑이", 卯: "토끼",

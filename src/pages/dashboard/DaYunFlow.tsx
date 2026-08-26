@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { type DaYunInfo, type SeWunInfo, seWunScore } from "../../saju";
 import { useSaju } from "../../state/SajuContext";
+import WhirlLoader from "../../components/WhirlLoader";
 
 interface Props {
   daYun: DaYunInfo[];
@@ -331,12 +332,9 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
               →
             </button>
           </div>
-          <div className="db-dayun-card-basis">
-            세운 {selectedSW.ganZhi} × 일간 {dayGan} = {selectedSW.rel}
-          </div>
           <div className="db-dayun-card-text">
             {fortuneLoading ? (
-              <span className="db-dayun-fortune-loading">운세 풀이 중...</span>
+              <span className="db-dayun-fortune-loading" style={{ color: "#ffffff" }}><WhirlLoader />운세 풀이 중...</span>
             ) : fortuneError ? (
               <span className="db-dayun-fortune-loading">서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요.</span>
             ) : (
