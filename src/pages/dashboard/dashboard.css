@@ -441,12 +441,6 @@
   color: var(--saju-text);
   line-height: 1.7;
   margin-bottom: 10px;
-  /* 3줄 고정 */
-  height: calc(14.5px * 1.7 * 3);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
   word-break: keep-all;
 }
 

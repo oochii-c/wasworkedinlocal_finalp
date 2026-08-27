@@ -359,6 +359,80 @@ ${LANG_RULE}`;
   }
 });
 
+app.post("/api/dayun-fortune", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
+  }
+
+  const { dayGan, ganZhi, startYear, endYear, rel, stars } = req.body || {};
+  if (!dayGan || !ganZhi || !startYear) {
+    return res.status(400).json({ error: "필수 파라미터 누락" });
+  }
+
+  const gan = ganZhi[0];
+  const zhi = ganZhi[1];
+  const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
+  const [ganKor, ganElem] = GAN_INFO[gan] || ["?", "?"];
+  const zodiac = ZHI_ZODIAC[zhi] || zhi;
+  const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
+
+  const prompt = `너는 사주 명리 해설가다. 아래 정보를 바탕으로 해당 대운(大運) 10년간의 풀이를 작성해.
+
+- 일간(나): ${dayGan}(${dayKor}${dayElem}) · 오행 ${dayElem}
+- 대운 간지: ${ganZhi} — 천간 ${gan}(${ganKor}${ganElem}), 지지 ${zhi}(${zodiac})
+- 대운 기간: ${startYear}년 ~ ${endYear ?? startYear + 9}년
+- 천간 관계: ${rel} (${starsLabel})
+
+규칙:
+1. 반드시 4~5문장으로 작성. 각 문장은 서로 다른 측면을 담아: 이 대운의 전체 기운 → 강점/기회 → 주의할 점 → 삶의 방향 조언.
+2. ${zodiac} 기운을 자연스럽게 한 문장에 녹여.
+3. 일간 ${dayKor}${dayElem}(${dayGan}) 기준으로 구체적으로, 따뜻하고 힘있게.
+4. 출력 텍스트에 한자(漢字)를 절대 사용하지 않는다. 간지·천간·지지는 반드시 한글로만 표기한다 (예: 壬申 → 임신, 戊戌 → 무술).
+5. 반드시 아래 JSON만 출력(코드블록·설명 없이): {"text":"..."}
+
+${LANG_RULE}`;
+
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.9,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) parsed = JSON.parse(m[0]);
+    }
+
+    if (!parsed?.text) {
+      return res.status(502).json({ error: "응답 형식 오류", raw: content });
+    }
+
+    res.json({ text: parsed.text });
+  } catch (e) {
+    res.status(500).json({ error: "대운 풀이 생성 실패", detail: String(e) });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`saju server on http://localhost:${PORT} (model: ${MODEL})`);
 });
