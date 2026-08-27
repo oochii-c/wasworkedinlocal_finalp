@@ -9,6 +9,12 @@
   to   { transform: rotate(360deg); }
 }
 
+/* ---- 십성 활성 꼭짓점 별빛 애니메이션 ---- */
+@keyframes sipshen-sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50%       { transform: scale(1.25) rotate(45deg); opacity: 0.75; }
+}
+
 /* ---- 레이아웃 ---- */
 .db-page {
   min-height: 100dvh;
