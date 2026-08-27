@@ -255,6 +255,7 @@
 .db-chart-section .db-section-title {
   font-size: 15px;
   margin-bottom: 8px;
+  justify-content: center;
 }
 
 /* ---- 블록 5: 신살 ---- */

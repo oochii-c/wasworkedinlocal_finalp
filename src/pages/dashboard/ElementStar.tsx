@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WUXING_SVG_COLOR } from "./constants";
 
 interface Props {
@@ -24,7 +24,50 @@ function pentaPoints(cx: number, cy: number, r: number): [number, number][] {
 
 const OUTLINE_PTS = pentaPoints(CX, CY, R);
 
+const ELEMENT_DESC: Record<string, Record<string, string>> = {
+  木: {
+    많은: "木은 위로 곧게 뻗어 오르는 성장과 생명력의 기운이에요. 새로운 시작과 추진력을 상징하죠. 당신의 사주에는 이 기운이 풍부해, 도전을 두려워하지 않고 먼저 나서는 힘이 강해요. 다만 그만큼 고집이 셀 수 있으니, 주변을 살피는 유연함도 함께 키워보세요.",
+    있는: "木은 위로 곧게 뻗어 오르는 성장과 생명력의 기운이에요. 새로운 시작과 추진력을 상징하죠. 당신의 사주에는 이 기운이 고르게 담겨 있어, 필요할 때 앞으로 나서고 때로는 기다릴 줄도 아는 균형감이 있어요.",
+    적은: "木은 위로 곧게 뻗어 오르는 성장과 생명력의 기운이에요. 새로운 시작과 추진력을 상징하죠. 당신의 사주에는 이 기운이 적은 편이라, 무리한 경쟁보다 안정적인 흐름 속에서 실력을 쌓는 방식이 잘 맞아요.",
+    없는: "木은 위로 곧게 뻗어 오르는 성장과 생명력의 기운이에요. 새로운 시작과 추진력을 상징하죠. 당신의 사주에는 이 기운이 거의 없어, 혼자 앞서기보다 함께 가는 협력의 방식이 훨씬 자연스럽게 맞아요.",
+  },
+  火: {
+    많은: "火는 사방으로 빛을 뿜어내는 열정과 표현의 기운이에요. 따뜻함과 사교성을 상징하죠. 당신의 사주에는 이 기운이 넘쳐, 어디서든 존재감이 뚜렷하고 사람들을 끌어당기는 매력이 있어요. 다만 감정의 기복이 클 수 있으니, 내면을 가라앉히는 시간을 의식적으로 가져보세요.",
+    있는: "火는 사방으로 빛을 뿜어내는 열정과 표현의 기운이에요. 따뜻함과 사교성을 상징하죠. 당신의 사주에는 이 기운이 적당히 있어, 활기차면서도 감정에 쉽게 휩쓸리지 않는 균형감을 갖추고 있어요.",
+    적은: "火는 사방으로 빛을 뿜어내는 열정과 표현의 기운이에요. 따뜻함과 사교성을 상징하죠. 당신의 사주에는 이 기운이 적은 편이라, 감정을 겉으로 드러내기보다 안으로 깊이 담아두는 내향적인 성향이 강해요.",
+    없는: "火는 사방으로 빛을 뿜어내는 열정과 표현의 기운이에요. 따뜻함과 사교성을 상징하죠. 당신의 사주에는 이 기운이 거의 없어, 감정에 흔들리지 않는 차분하고 냉철한 판단력이 돋보여요. 그 이성적인 면이 오히려 큰 강점이에요.",
+  },
+  土: {
+    많은: "土는 만물을 품고 중심을 잡아주는 안정과 포용의 기운이에요. 신뢰와 현실적인 감각을 상징하죠. 당신의 사주에는 이 기운이 풍부해, 어떤 상황에서도 흔들리지 않는 무게감과 포용력이 있어요. 다만 변화에 다소 느릴 수 있으니, 새로운 흐름을 받아들이는 유연함도 키워보세요.",
+    있는: "土는 만물을 품고 중심을 잡아주는 안정과 포용의 기운이에요. 신뢰와 현실적인 감각을 상징하죠. 당신의 사주에는 이 기운이 고르게 있어, 안정감을 유지하면서도 변화에 유연하게 대응할 수 있는 균형감이 있어요.",
+    적은: "土는 만물을 품고 중심을 잡아주는 안정과 포용의 기운이에요. 신뢰와 현실적인 감각을 상징하죠. 당신의 사주에는 이 기운이 적은 편이라, 한 곳에 오래 머물기보다 새로운 환경과 변화 속에서 활력을 찾는 성향이 강해요.",
+    없는: "土는 만물을 품고 중심을 잡아주는 안정과 포용의 기운이에요. 신뢰와 현실적인 감각을 상징하죠. 당신의 사주에는 이 기운이 거의 없어, 정해진 틀에 얽매이지 않고 자유롭게 흐르는 에너지가 강해요. 다양한 경험을 통해 성장하는 타입이에요.",
+  },
+  金: {
+    많은: "金은 불필요한 것을 걷어내고 본질만 남기는 결단과 정제의 기운이에요. 의리와 강직함을 상징하죠. 당신의 사주에는 이 기운이 넘쳐, 흑과 백을 명확히 가르는 결단력과 원칙에 대한 강한 신념이 있어요. 다만 지나친 고집은 관계를 어렵게 할 수 있으니, 조화를 찾는 연습도 필요해요.",
+    있는: "金은 불필요한 것을 걷어내고 본질만 남기는 결단과 정제의 기운이에요. 의리와 강직함을 상징하죠. 당신의 사주에는 이 기운이 적당히 있어, 원칙을 지키면서도 상황에 따라 융통성 있게 대처하는 균형감이 있어요.",
+    적은: "金은 불필요한 것을 걷어내고 본질만 남기는 결단과 정제의 기운이에요. 의리와 강직함을 상징하죠. 당신의 사주에는 이 기운이 적은 편이라, 엄격한 원칙보다 감성과 직관을 따르는 유연한 성향이 강해요.",
+    없는: "金은 불필요한 것을 걷어내고 본질만 남기는 결단과 정제의 기운이에요. 의리와 강직함을 상징하죠. 당신의 사주에는 이 기운이 거의 없어, 차갑고 단호한 면보다 따뜻하고 유연한 방식으로 사람들과 관계를 맺는 게 자연스러워요.",
+  },
+  水: {
+    많은: "水는 깊은 곳에서 흘러나오는 지혜와 통찰의 기운이에요. 유연함과 직관을 상징하죠. 당신의 사주에는 이 기운이 넘쳐, 상황을 꿰뚫어 보는 직관과 어떤 환경에도 스며드는 적응력이 있어요. 다만 너무 흘러가기만 하면 방향을 잃을 수 있으니, 자신만의 중심을 세우는 게 중요해요.",
+    있는: "水는 깊은 곳에서 흘러나오는 지혜와 통찰의 기운이에요. 유연함과 직관을 상징하죠. 당신의 사주에는 이 기운이 고르게 있어, 유연한 사고와 공감 능력으로 다양한 상황에 잘 스며들어요.",
+    적은: "水는 깊은 곳에서 흘러나오는 지혜와 통찰의 기운이에요. 유연함과 직관을 상징하죠. 당신의 사주에는 이 기운이 적은 편이라, 깊이 사색하기보다 현실적이고 즉각적인 행동을 선호하는 성향이 강해요.",
+    없는: "水는 깊은 곳에서 흘러나오는 지혜와 통찰의 기운이에요. 유연함과 직관을 상징하죠. 당신의 사주에는 이 기운이 거의 없어, 막연한 직관보다 경험과 논리를 바탕으로 판단하는 현실적인 성향이 강해요.",
+  },
+};
+
 export default function ElementStar({ wuXingCount }: Props) {
+  const [tipOpen, setTipOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!tipOpen) return;
+    const close = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setTipOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [tipOpen]);
   // 초기 활성값 = 개수가 가장 많은 오행 (동점이면 木→火→土→金→水 순 첫 번째)
   const [activeEl, setActiveEl] = useState<string | null>(
     () => ELEMENTS.reduce((mx, el) => (wuXingCount[el] ?? 0) > (wuXingCount[mx] ?? 0) ? el : mx, ELEMENTS[0] as string)
@@ -67,7 +110,41 @@ export default function ElementStar({ wuXingCount }: Props) {
 
   return (
     <section className="db-section db-chart-section" aria-label="오행 분포" style={{ position: "relative" }}>
-      <h3 className="db-section-title">오행</h3>
+      <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
+        <h3 className="db-section-title">
+          오행
+          <button
+            type="button"
+            onClick={() => setTipOpen(p => !p)}
+            aria-label="오행 계산 방식 안내"
+            aria-expanded={tipOpen}
+            style={{
+              background: "rgba(234,203,138,0.15)",
+              border: "1px solid rgba(234,203,138,0.4)",
+              borderRadius: "50%",
+              width: 18, height: 18,
+              fontSize: 11,
+              color: "var(--saju-gold)",
+              cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 0, flexShrink: 0, lineHeight: 1,
+            }}
+          >
+            ?
+          </button>
+        </h3>
+
+        {tipOpen && (
+          <div className="db-tooltip" style={{
+            position: "absolute", top: "100%", left: 0, right: 0,
+            zIndex: 10, marginTop: 4, fontSize: 13, wordBreak:"keep-all",
+          }}>
+            사주 8글자 중 지지(8글자 아랫줄)에는 눈에 안 보이는 기운이 숨어 있어요.<br />
+            이걸 지장간이라고 하는데, 그 숨은 천간들도 오행 개수에 포함했어요.<br />
+            8글자로 볼 때보다 입체적인 오행 분포를 확인할 수 있어요.
+          </div>
+        )}
+      </div>
 
       {/* 범례 — 生/剋 화살표 색 안내 (그래프 좌상단) */}
       <div
@@ -216,6 +293,26 @@ export default function ElementStar({ wuXingCount }: Props) {
           />
         ))}
       </svg>
+
+      {activeEl && (() => {
+        const cnt = wuXingCount[activeEl] ?? 0;
+        const strength = cnt === 0 ? "없는" : cnt / total >= 0.30 ? "많은" : cnt / total >= 0.15 ? "있는" : "적은";
+        return (
+          <p className="db-ai-box" style={{
+            margin: "10px 0 0",
+            fontSize: 13.5,
+            lineHeight: 1.65,
+            color: "rgba(255,255,255,0.72)",
+            textAlign: "center",
+            wordBreak: "keep-all",
+          }}>
+            <b style={{ color: "rgba(255,255,255,0.9)", display: "block", marginBottom: 4 }}>
+              <span style={{ color: WUXING_SVG_COLOR[activeEl] }}>{activeEl}</span> 기운이 {strength} 사주예요.
+            </b>
+            {ELEMENT_DESC[activeEl][strength]}
+          </p>
+        );
+      })()}
     </section>
   );
 }
