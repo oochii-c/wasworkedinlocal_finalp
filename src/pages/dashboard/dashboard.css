@@ -9,12 +9,6 @@
   to   { transform: rotate(360deg); }
 }
 
-/* ---- 십성 활성 꼭짓점 별빛 애니메이션 ---- */
-@keyframes sipshen-sparkle {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-  50%       { transform: scale(1.25) rotate(45deg); opacity: 0.75; }
-}
-
 /* ---- 레이아웃 ---- */
 .db-page {
   min-height: 100dvh;
@@ -263,6 +257,28 @@
   font-size: 15px;
   margin-bottom: 8px;
   justify-content: center;
+}
+
+/* 오행·십성 그래프 래퍼 — 동일 aspect-ratio로 두 그래프 높이를 맞춰 상단 고정 */
+.db-chart-graph {
+  width: 100%;
+  aspect-ratio: 85 / 83; /* 170:166, 오행 viewBox 비율 기준 */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-chart-graph svg {
+  width: 100%;
+  height: auto;
+}
+
+/* 설명 박스 — 남은 세로 공간을 채워 양쪽 카드의 박스 높이를 균등화 */
+.db-chart-section .db-ai-box {
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ---- 블록 5: 신살 ---- */

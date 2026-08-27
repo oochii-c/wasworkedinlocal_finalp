@@ -71,6 +71,6 @@ export const SIPSHEN_COLOR: Record<string, string> = {
   비겁: "#EACB8A",
   식상: "#7fc87f",
   재성: "#d06060",
-  관성: "#9898a8",
-  인성: "#5070b0",
+  관성: "#a8a8bc",
+  인성: "#7e9fe0",
 };

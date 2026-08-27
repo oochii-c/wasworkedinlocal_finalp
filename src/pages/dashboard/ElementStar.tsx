@@ -162,6 +162,8 @@ export default function ElementStar({ wuXingCount }: Props) {
         </span>
       </div>
 
+      {/* 그래프 래퍼 — 십성과 동일 높이 박스로 상단 정렬 (아래 설명 박스 높이 균등화) */}
+      <div className="db-chart-graph">
       <svg
         width="100%"
         height="auto"
@@ -293,6 +295,7 @@ export default function ElementStar({ wuXingCount }: Props) {
           />
         ))}
       </svg>
+      </div>
 
       {activeEl && (() => {
         const cnt = wuXingCount[activeEl] ?? 0;
@@ -304,7 +307,6 @@ export default function ElementStar({ wuXingCount }: Props) {
             lineHeight: 1.65,
             color: "rgba(255,255,255,0.72)",
             textAlign: "center",
-            wordBreak: "keep-all",
           }}>
             <b style={{ color: "rgba(255,255,255,0.9)", display: "block", marginBottom: 4 }}>
               <span style={{ color: WUXING_SVG_COLOR[activeEl] }}>{activeEl}</span> 기운이 {strength} 사주예요.

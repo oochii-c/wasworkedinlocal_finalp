@@ -84,13 +84,13 @@ export default function TenGodRadar({ shiShenCount }: Props) {
   return (
     <section className="db-section db-chart-section" aria-label="십성 레이더">
       <h3 className="db-section-title">십성 성향</h3>
-      {/* div로 감싸 SVG가 flex 세로축을 꽉 채우며 늘어나는 현상 방지 (그래프 상단 고정) */}
-      <div style={{ width: "100%", marginTop: "10px" }}>
+      {/* 그래프 래퍼 — 오행과 동일 높이 박스로 상단 정렬 (아래 설명 박스 높이 균등화) */}
+      <div className="db-chart-graph">
         <svg
           width="100%"
           height="auto"
           viewBox="0 0 180 168"
-          style={{ display: "block", maxWidth: "200px", margin: "0 auto" }}
+          style={{ display: "block", width: "100%", transform: "translateY(10px)" }}
           aria-hidden="true"
         >
           {/* 격자 레이어 */}
@@ -136,7 +136,7 @@ export default function TenGodRadar({ shiShenCount }: Props) {
             return (
               <g
                 key={i}
-                onClick={() => setActiveShin(prev => prev === lbl ? null : lbl)}
+                onClick={() => setActiveShin(lbl)}
                 style={{ cursor: "pointer" }}
               >
                 {isActive ? (
@@ -182,7 +182,7 @@ export default function TenGodRadar({ shiShenCount }: Props) {
                 fontSize={isActive ? "12.5" : "11"}
                 fontWeight="700"
                 fill={isActive ? SIPSHEN_COLOR[lbl] : "#a8bcc8"}
-                onClick={() => setActiveShin(prev => prev === lbl ? null : lbl)}
+                onClick={() => setActiveShin(lbl)}
                 style={{ cursor: "pointer", transition: "fill 0.3s ease" }}
               >
                 {lbl}
@@ -202,7 +202,6 @@ export default function TenGodRadar({ shiShenCount }: Props) {
             lineHeight: 1.65,
             color: "rgba(255,255,255,0.72)",
             textAlign: "center",
-            wordBreak: "keep-all",
           }}>
             <b style={{ color: "rgba(255,255,255,0.9)", display: "block", marginBottom: 4 }}>
               <span style={{ color: SIPSHEN_COLOR[activeShin] }}>{activeShin}</span>이 {strength} 사주예요.
