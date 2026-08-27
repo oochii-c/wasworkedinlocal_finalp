@@ -59,11 +59,13 @@ const ELEMENT_DESC: Record<string, Record<string, string>> = {
 
 export default function ElementStar({ wuXingCount }: Props) {
   const [tipOpen, setTipOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!tipOpen) return;
     const close = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setTipOpen(false);
+      const t = e.target as Node;
+      if (!btnRef.current?.contains(t) && !tipRef.current?.contains(t)) setTipOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -110,10 +112,11 @@ export default function ElementStar({ wuXingCount }: Props) {
 
   return (
     <section className="db-section db-chart-section" aria-label="오행 분포" style={{ position: "relative" }}>
-      <div ref={wrapRef} style={{ position: "relative", width: "100%" }}>
+      <div style={{ position: "relative", width: "100%" }}>
         <h3 className="db-section-title">
           오행
           <button
+            ref={btnRef}
             type="button"
             onClick={() => setTipOpen(p => !p)}
             aria-label="오행 계산 방식 안내"
@@ -135,7 +138,7 @@ export default function ElementStar({ wuXingCount }: Props) {
         </h3>
 
         {tipOpen && (
-          <div className="db-tooltip" style={{
+          <div ref={tipRef} className="db-tooltip" style={{
             position: "absolute", top: "100%", left: 0, right: 0,
             zIndex: 10, marginTop: 4, fontSize: 13, wordBreak:"keep-all",
           }}>
