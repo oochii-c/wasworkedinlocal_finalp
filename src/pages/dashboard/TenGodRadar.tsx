@@ -4,14 +4,7 @@ interface Props {
   shiShenCount: Record<string, number>;
 }
 
-const CX = 90, CY = 84, R = 52;
-const LABELS_KR = [
-  ["비겁", "(자립)"],
-  ["식상", "(표현)"],
-  ["재성", "(현실)"],
-  ["관성", "(책임)"],
-  ["인성", "(공부)"],
-];
+const CX = 90, CY = 84, R = 60;
 
 function pentaPoint(cx: number, cy: number, r: number, i: number): [number, number] {
   const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
@@ -37,11 +30,13 @@ export default function TenGodRadar({ shiShenCount }: Props) {
   return (
     <section className="db-section db-chart-section" aria-label="십성 레이더">
       <h3 className="db-section-title">십성 성향</h3>
+      {/* div로 감싸 SVG가 flex 세로축을 꽉 채우며 늘어나는 현상 방지 (그래프 상단 고정) */}
+      <div style={{ width: "100%", marginTop: "10px", }}>
       <svg
         width="100%"
         height="auto"
         viewBox="0 0 180 168"
-        style={{ display: "block", maxWidth: "200px" }}
+        style={{ display: "block", maxWidth: "200px", margin: "0 auto" }}
         aria-hidden="true"
       >
         {/* 격자 레이어 */}
@@ -91,7 +86,6 @@ export default function TenGodRadar({ shiShenCount }: Props) {
         {SIPSHEN_LABELS.map((lbl, i) => {
           const [ox, oy] = labelOffset(i);
           const [bx, by] = pentaPoint(CX, CY, R, i);
-          const [title, sub] = LABELS_KR[i];
           return (
             <text
               key={lbl}
@@ -99,29 +93,16 @@ export default function TenGodRadar({ shiShenCount }: Props) {
               y={by + oy}
               textAnchor="middle"
               dominantBaseline="middle"
+              fontSize="11"
+              fontWeight="700"
+              fill="#EACB8A"
             >
-              <tspan
-                x={bx + ox}
-                dy="-3"
-                fontSize="11"
-                fontWeight="700"
-                fill="#EACB8A"
-              >
-                {title}
-              </tspan>
-              <tspan
-                x={bx + ox}
-                dy="12.5"
-                fontSize="10"
-                fontWeight="400"
-                fill="rgba(184,206,224,0.8)"
-              >
-                {sub}
-              </tspan>
+              {lbl}
             </text>
           );
         })}
       </svg>
+      </div>
     </section>
   );
 }
