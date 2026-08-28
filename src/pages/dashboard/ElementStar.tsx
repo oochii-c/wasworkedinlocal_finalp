@@ -157,7 +157,7 @@ export default function ElementStar({ wuXingCount }: Props) {
         style={{
           position: "absolute", top: 12, right: 12,
           display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 3,
-          fontSize: 11, lineHeight: 1.3, pointerEvents: "none",
+          fontSize: 12, lineHeight: 1.3, pointerEvents: "none",
         }}
       >
         <span style={{ color: "rgba(255,255,255,0.8)" }}>
@@ -250,28 +250,29 @@ export default function ElementStar({ wuXingCount }: Props) {
                 }}
               />
 
-              {/* 한자 */}
+              {/* 한자 — 비활성 시만 표시 */}
               <text
                 x={px}
-                y={isActive ? py - 2 : py + 1}
-                fontSize="11"
+                y={py + 1}
+                fontSize="12"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="rgba(255,255,255,0.95)"
                 fontWeight="700"
                 style={{
                   pointerEvents: "none",
-                  transition: "y 0.3s ease",
+                  opacity: isActive ? 0 : 1,
+                  transition: "opacity 0.3s ease",
                 }}
               >
                 {el}
               </text>
 
-              {/* 퍼센트 — opacity 트랜지션으로 부드럽게 등장 */}
+              {/* 퍼센트 — 활성 시만 중앙에 표시 */}
               <text
                 x={px}
-                y={py + 10}
-                fontSize="9"
+                y={py + 1}
+                fontSize="12"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fontWeight="700"

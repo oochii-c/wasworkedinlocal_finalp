@@ -253,13 +253,11 @@ export default function DaYunFlow({ daYun, birthYear, dayGan }: Props) {
           )}
           {fortuneLoading && !fortuneError && (
             <span className="db-dayun-fortune-loading" style={{
-              position: "absolute", top: 0, left: 0, color: "#ffffff",
-              display: "flex", alignItems: "center", gap: 4,
-              background: "rgba(8,22,44,0.88)",
-              border: "1px solid rgba(102,178,214,0.2)",
-              borderRadius: "8px",
-              padding: "4px 10px",
+              position: "absolute", inset: 0, color: "#ffffff",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+              background: "rgba(8,22,44,0.4)",
               backdropFilter: "blur(4px)",
+              borderRadius: "8px",
             }}>
               <WhirlLoader />운세 풀이 중...
             </span>

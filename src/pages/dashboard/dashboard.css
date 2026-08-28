@@ -196,7 +196,6 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--saju-text-muted);
-  padding-bottom: 6px;
 }
 
 .db-wg-cell {
@@ -254,7 +253,6 @@
 }
 
 .db-chart-section .db-section-title {
-  font-size: 15px;
   margin-bottom: 8px;
   justify-content: center;
 }
@@ -456,6 +454,7 @@
   line-height: 1.7;
   margin-top: 14px;
   word-break: keep-all;
+  min-height: 120px;
 }
 
 .db-dayun-fortune-loading {
