@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { type DaYunInfo, seWunScore } from "../../saju";
 import { getDaYunFortune } from "../../services/sajuApi";
+import { HANJA_DOK } from "./constants";
 import WhirlLoader from "../../components/WhirlLoader";
 
 interface Props {
@@ -9,18 +10,11 @@ interface Props {
   dayGan: string;
 }
 
-const GAN_KOR: Record<string, string> = {
-  甲:"갑",乙:"을",丙:"병",丁:"정",戊:"무",己:"기",庚:"경",辛:"신",壬:"임",癸:"계",
-};
-const ZHI_KOR: Record<string, string> = {
-  子:"자",丑:"축",寅:"인",卯:"묘",辰:"진",巳:"사",午:"오",未:"미",申:"신",酉:"유",戌:"술",亥:"해",
-};
-
+// 간지 한자 → "한글(한자)" 표기 (독음 매핑은 constants의 HANJA_DOK 재사용)
 function ganZhiKor(gz: string): string {
-  const kor = (GAN_KOR[gz[0]] ?? "") + (ZHI_KOR[gz[1]] ?? "");
+  const kor = (HANJA_DOK[gz[0]] ?? "") + (HANJA_DOK[gz[1]] ?? "");
   return kor ? `${kor}(${gz})` : gz;
 }
-
 
 function starsDisplay(n: number) {
   const full = Math.min(Math.round(n), 5);
@@ -177,7 +171,7 @@ export default function DaYunFlow({ daYun, birthYear, dayGan }: Props) {
                 y1={PY} y2={currentYearY}
                 stroke="rgba(234,203,138,0.85)" strokeWidth="1.5"
               />
-              <circle cx={currentYearX} cy={currentYearY + 2} r={3} fill="#EACB8A" />
+              <circle cx={currentYearX} cy={currentYearY} r={3} fill="#EACB8A" />
               <text x={currentYearX} y={PY - 3}
                 fontSize="10" textAnchor="middle" fill="#EACB8A" fontWeight="700">
                 지금 {currentAge}세

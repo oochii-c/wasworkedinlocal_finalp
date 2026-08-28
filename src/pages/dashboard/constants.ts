@@ -74,3 +74,10 @@ export const SIPSHEN_COLOR: Record<string, string> = {
   관성: "#a8a8bc",
   인성: "#7e9fe0",
 };
+
+// 개수/전체 비율로 강약 라벨 산출 (오행·십성 설명 공용)
+export function strengthLabel(cnt: number, total: number): string {
+  if (cnt === 0) return "없는";
+  const ratio = total > 0 ? cnt / total : 0;
+  return ratio >= 0.30 ? "많은" : ratio >= 0.15 ? "있는" : "적은";
+}

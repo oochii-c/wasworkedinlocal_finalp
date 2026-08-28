@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SIPSHEN_LABELS, SIPSHEN_COLOR } from "./constants";
+import { SIPSHEN_LABELS, SIPSHEN_COLOR, strengthLabel } from "./constants";
 
 interface Props {
   shiShenCount: Record<string, number>;
@@ -193,17 +193,10 @@ export default function TenGodRadar({ shiShenCount }: Props) {
       </div>
 
       {activeShin && (() => {
-        const cnt = shiShenCount[activeShin] ?? 0;
-        const strength = cnt === 0 ? "없는" : cnt / total >= 0.30 ? "많은" : cnt / total >= 0.15 ? "있는" : "적은";
+        const strength = strengthLabel(shiShenCount[activeShin] ?? 0, total);
         return (
-          <p className="db-ai-box" style={{
-            margin: "10px 0 0",
-            fontSize: 13.5,
-            lineHeight: 1.65,
-            color: "rgba(255,255,255,0.72)",
-            textAlign: "center",
-          }}>
-            <b style={{ color: "rgba(255,255,255,0.9)", display: "block", marginBottom: 4 }}>
+          <p className="db-ai-box">
+            <b>
               <span style={{ color: SIPSHEN_COLOR[activeShin] }}>{activeShin}</span>이 {strength} 사주예요.
             </b>
             {SIPSHEN_DESC[activeShin][strength]}

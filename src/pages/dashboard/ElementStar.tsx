@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { WUXING_SVG_COLOR } from "./constants";
+import { WUXING_SVG_COLOR, strengthLabel } from "./constants";
 
 interface Props {
   wuXingCount: Record<string, number>;
@@ -301,17 +301,10 @@ export default function ElementStar({ wuXingCount }: Props) {
       </div>
 
       {activeEl && (() => {
-        const cnt = wuXingCount[activeEl] ?? 0;
-        const strength = cnt === 0 ? "없는" : cnt / total >= 0.30 ? "많은" : cnt / total >= 0.15 ? "있는" : "적은";
+        const strength = strengthLabel(wuXingCount[activeEl] ?? 0, total);
         return (
-          <p className="db-ai-box" style={{
-            margin: "10px 0 0",
-            fontSize: 13.5,
-            lineHeight: 1.65,
-            color: "rgba(255,255,255,0.72)",
-            textAlign: "center",
-          }}>
-            <b style={{ color: "rgba(255,255,255,0.9)", display: "block", marginBottom: 4 }}>
+          <p className="db-ai-box">
+            <b>
               <span style={{ color: WUXING_SVG_COLOR[activeEl] }}>{activeEl}</span> 기운이 {strength} 사주예요.
             </b>
             {ELEMENT_DESC[activeEl][strength]}
