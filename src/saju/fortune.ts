@@ -63,7 +63,7 @@ export function calcFortuneFlow(input: SajuInput, dayGan: string): {
     isForward = yun.isForward();
     daYunStart = yun.getStartSolar().toYmd();
 
-    const dyList = yun.getDaYun(8);
+    const dyList = yun.getDaYun(10);
     daYun = dyList.map(dy => ({
       ganZhi: dy.getGanZhi(),
       startAge: dy.getStartAge(),

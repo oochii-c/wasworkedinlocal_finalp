@@ -11,11 +11,11 @@ interface Props {
 }
 
 export default function ShenShaList({ shenSha }: Props) {
-  const [tooltip, setTooltip] = useState<string | null>(null);
+  const [tooltip, setTooltip] = useState<string | null>(shenSha[0]?.name ?? null);
 
   return (
     <section className="db-section" aria-label="신살">
-      <h3 className="db-section-title">내 신살과 길성</h3>
+      <h3 className="db-section-title">신살과 길성</h3>
 
       {shenSha.length === 0 ? (
         <p className="db-shensha-empty">특별한 신살 없음 · 평탄한 사주</p>

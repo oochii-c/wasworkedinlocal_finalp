@@ -18,7 +18,7 @@ export default function OriginChart({ pillars }: Props) {
 
   return (
     <section className="db-section" aria-label="사주 원국 8글자">
-      <h3 className="db-section-title">내 사주 8글자</h3>
+      <h3 className="db-section-title">사주 8글자</h3>
       <div className="db-wongook-grid">
         {/* 헤더: 시 일 월 연 */}
         {PILLAR_LABELS.map(lbl => (

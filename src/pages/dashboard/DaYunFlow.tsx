@@ -1,14 +1,19 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { type DaYunInfo, type SeWunInfo, seWunScore } from "../../saju";
-import { useSaju } from "../../state/SajuContext";
+import { type DaYunInfo, seWunScore } from "../../saju";
+import { getDaYunFortune } from "../../services/sajuApi";
+import { HANJA_DOK } from "./constants";
 import WhirlLoader from "../../components/WhirlLoader";
 
 interface Props {
   daYun: DaYunInfo[];
-  seWun: SeWunInfo[];
-  currentSeWun?: SeWunInfo;
   birthYear: number;
   dayGan: string;
+}
+
+// 간지 한자 → "한글(한자)" 표기 (독음 매핑은 constants의 HANJA_DOK 재사용)
+function ganZhiKor(gz: string): string {
+  const kor = (HANJA_DOK[gz[0]] ?? "") + (HANJA_DOK[gz[1]] ?? "");
+  return kor ? `${kor}(${gz})` : gz;
 }
 
 function starsDisplay(n: number) {
@@ -16,7 +21,6 @@ function starsDisplay(n: number) {
   return "★".repeat(full) + "☆".repeat(5 - full);
 }
 
-// catmull-rom → cubic bezier
 function smoothPath(pts: { x: number; y: number }[]): string {
   if (pts.length < 2) return "";
   const get = (i: number) => pts[Math.max(0, Math.min(i, pts.length - 1))];
@@ -34,71 +38,41 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 
 const W = 320, H = 80, PX = 16, PY = 12;
 
-export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGan }: Props) {
-  const { openYear } = useSaju();
+export default function DaYunFlow({ daYun, birthYear, dayGan }: Props) {
   const currentYear = new Date().getFullYear();
   const currentAge = currentYear - birthYear;
 
-  // 대운 자체 天干 vs 일간 → 실제 높낮이
-  const daYunAvgs = useMemo(() => daYun.map(dy => {
-    const score = seWunScore(dy.ganZhi[0], dayGan);
-    const startY = dy.startYear;
-    const endY = dy.endYear ?? startY + 9;
-    return { dy, stars: score.stars, rel: score.rel, startYear: startY, endYear: endY };
-  }), [daYun, dayGan]);
+  const daYunAvgs = useMemo(() => {
+    return daYun
+      // ganZhi가 비어있는 첫 항목(대운 대기 기간)은 그래프·카드에서 제외
+      .filter(dy => dy.ganZhi.length === 2)
+      .map(dy => {
+        const score = seWunScore(dy.ganZhi[0], dayGan);
+        const startY = dy.startYear;
+        const endY = dy.endYear ?? startY + 9;
+        return { dy, stars: score.stars, rel: score.rel, startYear: startY, endYear: endY };
+      });
+  }, [daYun, dayGan]);
 
   const currentDaYunIdx = daYunAvgs.findIndex(
     d => d.startYear <= currentYear && currentYear <= d.endYear
   );
 
-  const [selectedDaYunIdx, setSelectedDaYunIdx] = useState(
+  const [selectedIdx, setSelectedIdx] = useState(
     currentDaYunIdx >= 0 ? currentDaYunIdx : 0
   );
-  // 대운 클릭 → startYear, 올해 마커 클릭 → currentYear
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  // 올해 마커 클릭 시 점을 보간 위치로 이동할지 여부
-  const [isCurrentYearDot, setIsCurrentYearDot] = useState(false);
 
-  // 세운 전체 범위
-  const globalMin = seWun[0]?.year ?? currentYear;
-  const globalMax = seWun[seWun.length - 1]?.year ?? currentYear;
-
-  // 년도 변경 시 대운 인덱스도 동기화 (← → 버튼 / 대운 클릭 공용)
-  function handleYearChange(newYear: number) {
-    const clamped = Math.min(globalMax, Math.max(globalMin, newYear));
-    setSelectedYear(clamped);
-    setIsCurrentYearDot(false);
-    const newDaYunIdx = daYunAvgs.findIndex(
-      d => d.startYear <= clamped && clamped <= d.endYear
-    );
-    if (newDaYunIdx >= 0) setSelectedDaYunIdx(newDaYunIdx);
-  }
-
-  const selectedSW = useMemo(
-    () => seWun.find(s => s.year === selectedYear) ?? currentSeWun,
-    [seWun, selectedYear, currentSeWun]
-  );
-
-  /*
-   * fortuneCache: 이미 불러온 연도 운세를 저장해두는 캐시
-   * - key: `일간-연도` (예: "辛-2026")
-   * - value: AI가 생성한 운세 텍스트
-   * - useRef 사용 이유: 값이 바뀌어도 리렌더를 일으키지 않음.
-   *   useState로 만들면 캐시 저장할 때마다 불필요한 리렌더 발생.
-   *   컴포넌트가 화면에 있는 동안 계속 유지됨 (다른 연도 갔다 돌아와도 살아있음).
-   */
   const fortuneCache = useRef<Record<string, string>>({});
   const [fortuneText, setFortuneText] = useState<string | null>(null);
   const [fortuneLoading, setFortuneLoading] = useState(false);
   const [fortuneError, setFortuneError] = useState(false);
 
+  const selected = daYunAvgs[selectedIdx];
+
   useEffect(() => {
-    if (!selectedSW) return;
+    if (!selected) return;
+    const cacheKey = `${dayGan}-${selected.dy.ganZhi}`;
 
-    // 같은 일간이라도 연도마다 다른 텍스트를 캐시하기 위해 두 값을 합쳐 키 생성
-    const cacheKey = `${dayGan}-${selectedYear}`;
-
-    // 이미 호출한 적 있는 연도면 캐시에서 꺼내서 바로 표시 → API 재호출 없음
     if (fortuneCache.current[cacheKey]) {
       setFortuneText(fortuneCache.current[cacheKey]);
       setFortuneLoading(false);
@@ -107,106 +81,63 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
     }
 
     setFortuneLoading(true);
-    setFortuneText(null);
     setFortuneError(false);
 
-    /*
-     * AbortController: 사용자가 ← → 를 빠르게 눌러 연도를 바꿀 때
-     * 이전 연도의 진행 중인 fetch 요청을 취소하는 용도.
-     * 예) 2020 → 2021 → 2022 순서로 빠르게 이동하면
-     *     2020, 2021 요청은 abort되고 2022 요청만 완료됨.
-     * 이렇게 하지 않으면 2020 응답이 늦게 도착해
-     *     2022 텍스트 위에 2020 텍스트가 덮어써지는 버그가 생김.
-     */
-    const controller = new AbortController();
-
-    fetch("/api/year-fortune", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        year: selectedYear,
-        ganZhi: selectedSW.ganZhi,
-        rel: selectedSW.rel,
-        dayGan,
-        stars: selectedSW.stars,
-      }),
-      signal: controller.signal, // 이 signal이 abort되면 fetch 자동 취소
+    getDaYunFortune({
+      dayGan,
+      ganZhi: selected.dy.ganZhi,
+      startYear: selected.startYear,
+      endYear: selected.endYear,
+      rel: selected.rel,
+      stars: selected.stars,
     })
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
+      .then(text => {
+        fortuneCache.current[cacheKey] = text;
+        setFortuneText(text);
       })
-      .then(data => {
-        const text = typeof data.text === "string" && data.text ? data.text : null;
-        if (text) {
-          // 성공한 응답만 캐시에 저장 (빈 문자열·오류는 저장 안 함 → 나중에 재시도 가능)
-          fortuneCache.current[cacheKey] = text;
-          setFortuneText(text);
-        } else {
-          setFortuneError(true);
-        }
-      })
-      .catch(err => {
-        // AbortError는 연도 이동으로 인한 정상 취소 → 에러 표시 안 함
-        // 그 외(네트워크 오류, 서버 오류 등)는 에러 메시지 표시
-        if (err.name !== "AbortError") setFortuneError(true);
-      })
+      .catch(() => setFortuneError(true))
       .finally(() => setFortuneLoading(false));
-
-    // useEffect 클린업: selectedYear가 바뀌면 이전 fetch를 abort
-    return () => controller.abort();
-  }, [selectedYear, selectedSW, dayGan]);
+  }, [selected, dayGan]);
 
   if (daYunAvgs.length === 0) {
     return (
       <section className="db-section" aria-label="인생 흐름">
-        <h3 className="db-section-title">인생 흐름</h3>
+        <h3 className="db-section-title">인생 흐름(대운)</h3>
         <p className="db-shensha-empty">대운 정보를 계산할 수 없습니다</p>
       </section>
     );
   }
 
-  // 그래프 좌표: 균등 배치
   const n = daYunAvgs.length;
+  // gPoints: n개 점을 PX~W-PX 구간의 0/n ~ (n-1)/n 위치에 배치 — 마지막 자리(W-PX)는 endPoint용
   const gPoints = daYunAvgs.map((d, i) => ({
-    x: n > 1 ? PX + (i / (n - 1)) * (W - PX * 2) : W / 2,
+    x: PX + (i / n) * (W - PX * 2),
     y: PY + (H - PY * 2) * (1 - (d.stars - 1) / 4),
   }));
 
-  const pathD = smoothPath(gPoints);
-  const selectedGPt = gPoints[selectedDaYunIdx];
+  // 마지막 대운의 끝년도를 나타내는 가상 종료점 (Y는 마지막 점과 동일)
+  const endPoint = { x: W - PX, y: gPoints[n - 1].y };
+  const pathD = smoothPath([...gPoints, endPoint]);
 
-  // 현재 년도 보간 위치 (X, Y 모두)
+  // 현재 연도 그래프 상 X·Y 위치 (선형 보간)
   let currentYearX: number | null = null;
   let currentYearY: number | null = null;
   if (currentDaYunIdx >= 0) {
     const curDY = daYunAvgs[currentDaYunIdx];
     const startPt = gPoints[currentDaYunIdx];
-    const nextPt = gPoints[currentDaYunIdx + 1];
-    if (nextPt) {
-      const dyLen = curDY.endYear - curDY.startYear;
-      const elapsed = currentYear - curDY.startYear;
-      const frac = dyLen > 0 ? Math.min(1, elapsed / dyLen) : 0;
-      currentYearX = startPt.x + frac * (nextPt.x - startPt.x);
-      currentYearY = startPt.y + frac * (nextPt.y - startPt.y);
-    } else {
-      currentYearX = startPt.x;
-      currentYearY = startPt.y;
-    }
+    const nextPt = currentDaYunIdx === n - 1 ? endPoint : gPoints[currentDaYunIdx + 1];
+    const frac = Math.min(1, (currentYear - curDY.startYear) / (curDY.endYear - curDY.startYear));
+    currentYearX = startPt.x + frac * (nextPt.x - startPt.x);
+    currentYearY = startPt.y + frac * (nextPt.y - startPt.y);
   }
 
-  // 올해 선택 시 보간 위치, 아닐 때는 선택 대운 경계점
-  const activePt =
-    isCurrentYearDot && currentYearX !== null && currentYearY !== null
-      ? { x: currentYearX, y: currentYearY }
-      : selectedGPt;
-
-  // 올해 마커 클릭 영역 (±18px — 대운 클릭보다 위에 렌더)
-  const NOW_ZONE = 18;
+  // 시각 하이라이트 X 범위 — 마지막 대운은 endPoint.x까지, 그 외는 다음 점까지
+  const rectX1 = selectedIdx === 0 ? PX : gPoints[selectedIdx].x;
+  const rectX2 = selectedIdx === n - 1 ? endPoint.x : gPoints[selectedIdx + 1].x;
 
   return (
     <section className="db-section" aria-label="인생 흐름">
-      <h3 className="db-section-title">인생 흐름</h3>
+      <h3 className="db-section-title">인생 흐름(대운)</h3>
 
       <div className="db-dayun-graph-wrap">
         <svg viewBox={`0 0 ${W} ${H + 22}`} width="100%" style={{ display: "block" }} aria-hidden="true">
@@ -217,26 +148,30 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
               stroke="rgba(255,255,255,0.04)" strokeWidth="1" />;
           })}
 
+          {/* 선택 대운 기간 면 하이라이트 — fill + 좌우 선 (rectX1/X2는 그래프 경계에 클램핑됨) */}
+          <rect
+            x={rectX1} y={PY - 12}
+            width={rectX2 - rectX1} height={H - PY * 2 + 24}
+            fill="rgba(234,203,138,0.10)"
+          />
+          <line x1={rectX1} x2={rectX1} y1={PY - 12} y2={H - PY + 12}
+            stroke="rgba(234,203,138,0.25)" strokeWidth="1" />
+          <line x1={rectX2} x2={rectX2} y1={PY - 12} y2={H - PY + 12}
+            stroke="rgba(234,203,138,0.25)" strokeWidth="1" />
+
           {/* 베지어 곡선 */}
           <path d={pathD} fill="none"
             stroke="rgba(184,206,224,0.5)" strokeWidth="1.5" />
 
-          {/* 선택 위치 수직선 (점선) — 올해 선택 시 보간 위치, 아닐 때 대운 경계 */}
-          <line
-            x1={activePt.x} x2={activePt.x}
-            y1={PY} y2={H - PY}
-            stroke="rgba(234,203,138,0.4)" strokeWidth="1" strokeDasharray="3 2"
-          />
-
-          {/* 현재 년도 위치 마커 (실선) */}
-          {currentYearX !== null && (
+          {/* 현재 연도 마커 (그래프만, 클릭 없음) */}
+          {currentYearX !== null && currentYearY !== null && (
             <>
               <line
                 x1={currentYearX} x2={currentYearX}
-                y1={PY} y2={H - PY}
+                y1={PY} y2={currentYearY}
                 stroke="rgba(234,203,138,0.85)" strokeWidth="1.5"
               />
-              <circle cx={currentYearX} cy={H - PY} r={3} fill="#EACB8A" />
+              <circle cx={currentYearX} cy={currentYearY} r={3} fill="#EACB8A" />
               <text x={currentYearX} y={PY - 3}
                 fontSize="10" textAnchor="middle" fill="#EACB8A" fontWeight="700">
                 지금 {currentAge}세
@@ -244,108 +179,91 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
             </>
           )}
 
-          {/* 대운 클릭 영역 — 세그먼트 전체 폭 */}
-          {gPoints.map((pt, i) => {
-            const prevX = i > 0 ? (gPoints[i - 1].x + pt.x) / 2 : PX - 8;
-            const nextX = i < gPoints.length - 1 ? (pt.x + gPoints[i + 1].x) / 2 : W - PX + 8;
+          {/* 대운 클릭 영역 */}
+          {gPoints.map((_, i) => {
+            const x1 = i === 0 ? PX - 8 : gPoints[i].x;
+            const x2 = i === n - 1 ? endPoint.x + 8 : gPoints[i + 1].x;
             return (
               <rect key={i}
-                x={prevX} y={4}
-                width={nextX - prevX} height={H}
+                x={x1} y={4} width={x2 - x1} height={H}
                 fill="transparent" style={{ cursor: "pointer" }}
-                onClick={() => {
-                  setSelectedDaYunIdx(i);
-                  setIsCurrentYearDot(false);
-                  setSelectedYear(daYunAvgs[i].startYear);
-                }}
+                onClick={() => setSelectedIdx(i)}
               />
             );
           })}
 
-          {/* 점 — 올해 선택 시 모든 경계점은 기본 크기로, 보간 위치에 별도 강조점 */}
+          {/* 꼭짓점 점 */}
           {gPoints.map((pt, i) => (
-            <circle key={`dot-${i}`} cx={pt.x} cy={pt.y}
-              r={!isCurrentYearDot && i === selectedDaYunIdx ? 4.5 : 3}
-              fill={!isCurrentYearDot && i === selectedDaYunIdx ? "#EACB8A" : "rgba(184,206,224,0.55)"}
+            <circle key={i} cx={pt.x} cy={pt.y}
+              r={i === selectedIdx ? 4.5 : 3}
+              fill={i === selectedIdx ? "#EACB8A" : "rgba(184,206,224,0.55)"}
               style={{ pointerEvents: "none" }}
             />
           ))}
-          {isCurrentYearDot && currentYearX !== null && currentYearY !== null && (
-            <circle
-              cx={currentYearX} cy={currentYearY}
-              r={4.5} fill="#EACB8A"
-              style={{ pointerEvents: "none" }}
-            />
-          )}
-
-          {/* 올해 마커 클릭 영역 — 보간 위치로 점 이동 */}
-          {currentYearX !== null && (
-            <rect
-              x={currentYearX - NOW_ZONE} y={4}
-              width={NOW_ZONE * 2} height={H}
-              fill="transparent" style={{ cursor: "pointer" }}
-              onClick={() => {
-                setSelectedYear(currentYear);
-                setIsCurrentYearDot(true);
-                if (currentDaYunIdx >= 0) setSelectedDaYunIdx(currentDaYunIdx);
-              }}
-            />
-          )}
+          {/* 마지막 대운 끝년도 점 */}
+          <circle cx={endPoint.x} cy={endPoint.y}
+            r={3} fill="rgba(184,206,224,0.55)"
+            style={{ pointerEvents: "none" }}
+          />
 
           {/* X축 연도 레이블 */}
           {daYunAvgs.map((d, i) => (
             <text key={i} x={gPoints[i].x} y={H + 16}
               fontSize="9.5" textAnchor="middle"
-              fill={i === selectedDaYunIdx ? "rgba(234,203,138,0.95)" : "rgba(184,206,224,0.6)"}
-              fontWeight={i === selectedDaYunIdx ? "700" : "500"}
+              fill={i === selectedIdx ? "rgba(234,203,138,0.95)" : "rgba(184,206,224,0.6)"}
+              fontWeight={i === selectedIdx ? "700" : "500"}
               style={{ pointerEvents: "none" }}
             >
               {d.startYear}
             </text>
           ))}
+          {/* 마지막 대운 끝년도 레이블 */}
+          <text x={endPoint.x} y={H + 16}
+            fontSize="9.5" textAnchor="middle"
+            fill="rgba(184,206,224,0.6)" fontWeight="500"
+            style={{ pointerEvents: "none" }}
+          >
+            {daYunAvgs[n - 1].endYear}
+          </text>
         </svg>
       </div>
 
-      {selectedSW && (
-        <div className="db-dayun-card">
-          <div className="db-dayun-year-nav">
-            <button
-              type="button"
-              className="db-dayun-nav-btn"
-              disabled={selectedYear <= globalMin}
-              onClick={() => handleYearChange(selectedYear - 1)}
-              aria-label="이전 연도"
-            >
-              ←
-            </button>
-            <span className="db-dayun-card-year">
-              {selectedYear}년{selectedYear === currentYear ? " (올해)" : ""}{" "}
-              <span className="db-dayun-stars">{starsDisplay(selectedSW.stars)}</span>
+      {/* 대운 카드 */}
+      <div className="db-dayun-card">
+        <div className="db-dayun-year-nav">
+          <span className="db-dayun-card-year">
+            {selected.startYear} ~ {selected.endYear}
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 15, color: "var(--saju-gold)", fontWeight: 700 }}>
+              {ganZhiKor(selected.dy.ganZhi)}
             </span>
-            <button
-              type="button"
-              className="db-dayun-nav-btn"
-              disabled={selectedYear >= globalMax}
-              onClick={() => handleYearChange(selectedYear + 1)}
-              aria-label="다음 연도"
-            >
-              →
-            </button>
-          </div>
-          <div className="db-dayun-card-text">
-            {fortuneLoading ? (
-              <span className="db-dayun-fortune-loading" style={{ color: "#ffffff" }}><WhirlLoader />운세 풀이 중...</span>
-            ) : fortuneError ? (
-              <span className="db-dayun-fortune-loading">서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요.</span>
-            ) : (
-              fortuneText ?? ""
-            )}
-          </div>
-          <button type="button" className="db-dayun-detail-btn" onClick={() => openYear(selectedYear)}>
-            그 해 자세히 보기 →
-          </button>
+            <span className="db-dayun-stars">{starsDisplay(selected.stars)}</span>
+          </span>
         </div>
-      )}
+        <div className="db-dayun-card-text" style={{ position: "relative" }}>
+          {fortuneError ? (
+            <span className="db-dayun-fortune-loading">
+              서버에 연결할 수 없어요. 잠시 후 다시 시도해주세요.
+            </span>
+          ) : (
+            <span style={{ opacity: fortuneLoading ? 0.3 : 1, transition: "opacity 0.2s" }}>
+              {fortuneText ?? ""}
+            </span>
+          )}
+          {fortuneLoading && !fortuneError && (
+            <span className="db-dayun-fortune-loading" style={{
+              position: "absolute", inset: 0, color: "#ffffff",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+              background: "rgba(8,22,44,0.4)",
+              backdropFilter: "blur(4px)",
+              borderRadius: "8px",
+            }}>
+              <WhirlLoader />운세 풀이 중...
+            </span>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

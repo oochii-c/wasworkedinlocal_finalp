@@ -1,7 +1,14 @@
 import { DAY_GAN_INFO } from "./constants";
-import { type DashboardProps } from "./types";
+import { type SajuExtended } from "../../saju";
 
-type Props = Pick<DashboardProps, "chart" | "name" | "gender" | "date" | "time" | "timeUnknown">;
+interface Props {
+  chart: SajuExtended;
+  name: string;
+  gender: string;
+  date: { year: number; month: number; day: number };
+  time: { hour: number; minute: number };
+  timeUnknown: boolean;
+}
 
 export default function CharacterCard({ chart, name, gender, date, time, timeUnknown }: Props) {
   const info = DAY_GAN_INFO[chart.dayGan];
