@@ -164,7 +164,7 @@
 .db-char-tags {
   font-size: 14px;
   color: var(--saju-text-muted);
-  margin-top: 0;
+  margin: 0;
   line-height: 1.6;
 }
 
@@ -284,6 +284,8 @@
   font-size: 13.5px;
   line-height: 1.65;
   color: rgba(255, 255, 255, 0.72);
+}
+.db-chart-section .db-ai-box b {
   text-align: center;
 }
 
@@ -452,7 +454,7 @@
   font-size: 14.5px;
   color: var(--saju-text);
   line-height: 1.7;
-  margin-bottom: 10px;
+  margin-top: 14px;
   word-break: keep-all;
 }
 

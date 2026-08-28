@@ -75,9 +75,16 @@ export const SIPSHEN_COLOR: Record<string, string> = {
   인성: "#7e9fe0",
 };
 
-// 개수/전체 비율로 강약 라벨 산출 (오행·십성 설명 공용)
+// 그래프(오행 버블·십성 레이더) 축 천장 = 이 비율이면 최대 크기/맨 바깥에 도달.
+// 불변식: strengthLabel의 "많은" 기준(0.30) 이상이어야 함(더 낮추면 "끝에 닿았는데 적당한" 모순 발생).
+// 0.30 = 최저 경계값(끝에 닿음 ⟺ 정확히 "많은")이라 안전.
+export const GRAPH_FULL_SHARE = 0.30;
+
+// 전체합 대비 비율로 강약 라벨 산출 (오행·십성 설명 공용)
 export function strengthLabel(cnt: number, total: number): string {
   if (cnt === 0) return "없는";
-  const ratio = total > 0 ? cnt / total : 0;
-  return ratio >= 0.30 ? "많은" : ratio >= 0.15 ? "있는" : "적은";
+  const share = total > 0 ? cnt / total : 0;
+  if (share >= 0.30) return "많은";
+  if (share >= 0.15) return "적당한";
+  return "적은";
 }
