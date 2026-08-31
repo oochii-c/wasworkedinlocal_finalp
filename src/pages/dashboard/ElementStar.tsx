@@ -8,6 +8,8 @@ interface Props {
 const ELEMENTS = ["木", "火", "土", "金", "水"] as const;
 const CX = 90, CY = 84, R = 60;
 const MIN_R = 7, MAX_R = 20;
+// 버블 크기 = 절대 개수 기준 고정 스케일. 이 개수 이상이면 최대 버블(차트 간 비교 가능).
+const FULL_COUNT = 6;
 
 // 정오각형 꼭짓점 (상단=木 → 시계방향)
 function pentaPoints(cx: number, cy: number, r: number): [number, number][] {
@@ -32,7 +34,6 @@ export default function ElementStar({ wuXingCount }: Props) {
   const [activeEl, setActiveEl] = useState<string | null>(null);
 
   const total = Object.values(wuXingCount).reduce((a, b) => a + b, 0);
-  const maxCount = Math.max(...Object.values(wuXingCount), 1);
 
   return (
     <section className="db-section db-chart-section" aria-label="오행 분포">
@@ -66,7 +67,7 @@ export default function ElementStar({ wuXingCount }: Props) {
         {ELEMENTS.map((el, i) => {
           const [px, py] = OUTLINE_PTS[i];
           const count = wuXingCount[el] ?? 0;
-          const ratio = count / maxCount;
+          const ratio = Math.min(count / FULL_COUNT, 1);
           const r = MIN_R + ratio * (MAX_R - MIN_R);
           const color = WUXING_SVG_COLOR[el];
           const isActive = activeEl === el;

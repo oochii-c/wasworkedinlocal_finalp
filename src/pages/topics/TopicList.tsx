@@ -21,7 +21,7 @@ function starRow(stars: number): string {
 
 export default function TopicList() {
   const { chart, inputs, readCache, writeCache } = useSaju();
-  const key = chart ? `themes:${chart.baZi.join("")}` : "";
+  const key = chart ? `themes:${chart.baZi.join("")}:${inputs?.gender ?? "?"}` : "";
   const [themes, setThemes] = useState<ThemeSummary[] | null>(() => (key ? readCache<ThemeSummary[]>(key) ?? null : null));
   const [loading, setLoading] = useState(!themes);
   const [error, setError] = useState("");
@@ -33,7 +33,7 @@ export default function TopicList() {
   const [detailErr, setDetailErr] = useState<Record<string, string>>({});
   const started = useRef<Set<string>>(new Set()); // 중복 요청 방지
 
-  const detailKey = (k: string) => `themedetail:${chart?.baZi.join("") ?? ""}:${k}`;
+  const detailKey = (k: string) => `themedetail:${chart?.baZi.join("") ?? ""}:${inputs?.gender ?? "?"}:${k}`;
 
   // 원국(key) 바뀌면 상세 상태 초기화
   useEffect(() => {

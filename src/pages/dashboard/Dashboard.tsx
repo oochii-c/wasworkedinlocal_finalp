@@ -19,7 +19,7 @@ import { getReading, type Story } from "../../services/sajuApi";
 // 총운 풀이 — 원국 signature 키로 캐시. 같은 원국이면 재호출 X (탭·뒤로 넘어 유지)
 function useReading() {
   const { chart, inputs, readCache, writeCache } = useSaju();
-  const key = chart ? `stories:${chart.baZi.join("")}` : "";
+  const key = chart ? `stories:${chart.baZi.join("")}:${inputs?.gender ?? "?"}` : "";
   const [stories, setStories] = useState<Story[] | null>(() => (key ? readCache<Story[]>(key) ?? null : null));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
