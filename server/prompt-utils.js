@@ -1,27 +1,49 @@
 // server/prompt-utils.js
 // AI 엔드포인트가 공유하는 유틸 + 용왕 페르소나.
-// GAN_INFO 는 index.js 에도 있으나, 기존 파일을 export 하도록 수정하지 않기 위해
-// (공용 파일 최소 변경) 여기에 별도로 둔다. 공용 유틸 통합은 후속 과제.
+// 천간·지지 표(GAN_INFO·ZHI_INFO)와 라벨 헬퍼의 단일 출처.
 
 // 천간 -> [한글, 오행]. 모델이 한자를 오독하지 않도록 명시용.
 export const GAN_INFO = {
   甲: ["갑", "목"], 乙: ["을", "목"], 丙: ["병", "화"], 丁: ["정", "화"], 戊: ["무", "토"],
   己: ["기", "토"], 庚: ["경", "금"], 辛: ["신", "금"], 壬: ["임", "수"], 癸: ["계", "수"],
 };
-export const GAN_WUXING = Object.fromEntries(
-  Object.entries(GAN_INFO).map(([k, v]) => [k, v[1]])
-);
+
+// 지지 -> [한글음, 띠]. 천간과 마찬가지로 모델이 한자를 오독하지 않도록 명시용.
+export const ZHI_INFO = {
+  子: ["자", "쥐"], 丑: ["축", "소"], 寅: ["인", "호랑이"], 卯: ["묘", "토끼"],
+  辰: ["진", "용"], 巳: ["사", "뱀"], 午: ["오", "말"], 未: ["미", "양"],
+  申: ["신", "원숭이"], 酉: ["유", "닭"], 戌: ["술", "개"], 亥: ["해", "돼지"],
+};
+
+// ── 한자 표기 단일 기준: 모든 한자에 한글 음을 병기한다. ──
+// 천간: 甲(갑·목)
+export const ganLabel = (gan) => {
+  const [kor, elem] = GAN_INFO[gan] || ["?", "?"];
+  return `${gan}(${kor}·${elem})`;
+};
+// 지지: 午(오·말)
+export const zhiLabel = (zhi) => {
+  const [kor, zodiac] = ZHI_INFO[zhi] || ["?", "?"];
+  return `${zhi}(${kor}·${zodiac})`;
+};
+// 지장간(천간 여러 개): 丁(정) 己(기) — 한글 음만 간결히.
+export const hideGanLabel = (arr = []) =>
+  arr.map((g) => `${g}(${(GAN_INFO[g] || ["?"])[0]})`).join(" ");
+// 간지 2글자: 丙午(병오)
+export const ganZhiLabel = (gz = "") => {
+  const gk = (GAN_INFO[gz[0]] || ["?"])[0];
+  const zk = (ZHI_INFO[gz[1]] || ["?"])[0];
+  return `${gz}(${gk}${zk})`;
+};
 
 // 원국(chart)에 이미 계산돼 있는 정보를 최대한 담아 상담용 텍스트로 변환.
 // (사주 계산 파일은 건드리지 않고, 여기서 serialize 만 풍부하게)
 export function chartToCounselText(chart) {
-  const dayElem = GAN_WUXING[chart.dayGan] || "?";
-
   // 기둥별 상세 (지장간·십신·십이운성·납음·공망 포함)
   const pillarLines = (chart.pillars || []).map(
     (p) =>
-      `- ${p.key}주 ${p.ganZhi}: 천간 ${p.gan}[${GAN_WUXING[p.gan] || "?"}]/십신 ${p.shiShenGan}, ` +
-      `지지 ${p.zhi}/십신 ${(p.shiShenZhi || []).join("·")}, 지장간 ${(p.hideGan || []).join(" ")}, ` +
+      `- ${p.key}주 ${ganZhiLabel(p.ganZhi)}: 천간 ${ganLabel(p.gan)}/십신 ${p.shiShenGan}, ` +
+      `지지 ${zhiLabel(p.zhi)}/십신 ${(p.shiShenZhi || []).join("·")}, 지장간 ${hideGanLabel(p.hideGan)}, ` +
       `십이운성 ${p.diShi}, 납음 ${p.naYin}, 공망 ${p.xunKong}`
   );
 
@@ -47,7 +69,7 @@ export function chartToCounselText(chart) {
   const curLine = cur ? `${cur.year} ${cur.ganZhi} (일간과 ${cur.rel})` : "정보 없음";
 
   return [
-    `[본인] 일간 ${chart.dayGan}(${dayElem}) · 띠 ${chart.shengXiao} · 팔자 ${(chart.baZi || []).join(" ")}`,
+    `[본인] 일간 ${ganLabel(chart.dayGan)} · 띠 ${chart.shengXiao} · 팔자 ${(chart.baZi || []).map(ganZhiLabel).join(" ")}`,
     `[원국 기둥]`,
     ...pillarLines,
     `[오행 분포] ${wxLine}${lacking ? ` (부족: ${lacking})` : ""}`,
