@@ -36,6 +36,17 @@ export const ganZhiLabel = (gz = "") => {
   return `${gz}(${gk}${zk})`;
 };
 
+// 오행 분포 + 부족 오행 한 줄. (키 언어에 무관하게 entries 로 처리)
+// 예: "木3 火4 土5 金1 水1 (부족: 金·水)"
+export function wuXingLine(chart) {
+  const entries = Object.entries(chart.wuXingCount || {});
+  if (!entries.length) return "정보 없음";
+  const counts = entries.map(([k, v]) => `${k}${v}`).join(" ");
+  const min = Math.min(...entries.map(([, v]) => v));
+  const lacking = entries.filter(([, v]) => v === min).map(([k]) => k).join("·");
+  return `${counts} (부족: ${lacking})`;
+}
+
 // 원국(chart)에 이미 계산돼 있는 정보를 최대한 담아 상담용 텍스트로 변환.
 // (사주 계산 파일은 건드리지 않고, 여기서 serialize 만 풍부하게)
 export function chartToCounselText(chart) {
@@ -46,15 +57,6 @@ export function chartToCounselText(chart) {
       `지지 ${zhiLabel(p.zhi)}/십신 ${(p.shiShenZhi || []).join("·")}, 지장간 ${hideGanLabel(p.hideGan)}, ` +
       `십이운성 ${p.diShi}, 납음 ${p.naYin}, 공망 ${p.xunKong}`
   );
-
-  // 오행 분포 + 부족 오행 (키 언어에 무관하게 entries 로 처리)
-  const wxEntries = Object.entries(chart.wuXingCount || {});
-  const wxLine = wxEntries.map(([k, v]) => `${k}${v}`).join(" ");
-  let lacking = "";
-  if (wxEntries.length) {
-    const min = Math.min(...wxEntries.map(([, v]) => v));
-    lacking = wxEntries.filter(([, v]) => v === min).map(([k]) => k).join("·");
-  }
 
   // 십신 분포
   const ssLine =
@@ -72,7 +74,7 @@ export function chartToCounselText(chart) {
     `[본인] 일간 ${ganLabel(chart.dayGan)} · 띠 ${chart.shengXiao} · 팔자 ${(chart.baZi || []).map(ganZhiLabel).join(" ")}`,
     `[원국 기둥]`,
     ...pillarLines,
-    `[오행 분포] ${wxLine}${lacking ? ` (부족: ${lacking})` : ""}`,
+    `[오행 분포] ${wuXingLine(chart)}`,
     `[십신 분포] ${ssLine}`,
     `[신살] ${shenSha}`,
     `[대운 흐름] ${daYun}`,

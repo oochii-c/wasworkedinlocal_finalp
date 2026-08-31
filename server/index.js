@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import counselRouter from "./counsel.js";
-import { GAN_INFO, ZHI_INFO, ganLabel, zhiLabel, hideGanLabel, ganZhiLabel } from "./prompt-utils.js";
+import { GAN_INFO, ZHI_INFO, ganLabel, zhiLabel, hideGanLabel, ganZhiLabel, wuXingLine } from "./prompt-utils.js";
 import {
   anchorLine,
   READING_SYSTEM,
@@ -51,7 +51,7 @@ function chartToText(chart) {
     (p) =>
       `${p.key}주 ${ganZhiLabel(p.ganZhi)}: 천간 ${ganLabel(p.gan)}/${p.shiShenGan}, 지지 ${zhiLabel(p.zhi)}, 지장간 ${hideGanLabel(p.hideGan)}, 오행 ${p.wuXing}, 십이운성 ${p.diShi}, 납음 ${p.naYin}`
   );
-  return `일간(나): ${ganLabel(chart.dayGan)} · 띠 ${chart.shengXiao}\n팔자 ${chart.baZi.map(ganZhiLabel).join(" ")}\n${lines.join("\n")}`;
+  return `일간(나): ${ganLabel(chart.dayGan)} · 띠 ${chart.shengXiao}\n팔자 ${chart.baZi.map(ganZhiLabel).join(" ")}\n${lines.join("\n")}\n오행 분포(원국 8자 + 지장간): ${wuXingLine(chart)}`;
 }
 
 app.post("/api/reading", async (req, res) => {
