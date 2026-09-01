@@ -79,6 +79,42 @@ export async function getThemeDetail(
   return data.text as string;
 }
 
+// 오늘의 부적 AI 생성 (서버 /api/daily-talisman, GPT-5 Image)
+export interface DailyTalisman {
+  image: string;    // data:image/png;base64,... — 생성된 부적 이미지
+  title: string;    // 부적 제목
+  caption: string;  // 하단 캡션 (부적 이름)
+  blessing: string; // 오늘 하루 축복 한 문장
+}
+
+export interface DailyTalismanRequest {
+  dayGan: string;
+  dayGanZhi: string;
+  band: string;
+  jiShen: string[];
+  xiongSha: string[];
+  yi: string[];
+  ji: string[];
+  positionCai: string;
+}
+
+// 오늘의 부적 요청. 실패 시 throw.
+export async function getDailyTalisman(req: DailyTalismanRequest): Promise<DailyTalisman> {
+  const res = await fetch("/api/daily-talisman", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "오늘의 부적 생성 실패");
+  return {
+    image: data.image as string,
+    title: data.title as string,
+    caption: (data.caption as string) ?? "",
+    blessing: data.blessing as string,
+  };
+}
+
 // 오늘 하루 운세 AI 풀이 (서버 /api/daily-fortune)
 export interface DailyFortune {
   energy: string; // "오늘의 기운" 2~3문장 (건제·십이신·충·신살·방위 종합)

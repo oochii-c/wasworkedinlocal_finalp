@@ -16,6 +16,7 @@ import {
   DAYUN_FORTUNE_SYSTEM,
   buildDaYunFortuneUser,
   buildDailyFortunePrompt,
+  buildDailyTalismanPrompt,
 } from "./prompts/index.js";
 
 dotenv.config();
@@ -26,6 +27,11 @@ const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PILLARS_LOG = path.join(__dirname, "data", "pillars.jsonl");
+
+// 부적 이미지 생성용 스타일 참고 이미지 (data URL, 1회만 인코딩해 재사용)
+const TALISMAN_STYLE_REF = `data:image/png;base64,${fs
+  .readFileSync(path.join(__dirname, "assets", "talisman-style-ref.png"))
+  .toString("base64")}`;
 
 // 열람된 사주팔자(천간·지지)를 한 줄씩 누적 저장
 function savePillars({ name, gender, chart }) {
@@ -455,6 +461,74 @@ app.post("/api/daily-fortune", async (req, res) => {
     res.json({ energy: parsed.energy || "", text: parsed.text, src: parsed.src || "" });
   } catch (e) {
     res.status(500).json({ error: "오늘의 운세 생성 실패", detail: String(e) });
+  }
+});
+
+const IMAGE_MODEL = process.env.OPENROUTER_IMAGE_MODEL || "openai/gpt-5-image-mini";
+
+// 오늘의 부적 — 오늘 일진 신호(길신·흉살·방위·밴드)로 개인화된 부적 "이미지" 자체를 생성 (GPT-5 Image)
+app.post("/api/daily-talisman", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
+  }
+
+  const { dayGan, dayGanZhi, band, jiShen, xiongSha, yi, ji, positionCai } = req.body || {};
+  if (!dayGan || !dayGanZhi) {
+    return res.status(400).json({ error: "필수 파라미터 누락" });
+  }
+
+  const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
+  const list = (a) => (Array.isArray(a) && a.length ? a.join(", ") : "없음");
+
+  const prompt = buildDailyTalismanPrompt({
+    dayGan, dayKor, dayElem, dayGanZhi, band, positionCai,
+    jiShen: list(jiShen), xiongSha: list(xiongSha), yi: list(yi), ji: list(ji),
+  });
+
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: IMAGE_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: TALISMAN_STYLE_REF } },
+            ],
+          },
+        ],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const message = data.choices?.[0]?.message;
+    const imageUrl = message?.images?.[0]?.image_url?.url;
+    if (!imageUrl) {
+      return res.status(502).json({ error: "이미지 생성 실패", raw: message?.content || "" });
+    }
+
+    const [title, caption, blessing] = String(message.content || "").trim().split("|");
+
+    res.json({
+      image: imageUrl,
+      title: title || "오늘의 부적",
+      caption: caption || "",
+      blessing: blessing || "오늘 하루도 좋은 기운이 함께하길 바랍니다.",
+    });
+  } catch (e) {
+    res.status(500).json({ error: "오늘의 부적 생성 실패", detail: String(e) });
   }
 });
 
