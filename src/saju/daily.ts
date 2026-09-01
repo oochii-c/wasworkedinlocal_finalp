@@ -1,5 +1,5 @@
 import { Solar } from "lunar-typescript";
-import { seWunScore } from "./fortune";
+import { seWunScore, GAN_TO_WUXING } from "./fortune";
 
 /* ============================================================
    daily.ts — "오늘" 하루 기준 운세 데이터 (일진·택일·신살)
@@ -645,4 +645,29 @@ export function computeDailyInfo(base: Date = new Date(), myDayGan?: string): Da
       myDayGan,
     }),
   };
+}
+
+/* ---- 오늘의 행운 색·숫자 (일진 천간 오행 기준) ------------- */
+const WUXING_COLOR: Record<string, { name: string; hex: string }> = {
+  木: { name: "초록색", hex: "#4CAF50" },
+  火: { name: "빨간색", hex: "#E5484D" },
+  土: { name: "노란색", hex: "#E5B93E" },
+  金: { name: "흰색", hex: "#E8E8E8" },
+  水: { name: "검은색", hex: "#4A5568" },
+};
+const WUXING_NUMBERS: Record<string, string> = {
+  木: "3·8", 火: "2·7", 土: "5·10", 金: "4·9", 水: "1·6",
+};
+
+export interface DailyLucky {
+  colorName: string;
+  colorHex: string;
+  numbers: string;
+}
+
+// 오늘 일진 천간의 오행으로 행운의 색·숫자를 정한다.
+export function computeDailyLucky(dayGan: string): DailyLucky {
+  const wx = GAN_TO_WUXING[dayGan] ?? "";
+  const color = WUXING_COLOR[wx] ?? { name: "-", hex: "#8CA8C0" };
+  return { colorName: color.name, colorHex: color.hex, numbers: WUXING_NUMBERS[wx] ?? "-" };
 }

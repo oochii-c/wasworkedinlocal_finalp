@@ -2,10 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../styles/saju.css"; // --saju-* 토큰
 import "./today.css";
 import { useSaju } from "../../state/SajuContext";
-import { computeDailyInfo, seWunScore, type DailyInfo } from "../../saju";
+import { computeDailyInfo, computeDailyLucky, seWunScore, type DailyInfo } from "../../saju";
 import { HANJA_DOK } from "../dashboard/constants";
 import { getDailyFortune, type DailyFortune } from "../../services/sajuApi";
-import WhirlLoader from "../../components/WhirlLoader";
 import DailyAiCard from "./DailyAiCard";
 
 // 오늘 하루 AI 풀이 — 원국 signature + 날짜 키로 캐시(같은 날 재진입 시 재호출 X, 자정 넘기면 새 키).
@@ -69,8 +68,6 @@ export default function Today() {
     () => computeDailyInfo(new Date(), chart?.dayGan),
     [chart?.dayGan]
   );
-  const [showReasons, setShowReasons] = useState(false);
-
   const shenShaNames = useMemo(
     () => (chart?.shenSha ?? []).map((s) => s.name),
     [chart]
@@ -86,7 +83,8 @@ export default function Today() {
   if (!chart) return null; // Router/Dashboard가 보장하지만 타입 가드
 
   const { rel } = seWunScore(daily.dayGan, chart.dayGan);
-  const { stars, band, pct, reasons } = daily.dayStrength;
+  const { stars, band, pct } = daily.dayStrength;
+  const lucky = computeDailyLucky(daily.dayGan);
   const [y, m, d] = daily.date.split("-");
   const starLine = "★".repeat(stars) + "☆".repeat(5 - stars);
   const dok = (ch: string) => HANJA_DOK[ch] ?? "";
@@ -115,43 +113,15 @@ export default function Today() {
             <p className="today-hero-rel">
               내 일간 {chart.dayGan}{dok(chart.dayGan) && `(${dok(chart.dayGan)})`}과(와) 오늘 기운은 <b>{rel}</b>
             </p>
-            <button
-              type="button"
-              className="today-reasons-toggle"
-              onClick={() => setShowReasons((v) => !v)}
-              aria-expanded={showReasons}
-            >
-              {showReasons ? "접기 ▲" : "자세히 ▼"}
-            </button>
           </div>
         </div>
-        {showReasons && (
-          <ul className="today-reasons">
-            {reasons.map((r, i) => (
-              <li key={i}>{r}</li>
-            ))}
-          </ul>
-        )}
+        <p className="today-lucky-line">
+          🍀 오늘의 행운 — 방위 <b>{daily.positionCai}</b> · 색 <b style={{ color: lucky.colorHex }}>{lucky.colorName}</b> · 숫자 <b>{lucky.numbers}</b>
+        </p>
       </section>
 
-      {/* 블록 2: 오늘의 기운 — 건제·십이신·충·신살·방위를 묶은 2~3문장 풀이 */}
-      <section className="db-section" aria-label="오늘의 기운">
-        <h3 className="db-section-title">오늘의 기운</h3>
-        <div className="db-ai-box">
-          {data?.energy ? (
-            <p className="db-ai-body">{data.energy}</p>
-          ) : loading ? (
-            <p className="db-ai-body" style={{ color: "#ffffff" }}>
-              <WhirlLoader />오늘의 기운을 읽는 중...
-            </p>
-          ) : (
-            <p className="db-ai-body">오늘의 기운을 불러오지 못했어요.</p>
-          )}
-        </div>
-      </section>
-
-      {/* 블록 3: AI 총평 */}
-      <DailyAiCard data={data} loading={loading} onRetry={error ? retry : undefined} />
+      {/* 블록 2: 오늘의 기운 + AI 총평 + 부적 */}
+      <DailyAiCard data={data} loading={loading} onRetry={error ? retry : undefined} daily={daily} />
     </>
   );
 }

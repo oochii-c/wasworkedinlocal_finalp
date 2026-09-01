@@ -16,6 +16,11 @@ const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-3.5-flash";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PILLARS_LOG = path.join(__dirname, "data", "pillars.jsonl");
 
+// 부적 이미지 생성용 스타일 참고 이미지 (data URL, 1회만 인코딩해 재사용)
+const TALISMAN_STYLE_REF = `data:image/png;base64,${fs
+  .readFileSync(path.join(__dirname, "assets", "talisman-style-ref.png"))
+  .toString("base64")}`;
+
 // 열람된 사주팔자(천간·지지)를 한 줄씩 누적 저장
 function savePillars({ name, gender, chart }) {
   const record = {
@@ -530,6 +535,90 @@ ${LANG_RULE}`;
     res.json({ energy: parsed.energy || "", text: parsed.text, src: parsed.src || "" });
   } catch (e) {
     res.status(500).json({ error: "오늘의 운세 생성 실패", detail: String(e) });
+  }
+});
+
+const IMAGE_MODEL = process.env.OPENROUTER_IMAGE_MODEL || "openai/gpt-5-image-mini";
+
+// 오늘의 부적 — 오늘 일진 신호(길신·흉살·방위·밴드)로 개인화된 부적 "이미지" 자체를 생성 (GPT-5 Image)
+app.post("/api/daily-talisman", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
+  }
+
+  const { dayGan, dayGanZhi, band, jiShen, xiongSha, yi, ji, positionCai } = req.body || {};
+  if (!dayGan || !dayGanZhi) {
+    return res.status(400).json({ error: "필수 파라미터 누락" });
+  }
+
+  const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
+  const list = (a) => (Array.isArray(a) && a.length ? a.join(", ") : "없음");
+
+  const prompt = `첨부한 참고 이미지는 한국 전통 부적(符籍) 디자인 샘플이다. 이 샘플의 구도·비율·테두리 장식·원형 문양·타이포그래피 배치·색감·질감을 최대한 그대로 따라, 문구만 바꾼 새 부적을 "카드 1장만" 생성해줘. 참고 이미지처럼 여러 장을 나열하지 말고 딱 1장. 레이아웃은 참고 이미지를 그대로 베낀다는 느낌으로.
+
+[디자인 — 문구만 오늘 기운에 맞게 새로 짓는다]
+- 출력 이미지는 정사각형이다. 부적 카드는 세로로 긴 형태이므로, 카드를 위쪽 원형 문양부터 아래쪽 테두리·마무리 장식까지 프레임의 위 끝~아래 끝에 거의 딱 맞게(빈틈 최소) 세로로 꽉 채워 배치한다. 카드는 세로로는 잘리지 않고 전체가 다 보여야 하며, 카드 좌우 폭은 프레임 폭보다 좁게 그려서 카드 왼쪽·오른쪽에만 배경 여백이 남게 한다(카드가 폭 전체를 채우지 않아도 된다).
+- 중앙에 붉은 서예체 세로 큰 글씨로 한글 4글자 문구(사자성어 느낌, 오늘 기운에 맞게 새로 지어라).
+- 문구 양옆에 세로로 작은 한글 4글자 문구 한 쌍.
+- 하단에 부적 이름을 작게 표기.
+- 중요: 카드 안의 모든 글자(중앙 큰 글씨 포함)는 예외 없이 한글이어야 한다. 한자(漢字)는 단 한 글자도 넣지 마라. 텍스트 오탈자·깨짐 없이 정확하게.
+
+[오늘 기운 — 이 기운에 어울리는 문구를 지어라]
+- 일간(나): ${dayGan}(${dayKor}${dayElem})
+- 오늘 일진: ${dayGanZhi} · 오늘 하루 길흉: ${band || "?"}
+- 길신: ${list(jiShen)} / 흉살: ${list(xiongSha)}
+- 길방(재물): ${positionCai || "?"}
+- 택일상 좋은 일: ${list(yi)} / 꺼릴 일: ${list(ji)}
+
+이미지를 생성한 뒤, 답변 텍스트에는 다른 말 없이 딱 한 줄만 아래 형식으로 적어라(설명·코드블록 금지):
+제목|하단이름|오늘의 축복 한 문장
+
+${LANG_RULE}`;
+
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: IMAGE_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: TALISMAN_STYLE_REF } },
+            ],
+          },
+        ],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const message = data.choices?.[0]?.message;
+    const imageUrl = message?.images?.[0]?.image_url?.url;
+    if (!imageUrl) {
+      return res.status(502).json({ error: "이미지 생성 실패", raw: message?.content || "" });
+    }
+
+    const [title, caption, blessing] = String(message.content || "").trim().split("|");
+
+    res.json({
+      image: imageUrl,
+      title: title || "오늘의 부적",
+      caption: caption || "",
+      blessing: blessing || "오늘 하루도 좋은 기운이 함께하길 바랍니다.",
+    });
+  } catch (e) {
+    res.status(500).json({ error: "오늘의 부적 생성 실패", detail: String(e) });
   }
 });
 
