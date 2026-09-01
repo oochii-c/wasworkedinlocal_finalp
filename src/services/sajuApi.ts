@@ -45,6 +45,26 @@ export async function getThemes(req: ReadingRequest): Promise<ThemeSummary[]> {
   return data.themes as ThemeSummary[];
 }
 
+// 대운(10년 단위) AI 풀이 요청. 실패 시 throw.
+export async function getDaYunFortune(params: {
+  dayGan: string;
+  ganZhi: string;
+  startYear: number;
+  endYear: number;
+  rel: string;
+  stars: number;
+  wuXingCount: Record<string, number>;
+}): Promise<string> {
+  const res = await fetch("/api/dayun-fortune", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "대운 풀이 생성 실패");
+  return data.text as string;
+}
+
 // 특정 주제 하나의 상세 풀이 요청. 실패 시 throw.
 export async function getThemeDetail(
   req: ReadingRequest & { key: string; label: string }

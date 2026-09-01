@@ -13,6 +13,8 @@ import {
   buildThemeDetailSystem,
   YEAR_FORTUNE_SYSTEM,
   buildYearFortuneUser,
+  DAYUN_FORTUNE_SYSTEM,
+  buildDaYunFortuneUser,
 } from "./prompts/index.js";
 
 dotenv.config();
@@ -308,6 +310,75 @@ ${buildYearFortuneUser({
     res.json({ text: parsed.text });
   } catch (e) {
     res.status(500).json({ error: "연도 운세 생성 실패", detail: String(e) });
+  }
+});
+
+app.post("/api/dayun-fortune", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
+  }
+
+  const { dayGan, ganZhi, startYear, endYear, rel, stars, wuXingCount } = req.body || {};
+  if (!dayGan || !ganZhi || !startYear) {
+    return res.status(400).json({ error: "필수 파라미터 누락" });
+  }
+
+  const gan = ganZhi[0];
+  const zhi = ganZhi[1];
+  const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
+  const [ganKor, ganElem] = GAN_INFO[gan] || ["?", "?"];
+  const zodiac = (ZHI_INFO[zhi] || [null, zhi])[1];
+  const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
+
+  const userMsg = `${anchorLine(dayGan)}
+
+${buildDaYunFortuneUser({
+    dayGan, dayKor, dayElem, ganZhi, gan, ganKor, ganElem, zhi, zodiac, rel, starsLabel,
+    startYear, endYear: endYear ?? startYear + 9,
+    wuXing: wuXingLine({ wuXingCount }),
+  })}`;
+
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: DAYUN_FORTUNE_SYSTEM },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.9,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) parsed = JSON.parse(m[0]);
+    }
+
+    if (!parsed?.text) {
+      return res.status(502).json({ error: "응답 형식 오류", raw: content });
+    }
+
+    res.json({ text: parsed.text });
+  } catch (e) {
+    res.status(500).json({ error: "대운 풀이 생성 실패", detail: String(e) });
   }
 });
 

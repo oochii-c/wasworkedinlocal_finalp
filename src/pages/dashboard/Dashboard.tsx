@@ -108,10 +108,9 @@ export default function Dashboard() {
             {/* 블록 7: 대운 */}
             <DaYunFlow
               daYun={chart.daYun}
-              seWun={chart.seWun}
-              currentSeWun={chart.currentSeWun}
               birthYear={inputs?.date.year ?? 0}
               dayGan={chart.dayGan}
+              wuXingCount={chart.wuXingCount}
             />
           </>
         )}
