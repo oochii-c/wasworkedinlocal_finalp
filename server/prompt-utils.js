@@ -37,14 +37,18 @@ export const ganZhiLabel = (gz = "") => {
 };
 
 // 오행 분포 + 부족 오행 한 줄. (키 언어에 무관하게 entries 로 처리)
-// 예: "木3 火4 土5 金1 水1 (부족: 金·水)"
+// 예: "木3 火4 土5 金1 水1 (부족: 金·水)" / 0개면 "없음: 金" / 전부 같으면 "고르게 분포"
 export function wuXingLine(chart) {
   const entries = Object.entries(chart.wuXingCount || {});
   if (!entries.length) return "정보 없음";
   const counts = entries.map(([k, v]) => `${k}${v}`).join(" ");
-  const min = Math.min(...entries.map(([, v]) => v));
+  const values = entries.map(([, v]) => v);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  // 전부 같은 개수면 최소값이 곧 최대값 — 이때 "부족"이라 하면 5개 전부 부족으로 나간다.
+  if (min === max) return `${counts} (오행이 고르게 분포)`;
   const lacking = entries.filter(([, v]) => v === min).map(([k]) => k).join("·");
-  return `${counts} (부족: ${lacking})`;
+  return `${counts} (${min === 0 ? "없음" : "부족"}: ${lacking})`;
 }
 
 // 원국(chart)에 이미 계산돼 있는 정보를 최대한 담아 상담용 텍스트로 변환.

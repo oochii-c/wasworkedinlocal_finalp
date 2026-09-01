@@ -18,7 +18,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 const API_KEY = process.env.OPENROUTER_API_KEY;
-const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-3.5-flash";
+const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PILLARS_LOG = path.join(__dirname, "data", "pillars.jsonl");
