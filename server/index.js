@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import counselRouter from "./counsel.js";
-import { GAN_INFO, ZHI_INFO, ganLabel, zhiLabel, hideGanLabel, ganZhiLabel, wuXingLine } from "./prompt-utils.js";
+import { GAN_INFO, ZHI_INFO, wuXingLine, chartToText } from "./prompt-utils.js";
 import {
   anchorLine,
   READING_SYSTEM,
@@ -44,16 +44,8 @@ app.use(express.json());
 // AI 용왕 상담 라우터 (server/counsel.js) — POST /api/counsel
 app.use(counselRouter);
 
-// 천간·지지 라벨 헬퍼는 prompt-utils.js 를 단일 출처로 공유한다(위 import).
-
-// 원국(팔자) 데이터를 프롬프트용 텍스트로 정리 (한자엔 한글 음 병기)
-function chartToText(chart) {
-  const lines = chart.pillars.map(
-    (p) =>
-      `${p.key}주 ${ganZhiLabel(p.ganZhi)}: 천간 ${ganLabel(p.gan)}/${p.shiShenGan}, 지지 ${zhiLabel(p.zhi)}, 지장간 ${hideGanLabel(p.hideGan)}, 오행 ${p.wuXing}, 십이운성 ${p.diShi}, 납음 ${p.naYin}`
-  );
-  return `일간(나): ${ganLabel(chart.dayGan)} · 띠 ${chart.shengXiao}\n팔자 ${chart.baZi.map(ganZhiLabel).join(" ")}\n${lines.join("\n")}\n오행 분포(원국 8자 + 지장간): ${wuXingLine(chart)}`;
-}
+// 원국 -> 프롬프트용 텍스트 변환(chartToText)과 천간·지지 라벨 헬퍼는
+// prompt-utils.js 를 단일 출처로 공유한다(위 import).
 
 app.post("/api/reading", async (req, res) => {
   if (!API_KEY || API_KEY.includes("여기에_키_입력")) {

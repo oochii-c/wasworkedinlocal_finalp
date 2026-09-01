@@ -2,7 +2,7 @@
 // POST /api/counsel — 용왕 1:1 사주 상담 엔드포인트.
 // express.Router 로 만들어 index.js 에는 mount(2줄)만 추가한다(공용 파일 최소 변경).
 import express from "express";
-import { WANG_PERSONA, chartToCounselText, LANG_RULE } from "./prompt-utils.js";
+import { WANG_PERSONA, chartToText, LANG_RULE } from "./prompt-utils.js";
 import { COUNSEL_TASK, anchorLine } from "./prompts/index.js";
 
 const router = express.Router();
@@ -54,7 +54,7 @@ router.post("/api/counsel", async (req, res) => {
   }
 
   // 일간 anchor + 원국 컨텍스트
-  const system = `${WANG_PERSONA}\n\n${COUNSEL_TASK}\n\n${LANG_RULE}\n\n${anchorLine(chart.dayGan)}\n\n[사주 원국]\n${chartToCounselText(chart)}`;
+  const system = `${WANG_PERSONA}\n\n${COUNSEL_TASK}\n\n${LANG_RULE}\n\n${anchorLine(chart.dayGan)}\n\n[사주 원국]\n${chartToText(chart)}`;
 
   // 대화 이력 → OpenRouter messages. 사용자 입력은 <user_question> 로 격리(주입 방어).
   const history = messages.map((m) =>

@@ -51,14 +51,15 @@ export function wuXingLine(chart) {
   return `${counts} (${min === 0 ? "없음" : "부족"}: ${lacking})`;
 }
 
-// 원국(chart)에 이미 계산돼 있는 정보를 최대한 담아 상담용 텍스트로 변환.
+// 원국(chart)에 이미 계산돼 있는 정보를 최대한 담아 프롬프트용 텍스트로 변환.
+// 모든 AI 엔드포인트(풀이·주제·상담)가 이 한 벌을 공유한다.
 // (사주 계산 파일은 건드리지 않고, 여기서 serialize 만 풍부하게)
-export function chartToCounselText(chart) {
+export function chartToText(chart) {
   // 기둥별 상세 (지장간·십신·십이운성·납음·공망 포함)
   const pillarLines = (chart.pillars || []).map(
     (p) =>
       `- ${p.key}주 ${ganZhiLabel(p.ganZhi)}: 천간 ${ganLabel(p.gan)}/십신 ${p.shiShenGan}, ` +
-      `지지 ${zhiLabel(p.zhi)}/십신 ${(p.shiShenZhi || []).join("·")}, 지장간 ${hideGanLabel(p.hideGan)}, ` +
+      `지지 ${zhiLabel(p.zhi)}/십신 ${(p.shiShenZhi || []).join("·")}, 지장간 ${hideGanLabel(p.hideGan)}, 오행 ${p.wuXing}, ` +
       `십이운성 ${p.diShi}, 납음 ${p.naYin}, 공망 ${p.xunKong}`
   );
 
@@ -78,7 +79,7 @@ export function chartToCounselText(chart) {
     `[본인] 일간 ${ganLabel(chart.dayGan)} · 띠 ${chart.shengXiao} · 팔자 ${(chart.baZi || []).map(ganZhiLabel).join(" ")}`,
     `[원국 기둥]`,
     ...pillarLines,
-    `[오행 분포] ${wuXingLine(chart)}`,
+    `[오행 분포(8자 + 지장간)] ${wuXingLine(chart)}`,
     `[십신 분포] ${ssLine}`,
     `[신살] ${shenSha}`,
     `[대운 흐름] ${daYun}`,
