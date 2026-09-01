@@ -5,13 +5,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import counselRouter from "./counsel.js";
-import { LANG_RULE } from "./prompt-utils.js";
+import { GAN_INFO, ZHI_INFO, wuXingLine, chartToText } from "./prompt-utils.js";
+import {
+  anchorLine,
+  READING_SYSTEM,
+  buildThemesSystem,
+  buildThemeDetailSystem,
+  YEAR_FORTUNE_SYSTEM,
+  buildYearFortuneUser,
+  DAYUN_FORTUNE_SYSTEM,
+  buildDaYunFortuneUser,
+} from "./prompts/index.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
 const API_KEY = process.env.OPENROUTER_API_KEY;
-const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-3.5-flash";
+const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PILLARS_LOG = path.join(__dirname, "data", "pillars.jsonl");
@@ -36,34 +46,8 @@ app.use(express.json());
 // AI 용왕 상담 라우터 (server/counsel.js) — POST /api/counsel
 app.use(counselRouter);
 
-// 천간 -> 한글명/오행 매핑. 모델이 한자를 오독하지 않도록 명시용.
-const GAN_INFO = {
-  甲: ["갑", "목"], 乙: ["을", "목"], 丙: ["병", "화"], 丁: ["정", "화"], 戊: ["무", "토"],
-  己: ["기", "토"], 庚: ["경", "금"], 辛: ["신", "금"], 壬: ["임", "수"], 癸: ["계", "수"],
-};
-const GAN_WUXING = Object.fromEntries(Object.entries(GAN_INFO).map(([k, v]) => [k, v[1]]));
-
-// 원국(팔자) 데이터를 프롬프트용 텍스트로 정리
-function chartToText(chart) {
-  const lines = chart.pillars.map(
-    (p) =>
-      `${p.key}주: ${p.ganZhi} (천간 ${p.gan}[${GAN_WUXING[p.gan] || "?"}]/${p.shiShenGan}, 지지 ${p.zhi}, 지장간 ${(p.hideGan || []).join(" ")}, 오행 ${p.wuXing}, 십이운성 ${p.diShi}, 납음 ${p.naYin})`
-  );
-  const dayElem = GAN_WUXING[chart.dayGan] || "?";
-  return `일간(나): ${chart.dayGan} (오행: ${dayElem}) · 띠: ${chart.shengXiao}\n팔자: ${chart.baZi.join(" ")}\n${lines.join("\n")}`;
-}
-
-const SYSTEM_PROMPT = `너는 '용궁'이라는 사주 서비스의 사주 명리 해설가다.
-사용자의 사주 원국(팔자)을 바탕으로 따뜻하고 구체적인 한국어 풀이를 4개의 이야기로 작성한다.
-각 이야기는 원국의 실제 간지·십신·오행 근거를 자연스럽게 녹여 서로 다른 주제를 다룬다
-(예: 타고난 기질, 관계와 인연, 일과 재물의 흐름, 삶의 방향과 조언).
-반드시 주어진 일간(나)의 천간과 그 오행을 기준으로 해석하며, 원국에 없는 간지·오행을 지어내지 않는다.
-점술적 단정보다 해석과 격려의 톤을 유지한다.
-반드시 아래 JSON 형식만 출력한다(코드블록·설명 없이):
-{"stories":[{"title":"...","body":"..."}, ... 4개]}
-title은 12자 이내 시적인 제목, body는 3~5문장.
-
-${LANG_RULE}`;
+// 원국 -> 프롬프트용 텍스트 변환(chartToText)과 천간·지지 라벨 헬퍼는
+// prompt-utils.js 를 단일 출처로 공유한다(위 import).
 
 app.post("/api/reading", async (req, res) => {
   if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
@@ -82,9 +66,7 @@ app.post("/api/reading", async (req, res) => {
   }
 
   try {
-    const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
-    const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다. 팔자에 등장하는 다른 천간(예: 辛, 壬 등)을 본인으로 착각하지 마라.`;
-    const userMsg = `${anchor}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+    const userMsg = `${anchorLine(chart.dayGan)}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
 
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -95,7 +77,7 @@ app.post("/api/reading", async (req, res) => {
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: READING_SYSTEM },
           { role: "user", content: userMsg },
         ],
         response_format: { type: "json_object" },
@@ -151,18 +133,8 @@ app.post("/api/themes", async (req, res) => {
   }
 
   try {
-    const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
-    const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다.`;
-    const themeList = THEME_DEFS.map((t) => `${t.key}(${t.label})`).join(", ");
-    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 아래 6개 주제 각각에 대해 별점(1~5 정수)과 요약(공백 포함 60자 이내)을 생성한다.
-주제: ${themeList}
-원국의 실제 간지·십신·오행 근거로 판단하되, 원국에 없는 간지·오행을 지어내지 않는다. 단정보다 격려의 톤.
-반드시 아래 JSON만 출력한다(코드블록·설명 없이):
-{"themes":[{"key":"love","stars":4,"summary":"..."}, ... 6개 모두]}
-key는 주어진 6개(${THEME_DEFS.map((t) => t.key).join(", ")})를 모두 포함한다.
-
-${LANG_RULE}`;
-    const userMsg = `${anchor}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+    const system = buildThemesSystem(THEME_DEFS);
+    const userMsg = `${anchorLine(chart.dayGan)}\n\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
 
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -227,14 +199,8 @@ app.post("/api/theme-detail", async (req, res) => {
   }
 
   try {
-    const [dayKor, dayElem] = GAN_INFO[chart.dayGan] || ["?", "?"];
-    const anchor = `★ 이 사람의 일간(본인 자신)은 "${chart.dayGan}(${dayKor}${dayElem})", 오행은 "${dayElem}"이다. 모든 풀이는 반드시 이 일간 ${dayKor}${dayElem}을 중심으로 한다.`;
-    const system = `너는 '용궁' 사주 서비스의 명리 해설가다. 사용자의 원국(팔자)을 바탕으로 '${label}' 주제 하나에 대해 깊이 있는 풀이를 작성한다.
-원국의 실제 간지·십신·오행 근거를 자연스럽게 녹여 4~6문장으로 구체적으로 서술한다. 원국에 없는 간지·오행을 지어내지 않으며, 단정보다 해석과 격려의 톤을 유지한다.
-반드시 아래 JSON만 출력한다(코드블록·설명 없이): {"text":"..."}
-
-${LANG_RULE}`;
-    const userMsg = `${anchor}\n\n주제: ${label}\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+    const system = buildThemeDetailSystem(label);
+    const userMsg = `${anchorLine(chart.dayGan)}\n\n주제: ${label}\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
 
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -279,19 +245,12 @@ ${LANG_RULE}`;
   }
 });
 
-// 지지 → 띠 매핑
-const ZHI_ZODIAC = {
-  子: "쥐", 丑: "소", 寅: "호랑이", 卯: "토끼",
-  辰: "용", 巳: "뱀", 午: "말", 未: "양",
-  申: "원숭이", 酉: "닭", 戌: "개", 亥: "돼지",
-};
-
 app.post("/api/year-fortune", async (req, res) => {
   if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
     return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
   }
 
-  const { year, ganZhi, rel, dayGan, stars } = req.body || {};
+  const { year, ganZhi, rel, dayGan, stars, wuXingCount } = req.body || {};
   if (!year || !ganZhi || !dayGan) {
     return res.status(400).json({ error: "필수 파라미터 누락" });
   }
@@ -300,23 +259,15 @@ app.post("/api/year-fortune", async (req, res) => {
   const zhi = ganZhi[1];
   const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
   const [yearKor, yearElem] = GAN_INFO[gan] || ["?", "?"];
-  const zodiac = ZHI_ZODIAC[zhi] || zhi;
+  const zodiac = (ZHI_INFO[zhi] || [null, zhi])[1];
   const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
 
-  const prompt = `너는 사주 명리 해설가다. 아래 정보를 바탕으로 해당 연도의 세운(歲運) 풀이를 작성해.
+  const userMsg = `${anchorLine(dayGan)}
 
-- 일간(나): ${dayGan}(${dayKor}${dayElem}) · 오행 ${dayElem}
-- ${year}년 세운 간지: ${ganZhi} — 천간 ${gan}(${yearKor}${yearElem}), 지지 ${zhi}(${zodiac}의 해)
-- 천간 관계: ${rel} (${starsLabel}) — 세운 천간 ${yearElem}이 일간 ${dayElem}에 미치는 영향
-- 총평: ${stars}점짜리 해
-
-규칙:
-1. 반드시 3문장으로 작성. 각 문장은 서로 다른 측면(이 해의 기운/실천 방향/구체적 조언)을 담아.
-2. ${zodiac}의 해 특성을 자연스럽게 한 문장에 녹여.
-3. 일간 ${dayGan}(${dayElem}) 기준으로 구체적으로, 따뜻하게.
-4. 반드시 아래 JSON만 출력(코드블록·설명 없이): {"text":"..."}
-
-${LANG_RULE}`;
+${buildYearFortuneUser({
+    year, ganZhi, gan, zhi, dayGan, dayKor, dayElem, yearKor, yearElem, zodiac, rel, stars, starsLabel,
+    wuXing: wuXingLine({ wuXingCount }),
+  })}`;
 
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -327,7 +278,10 @@ ${LANG_RULE}`;
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: YEAR_FORTUNE_SYSTEM },
+          { role: "user", content: userMsg },
+        ],
         response_format: { type: "json_object" },
         temperature: 0.95,
       }),
@@ -364,7 +318,7 @@ app.post("/api/dayun-fortune", async (req, res) => {
     return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
   }
 
-  const { dayGan, ganZhi, startYear, endYear, rel, stars } = req.body || {};
+  const { dayGan, ganZhi, startYear, endYear, rel, stars, wuXingCount } = req.body || {};
   if (!dayGan || !ganZhi || !startYear) {
     return res.status(400).json({ error: "필수 파라미터 누락" });
   }
@@ -373,24 +327,16 @@ app.post("/api/dayun-fortune", async (req, res) => {
   const zhi = ganZhi[1];
   const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
   const [ganKor, ganElem] = GAN_INFO[gan] || ["?", "?"];
-  const zodiac = ZHI_ZODIAC[zhi] || zhi;
+  const zodiac = (ZHI_INFO[zhi] || [null, zhi])[1];
   const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
 
-  const prompt = `너는 사주 명리 해설가다. 아래 정보를 바탕으로 해당 대운(大運) 10년간의 풀이를 작성해.
+  const userMsg = `${anchorLine(dayGan)}
 
-- 일간(나): ${dayGan}(${dayKor}${dayElem}) · 오행 ${dayElem}
-- 대운 간지: ${ganZhi} — 천간 ${gan}(${ganKor}${ganElem}), 지지 ${zhi}(${zodiac})
-- 대운 기간: ${startYear}년 ~ ${endYear ?? startYear + 9}년
-- 천간 관계: ${rel} (${starsLabel})
-
-규칙:
-1. 반드시 4~5문장으로 작성. 각 문장은 서로 다른 측면을 담아: 이 대운의 전체 기운 → 강점/기회 → 주의할 점 → 삶의 방향 조언.
-2. ${zodiac} 기운을 자연스럽게 한 문장에 녹여.
-3. 일간 ${dayKor}${dayElem}(${dayGan}) 기준으로 구체적으로, 따뜻하고 힘있게.
-4. 출력 텍스트에 한자(漢字)를 절대 사용하지 않는다. 간지·천간·지지는 반드시 한글로만 표기한다 (예: 壬申 → 임신, 戊戌 → 무술).
-5. 반드시 아래 JSON만 출력(코드블록·설명 없이): {"text":"..."}
-
-${LANG_RULE}`;
+${buildDaYunFortuneUser({
+    dayGan, dayKor, dayElem, ganZhi, gan, ganKor, ganElem, zhi, zodiac, rel, starsLabel,
+    startYear, endYear: endYear ?? startYear + 9,
+    wuXing: wuXingLine({ wuXingCount }),
+  })}`;
 
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -401,7 +347,10 @@ ${LANG_RULE}`;
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: DAYUN_FORTUNE_SYSTEM },
+          { role: "user", content: userMsg },
+        ],
         response_format: { type: "json_object" },
         temperature: 0.9,
       }),

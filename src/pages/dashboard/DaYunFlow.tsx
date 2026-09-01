@@ -8,6 +8,7 @@ interface Props {
   daYun: DaYunInfo[];
   birthYear: number;
   dayGan: string;
+  wuXingCount: Record<string, number>;
 }
 
 // 간지 한자 → "한글(한자)" 표기 (독음 매핑은 constants의 HANJA_DOK 재사용)
@@ -38,7 +39,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 
 const W = 320, H = 80, PX = 16, PY = 12;
 
-export default function DaYunFlow({ daYun, birthYear, dayGan }: Props) {
+export default function DaYunFlow({ daYun, birthYear, dayGan, wuXingCount }: Props) {
   const currentYear = new Date().getFullYear();
   const currentAge = currentYear - birthYear;
 
@@ -90,6 +91,7 @@ export default function DaYunFlow({ daYun, birthYear, dayGan }: Props) {
       endYear: selected.endYear,
       rel: selected.rel,
       stars: selected.stars,
+      wuXingCount,
     })
       .then(text => {
         fortuneCache.current[cacheKey] = text;
@@ -97,7 +99,7 @@ export default function DaYunFlow({ daYun, birthYear, dayGan }: Props) {
       })
       .catch(() => setFortuneError(true))
       .finally(() => setFortuneLoading(false));
-  }, [selected, dayGan]);
+  }, [selected, dayGan, wuXingCount]);
 
   if (daYunAvgs.length === 0) {
     return (

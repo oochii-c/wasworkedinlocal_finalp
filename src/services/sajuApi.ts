@@ -53,6 +53,7 @@ export async function getDaYunFortune(params: {
   endYear: number;
   rel: string;
   stars: number;
+  wuXingCount: Record<string, number>;
 }): Promise<string> {
   const res = await fetch("/api/dayun-fortune", {
     method: "POST",
