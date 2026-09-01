@@ -194,8 +194,10 @@
 
 .talisman-card {
   width: 100%;
-  max-width: 180px;
-  aspect-ratio: 3 / 5;
+  /* 이미지 모델이 1024x1024 정사각으로 내보낸다. 3/5 박스에 contain 하면
+     좌우가 아니라 위아래가 비어 카드가 작게 렌더된다. 박스를 이미지 비율에 맞춘다. */
+  max-width: 300px;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   margin-top: 8px;
   border-radius: 12px;
