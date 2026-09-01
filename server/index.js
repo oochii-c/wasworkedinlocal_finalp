@@ -15,6 +15,8 @@ import {
   buildYearFortuneUser,
   DAYUN_FORTUNE_SYSTEM,
   buildDaYunFortuneUser,
+  DAILY_FORTUNE_SYSTEM,
+  buildDailyFortuneUser,
 } from "./prompts/index.js";
 
 dotenv.config();
@@ -379,6 +381,84 @@ ${buildDaYunFortuneUser({
     res.json({ text: parsed.text });
   } catch (e) {
     res.status(500).json({ error: "대운 풀이 생성 실패", detail: String(e) });
+  }
+});
+
+// 오늘 하루 운세 — 일진(日辰) + 택일·신살 정보로 3문장 풀이 생성
+app.post("/api/daily-fortune", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
+  }
+
+  const {
+    dayGan, dayGanZhi, monthGanZhi, yearGanZhi,
+    rel, stars, jiShen, xiongSha, yi, ji, chong, shenSha,
+    jianChu, tianShen, tianShenLuck, positionCai, positionXi,
+  } = req.body || {};
+  if (!dayGan || !dayGanZhi) {
+    return res.status(400).json({ error: "필수 파라미터 누락" });
+  }
+
+  const [dayKor, dayElem] = GAN_INFO[dayGan] || ["?", "?"];
+  const tGan = dayGanZhi[0];
+  const tZhi = dayGanZhi[1];
+  const [tKor, tElem] = GAN_INFO[tGan] || ["?", "?"];
+  const zodiac = (ZHI_INFO[tZhi] || [null, tZhi])[1];
+  const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
+  const list = (a) => (Array.isArray(a) && a.length ? a.join(", ") : "없음");
+  const pos = [positionCai && `재물 ${positionCai}쪽`, positionXi && `희신 ${positionXi}쪽`]
+    .filter(Boolean).join(" · ") || "특별한 길방 없음";
+
+  const userMsg = `${anchorLine(dayGan)}
+
+${buildDailyFortuneUser({
+    dayGan, dayKor, dayElem, dayGanZhi, tGan, tKor, tElem, tZhi, zodiac,
+    monthGanZhi, yearGanZhi, rel, starsLabel, jianChu, tianShen, tianShenLuck, chong,
+    jiShen: list(jiShen), xiongSha: list(xiongSha), yi: list(yi), ji: list(ji),
+    shenSha: list(shenSha), pos,
+  })}`;
+
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: DAILY_FORTUNE_SYSTEM },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.95,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : null;
+    }
+
+    if (!parsed?.text) {
+      return res.status(502).json({ error: "응답 형식 오류", raw: content });
+    }
+
+    res.json({ energy: parsed.energy || "", text: parsed.text, src: parsed.src || "" });
+  } catch (e) {
+    res.status(500).json({ error: "오늘의 운세 생성 실패", detail: String(e) });
   }
 });
 

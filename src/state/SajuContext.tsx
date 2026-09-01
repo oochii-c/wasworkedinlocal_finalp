@@ -20,7 +20,7 @@ export interface SajuInputs {
   timeUnknown: boolean;
 }
 
-export type SajuView = "form" | "home" | "topics" | "year-fortune" | "match" | "ai";
+export type SajuView = "form" | "home" | "today" | "topics" | "year-fortune" | "match" | "ai";
 
 interface SajuCtx {
   inputs: SajuInputs | null;

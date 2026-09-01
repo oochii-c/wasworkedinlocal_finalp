@@ -7,4 +7,5 @@ export * from "./themes.js";
 export * from "./theme-detail.js";
 export * from "./year-fortune.js";
 export * from "./dayun-fortune.js";
+export * from "./daily-fortune.js";
 export * from "./counsel.js";

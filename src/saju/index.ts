@@ -4,3 +4,4 @@ export * from "./hanja";
 export * from "./shenSha";
 export * from "./fortune";
 export * from "./calculator";
+export * from "./daily";

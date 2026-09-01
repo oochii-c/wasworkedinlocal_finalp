@@ -10,6 +10,7 @@ import DaYunFlow from "./DaYunFlow";
 import BottomNav from "../../components/layout/BottomNav";
 import TopicList from "../topics/TopicList";
 import Machi from "../machi";
+import Today from "../today";
 import AiCounsel from "../aiCounsel/AiCounsel";
 import type { SajuView } from "../../state/SajuContext";
 import BubbleField from "../../components/effects/BubbleField";
@@ -54,9 +55,8 @@ export default function Dashboard() {
 
   if (!chart) return null; // Router가 보장하지만 타입 가드
 
-  // 하단 네비 공용 핸들러. today는 아직 미구현이라 no-op.
+  // 하단 네비 공용 핸들러. chart 보존한 채 view만 전환.
   const handleNav = (id: string) => {
-    if (id === "today") return;
     navigate(id as SajuView);
   };
 
@@ -76,6 +76,8 @@ export default function Dashboard() {
       <main className="db-main">
         {view === "match" ? (
           <Machi chart={chart} />
+        ) : view === "today" ? (
+          <Today />
         ) : view === "topics" ? (
           <TopicList />
         ) : (
@@ -118,7 +120,12 @@ export default function Dashboard() {
 
       {/* 하단 네비 */}
       <BottomNav
-        active={view === "topics" ? "topics" : view === "match" ? "match" : "home"}
+        active={
+          view === "today" ? "today"
+          : view === "topics" ? "topics"
+          : view === "match" ? "match"
+          : "home"
+        }
         onSelect={handleNav}
       />
     </div>
