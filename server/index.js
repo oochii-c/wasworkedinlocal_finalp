@@ -11,7 +11,8 @@ import {
   READING_SYSTEM,
   buildThemesSystem,
   buildThemeDetailSystem,
-  buildYearFortunePrompt,
+  YEAR_FORTUNE_SYSTEM,
+  buildYearFortuneUser,
 } from "./prompts/index.js";
 
 dotenv.config();
@@ -255,7 +256,7 @@ app.post("/api/year-fortune", async (req, res) => {
     return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
   }
 
-  const { year, ganZhi, rel, dayGan, stars } = req.body || {};
+  const { year, ganZhi, rel, dayGan, stars, wuXingCount } = req.body || {};
   if (!year || !ganZhi || !dayGan) {
     return res.status(400).json({ error: "필수 파라미터 누락" });
   }
@@ -267,9 +268,12 @@ app.post("/api/year-fortune", async (req, res) => {
   const zodiac = (ZHI_INFO[zhi] || [null, zhi])[1];
   const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
 
-  const prompt = buildYearFortunePrompt({
+  const userMsg = `${anchorLine(dayGan)}
+
+${buildYearFortuneUser({
     year, ganZhi, gan, zhi, dayGan, dayKor, dayElem, yearKor, yearElem, zodiac, rel, stars, starsLabel,
-  });
+    wuXing: wuXingLine({ wuXingCount }),
+  })}`;
 
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -280,7 +284,10 @@ app.post("/api/year-fortune", async (req, res) => {
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: YEAR_FORTUNE_SYSTEM },
+          { role: "user", content: userMsg },
+        ],
         response_format: { type: "json_object" },
         temperature: 0.95,
       }),

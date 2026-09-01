@@ -35,7 +35,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 const W = 320, H = 80, PX = 16, PY = 12;
 
 export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGan }: Props) {
-  const { openYear } = useSaju();
+  const { openYear, chart } = useSaju();
   const currentYear = new Date().getFullYear();
   const currentAge = currentYear - birthYear;
 
@@ -95,8 +95,9 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
   useEffect(() => {
     if (!selectedSW) return;
 
-    // 같은 일간이라도 연도마다 다른 텍스트를 캐시하기 위해 두 값을 합쳐 키 생성
-    const cacheKey = `${dayGan}-${selectedYear}`;
+    // 같은 일간이라도 연도마다 다른 텍스트를 캐시하기 위해 값을 합쳐 키 생성.
+    // 팔자까지 넣는 이유: 일간이 같아도 원국(오행 분포)이 다르면 풀이가 달라진다.
+    const cacheKey = `${chart?.baZi.join("") ?? dayGan}-${selectedYear}`;
 
     // 이미 호출한 적 있는 연도면 캐시에서 꺼내서 바로 표시 → API 재호출 없음
     if (fortuneCache.current[cacheKey]) {
@@ -129,6 +130,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
         rel: selectedSW.rel,
         dayGan,
         stars: selectedSW.stars,
+        wuXingCount: chart?.wuXingCount,
       }),
       signal: controller.signal, // 이 signal이 abort되면 fetch 자동 취소
     })
@@ -155,7 +157,7 @@ export default function DaYunFlow({ daYun, seWun, currentSeWun, birthYear, dayGa
 
     // useEffect 클린업: selectedYear가 바뀌면 이전 fetch를 abort
     return () => controller.abort();
-  }, [selectedYear, selectedSW, dayGan]);
+  }, [selectedYear, selectedSW, dayGan, chart]);
 
   if (daYunAvgs.length === 0) {
     return (
