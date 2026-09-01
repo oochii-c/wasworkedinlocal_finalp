@@ -15,8 +15,7 @@ import {
   buildYearFortuneUser,
   DAYUN_FORTUNE_SYSTEM,
   buildDaYunFortuneUser,
-  DAILY_FORTUNE_SYSTEM,
-  buildDailyFortuneUser,
+  buildDailyFortunePrompt,
 } from "./prompts/index.js";
 
 dotenv.config();
@@ -409,14 +408,12 @@ app.post("/api/daily-fortune", async (req, res) => {
   const pos = [positionCai && `재물 ${positionCai}쪽`, positionXi && `희신 ${positionXi}쪽`]
     .filter(Boolean).join(" · ") || "특별한 길방 없음";
 
-  const userMsg = `${anchorLine(dayGan)}
-
-${buildDailyFortuneUser({
+  const prompt = buildDailyFortunePrompt({
     dayGan, dayKor, dayElem, dayGanZhi, tGan, tKor, tElem, tZhi, zodiac,
     monthGanZhi, yearGanZhi, rel, starsLabel, jianChu, tianShen, tianShenLuck, chong,
     jiShen: list(jiShen), xiongSha: list(xiongSha), yi: list(yi), ji: list(ji),
     shenSha: list(shenSha), pos,
-  })}`;
+  });
 
   try {
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -427,12 +424,11 @@ ${buildDailyFortuneUser({
       },
       body: JSON.stringify({
         model: MODEL,
-        messages: [
-          { role: "system", content: DAILY_FORTUNE_SYSTEM },
-          { role: "user", content: userMsg },
-        ],
+        messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
-        temperature: 0.95,
+        // 주어진 일진 값을 그대로 인용해야 하는 풀이라 낮게 잡는다.
+        // 0.95 에서는 "한자를 쓰지 않는다" 규칙을 5회 중 2회 어겼다.
+        temperature: 0.4,
       }),
     });
 

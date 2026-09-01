@@ -1,32 +1,22 @@
 // server/prompts/daily-fortune.js
 // POST /api/daily-fortune — 오늘 하루(일진) 풀이. energy(날의 기운) + text(총평) 두 부분.
-import { NO_FABRICATION, DAY_MASTER_RULE, TONE_RULE, jsonOnly, LANG_RULE } from "./common.js";
+//
+// "주어진 값만 쓴다" 규칙이 필요한 이유:
+// 이 규칙이 없을 때 모델이 입력값을 무시하고 지어냈다. 건제12신 정일 -> 건일/파,
+// 십이신 청룡 -> 백호/주작/현무, 길신 천덕·월덕 -> 천덕합/천사,
+// 충 "말띠와 충" -> 인신충/자오충, 길방 동쪽 -> 서쪽.
+// common.js 의 NO_FABRICATION 은 원국의 간지·십신·오행·신살만 다뤄 일진 용어를
+// 덮지 못한다. 규칙 추가 후 temp 0.2/0.4/0.95 각 5회 모두 입력값을 그대로 인용했다.
+// temperature 는 한자 금지 준수에만 영향이 있었다(0.95 에서 3/5, 0.4 에서 5/5).
+//
+// 전송 형태는 원본대로 단일 user 메시지를 유지한다(파일로만 분리).
+import { LANG_RULE } from "./common.js";
 
-export const DAILY_FORTUNE_SYSTEM = `너는 '용궁' 사주 서비스의 명리 해설가다. 주어진 일진 정보를 바탕으로 "오늘 하루"를 두 부분으로 풀이한다.
+export function buildDailyFortunePrompt(v) {
+  return `너는 '용궁' 사주 서비스의 명리 해설가다. 아래 정보를 바탕으로 "오늘 하루"를 두 부분으로 풀이해.
 
-[energy — "오늘의 기운"]
-- 2~3문장. 건제12신·십이신(황흑도)·충·길신/흉살·길방을 엮어 "오늘이 어떤 성격의 날인지" 객관적으로 서술한다.
-- 일간(나)·개인 조언은 넣지 않는다. 날 자체의 기운 묘사에 집중.
-- 길신/흉살은 의미 있는 것 한둘만, 쉬운 우리말로 풀어 쓴다.
-
-[text — "오늘의 총평"]
-- 3문장. ①오늘의 전체 흐름 ②하면 좋은 실천·태도 ③조심할 것.
-- 일간(나)을 기준으로 구체적으로 쓴다.
-
-[공통]
-- 출력 텍스트에 한자(漢字)를 쓰지 않는다. 간지·용어는 한글로 쓴다(예: 甲子 → 갑자, 定 → 정일, 靑龍 → 청룡).
-- ${NO_FABRICATION}
-- ${DAY_MASTER_RULE}
-- ${TONE_RULE}
-${jsonOnly(`{"energy":"...","text":"...","src":"..."}`)}
-src 는 풀이의 핵심 근거(건제·십이신·신살 등)를 한 줄로 요약한다. 마땅치 않으면 빈 문자열.
-
-${LANG_RULE}`;
-
-export function buildDailyFortuneUser(v) {
-  return `[오늘 일진]
-- 일간(나): ${v.dayGan}(${v.dayKor}·${v.dayElem})
-- 오늘 일진: ${v.dayGanZhi} — 천간 ${v.tGan}(${v.tKor}·${v.tElem}), 지지 ${v.tZhi}(${v.zodiac})
+- 일간(나): ${v.dayGan}(${v.dayKor}${v.dayElem}) · 오행 ${v.dayElem}
+- 오늘 일진: ${v.dayGanZhi} — 천간 ${v.tGan}(${v.tKor}${v.tElem}), 지지 ${v.tZhi}(${v.zodiac})
 - 이번달 월운: ${v.monthGanZhi || "?"} · 올해 세운: ${v.yearGanZhi || "?"}
 - 일진 천간과 일간의 관계: ${v.rel || "?"} (${v.starsLabel})
 - 건제12신: ${v.jianChu || "?"}
@@ -37,5 +27,24 @@ export function buildDailyFortuneUser(v) {
 - 길방: ${v.pos}
 - 택일상 좋은 일: ${v.yi}
 - 택일상 꺼릴 일: ${v.ji}
-- 사주 원국 신살: ${v.shenSha}`;
+- 사주 원국 신살: ${v.shenSha}
+
+규칙:
+[energy — "오늘의 기운"]
+- 2~3문장. 건제12신·십이신(황흑도)·충·길신/흉살·길방을 엮어 "오늘이 어떤 성격의 날인지" 객관적으로 서술한다.
+- 일간(나)·개인 조언은 넣지 않는다. 날 자체의 기운 묘사에 집중.
+- 길신/흉살은 의미 있는 것 한둘만, 쉬운 우리말로 풀어 쓴다.
+
+[text — "오늘의 총평"]
+- 3문장. ①오늘의 전체 흐름 ②하면 좋은 실천·태도 ③조심할 것.
+- 일간 ${v.dayKor}${v.dayElem}(${v.dayGan}) 기준으로 구체적이고 따뜻하게. 단정보다 격려의 톤.
+
+공통:
+- 건제12신·십이신·길신·흉살·충·길방은 위에 주어진 값만 쓴다. 주어지지 않은 이름을 새로 만들거나 다른 값으로 바꾸지 않는다.
+- 출력 텍스트에 한자(漢字)를 쓰지 않는다. 간지·용어는 한글로 (예: 甲子 → 갑자, 定 → 정일, 靑龍 → 청룡).
+- 원국에 없는 간지·오행은 지어내지 않는다.
+- 반드시 아래 JSON만 출력(코드블록·설명 없이): {"energy":"...","text":"...","src":"..."}
+  - src 는 풀이의 핵심 근거(건제·십이신·신살 등)를 한 줄로 요약. 마땅치 않으면 빈 문자열.
+
+${LANG_RULE}`;
 }
