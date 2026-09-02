@@ -50,12 +50,41 @@ export default function TalismanChest({ daily }: Props) {
     if (open && !data && !loading) run();
   }, [open, data, loading, run]);
 
+  // 화면 표시(talisman-card)와 같은 세로 비율(3/5.5)로 늘려서 다운로드한다.
+  // 원본 이미지는 모델이 정사각(1024x1024)으로 내보내므로 그대로 받으면 정사각으로 저장된다.
+  const TALISMAN_ASPECT = 6.5 / 3;
+
   const handleDownload = () => {
     if (!data) return;
-    const a = document.createElement("a");
-    a.href = data.image;
-    a.download = `${data.caption || data.title || "오늘의부적"}.png`;
-    a.click();
+    const filename = `${data.caption || data.title || "오늘의부적"}.png`;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = Math.round(img.naturalWidth * TALISMAN_ASPECT);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("canvas 컨텍스트 없음");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = filename;
+        a.click();
+      } catch {
+        const a = document.createElement("a");
+        a.href = data.image;
+        a.download = filename;
+        a.click();
+      }
+    };
+    img.onerror = () => {
+      const a = document.createElement("a");
+      a.href = data.image;
+      a.download = filename;
+      a.click();
+    };
+    img.src = data.image;
   };
 
   return (

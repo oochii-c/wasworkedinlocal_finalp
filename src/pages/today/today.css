@@ -164,9 +164,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   width: min(88vw, 380px);
-  padding: 28px 22px 22px;
+  padding: 64px 22px 56px;
   background: #0B1F3B;
   border: 1px solid var(--saju-gold);
   border-radius: 18px;
@@ -194,11 +195,12 @@
 
 .talisman-card {
   width: 100%;
-  /* 이미지 모델이 1024x1024 정사각으로 내보낸다. 3/5 박스에 contain 하면
-     좌우가 아니라 위아래가 비어 카드가 작게 렌더된다. 박스를 이미지 비율에 맞춘다. */
-  max-width: 300px;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
+  /* 이미지 모델이 1024x1024 정사각으로 내보내지만, 부적 카드 자체는 프레임
+     상하로 꽉 차고 좌우에만 여백이 남게 그려진다. 박스를 세로로 길게 잡고
+     object-fit: cover로 좌우 여백을 잘라내 부적이 세로로 길게 보이게 한다. */
+  max-width: 240px;
+  aspect-ratio: 3 / 6.5;
+  object-fit: fill;
   margin-top: 8px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);

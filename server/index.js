@@ -464,7 +464,7 @@ app.post("/api/daily-fortune", async (req, res) => {
   }
 });
 
-const IMAGE_MODEL = process.env.OPENROUTER_IMAGE_MODEL || "openai/gpt-5-image-mini";
+const IMAGE_MODEL = process.env.OPENROUTER_IMAGE_MODEL || "google/gemini-3-pro-image";
 
 // 오늘의 부적 — 오늘 일진 신호(길신·흉살·방위·밴드)로 개인화된 부적 "이미지" 자체를 생성 (GPT-5 Image)
 app.post("/api/daily-talisman", async (req, res) => {
@@ -504,6 +504,7 @@ app.post("/api/daily-talisman", async (req, res) => {
           },
         ],
         modalities: ["image", "text"],
+        image_config: { aspect_ratio: "2:3" },
       }),
     });
 
