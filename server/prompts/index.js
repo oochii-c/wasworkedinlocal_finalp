@@ -5,6 +5,7 @@ export * from "./common.js";
 export * from "./reading.js";
 export * from "./themes.js";
 export * from "./theme-detail.js";
+export * from "./theme-combo.js";
 export * from "./year-fortune.js";
 export * from "./dayun-fortune.js";
 export * from "./daily-fortune.js";

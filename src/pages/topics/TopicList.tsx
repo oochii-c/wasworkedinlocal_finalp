@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import "./topics.css";
-import { getThemes, getThemeDetail, type ThemeSummary } from "../../services/sajuApi";
+import { getThemes, getThemeDetail, getThemeCombo, type ThemeSummary } from "../../services/sajuApi";
 import { useSaju } from "../../state/SajuContext";
 import { computeThemeScores, type ThemeKey } from "./themeScoring";
 import { scoreColor } from "../yearFortune/saju/insights";
+import { IconAccordion, type IconAccordionItem } from "../../components/IconAccordion";
 import WhirlLoader from "../../components/WhirlLoader";
 
 import iconLove from "../../assets/icons/06_compatibility.svg";
@@ -27,13 +28,14 @@ const THEME_ICON: Record<string, string> = {
 const FIG_ICON = new Set(["health", "relations"]);
 
 // 요약이 없을 때(로딩·실패) 자리만 잡아둘 골격. 백엔드 THEME_DEFS와 key·순서·라벨을 맞춘다.
+// 순서는 올해 영역별(GRID_DOMAINS)과 동일: 건강·애정·인간관계·재물·사업·학업.
 const THEME_SKELETON = [
-  { key: "love", label: "애정" },
-  { key: "wealth", label: "재물" },
   { key: "health", label: "건강" },
+  { key: "love", label: "애정" },
+  { key: "relations", label: "인간관계" },
+  { key: "wealth", label: "재물" },
   { key: "business", label: "사업" },
   { key: "study", label: "학업" },
-  { key: "relations", label: "인간관계" },
 ];
 
 function starRow(stars: number): string {
@@ -58,16 +60,72 @@ export default function TopicList() {
   const [detailErr, setDetailErr] = useState<Record<string, string>>({});
   const started = useRef<Set<string>>(new Set()); // 중복 요청 방지
 
+  // 복합 풀이: 선택한 주제 2개 + 결과/로딩/에러
+  const [combo, setCombo] = useState<string[]>([]);
+  const [comboText, setComboText] = useState<string | null>(null);
+  const [comboErr, setComboErr] = useState("");
+
+  const toggleCombo = (k: string) =>
+    setCombo((cur) => {
+      if (cur.includes(k)) return cur.filter((x) => x !== k);
+      if (cur.length >= 2) return cur; // 최대 2개
+      return [...cur, k];
+    });
+
   const detailKey = (k: string) => `themedetail:${chart?.baZi.join("") ?? ""}:${inputs?.gender ?? "?"}:${k}`;
 
-  // 원국(key) 바뀌면 상세 상태 초기화
+  // 원국(key) 바뀌면 상세·복합 상태 초기화
   useEffect(() => {
     started.current = new Set();
     setDetails({});
     setDetailLoading({});
     setDetailErr({});
     setOpenKey(null);
+    setCombo([]);
+    setComboText(null);
+    setComboErr("");
   }, [key]);
+
+  // 두 주제를 고르면 복합 풀이를 지연 호출한다(정렬 키로 캐시).
+  useEffect(() => {
+    if (!chart || combo.length !== 2) {
+      setComboText(null);
+      setComboErr("");
+      return;
+    }
+    const [a, b] = [...combo].sort();
+    const ck = `combo:${chart.baZi.join("")}:${inputs?.gender ?? "?"}:${a}+${b}`;
+    const cached = readCache<string>(ck);
+    if (cached) {
+      setComboText(cached);
+      setComboErr("");
+      return;
+    }
+    const labelOf = (k: string) => THEME_SKELETON.find((t) => t.key === k)?.label ?? k;
+    let alive = true;
+    setComboErr("");
+    setComboText(null);
+    getThemeCombo({
+      name: inputs?.name ?? "",
+      gender: inputs?.gender ?? "male",
+      chart,
+      keys: [a, b] as [string, string],
+      labels: [labelOf(a), labelOf(b)] as [string, string],
+    })
+      .then((text) => {
+        if (alive) {
+          writeCache(ck, text);
+          setComboText(text);
+        }
+      })
+      .catch((e) => {
+        if (alive) setComboErr(e instanceof Error ? e.message : "복합 풀이 생성 실패");
+      });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combo, chart]);
 
   useEffect(() => {
     if (!chart) return;
@@ -114,10 +172,96 @@ export default function TopicList() {
     fetchDetail(t); // 프리페치 실패/미완이면 여기서 보강(started 가드로 중복 없음)
   };
 
+  // 올해 풀이(DomainStars)와 같은 수평 아이콘 + 아코디언 박스. 펼치면 심화 풀이.
+  const accordionItems: IconAccordionItem[] = THEME_SKELETON.map((t) => ({
+    key: t.key,
+    label: t.label,
+    icon: THEME_ICON[t.key],
+    score: starOf(t.key),
+    caption: themes?.find((x) => x.key === t.key)?.summary,
+    figIcon: FIG_ICON.has(t.key),
+  }));
+
   return (
     <div className="tp-wrap">
       {loading && <p className="tp-status" style={{ color: "#ffffff" }}><WhirlLoader />용왕님이 주제별 풀이를 살피는 중…</p>}
       {error && <p className="tp-status tp-status-err">{error}</p>}
+
+      {chart && (
+        <IconAccordion
+          ariaLabel="주제별 요약"
+          items={accordionItems}
+          colorFor={scoreColor}
+          onOpen={(k) => {
+            const th = themes?.find((x) => x.key === k);
+            if (th) fetchDetail(th);
+          }}
+          renderPanel={(k) =>
+            detailErr[k] ? (
+              <span className="tp-status-err">{detailErr[k]}</span>
+            ) : details[k] ? (
+              details[k]
+            ) : (
+              <span className="tp-detail-loading" style={{ color: "#ffffff" }}>
+                <WhirlLoader size={20} />용왕님이 더 깊이 살피는 중…
+              </span>
+            )
+          }
+        />
+      )}
+
+      {chart && (
+        <section className="tp-combo">
+          <div className="tp-combo-head">
+            <span>두 영역을 골라 복합 풀이</span>
+            {combo.length > 0 && (
+              <button type="button" className="tp-combo-clear" onClick={() => setCombo([])}>
+                지우기
+              </button>
+            )}
+          </div>
+          <div className="tp-combo-picks">
+            {THEME_SKELETON.map((t) => {
+              const on = combo.includes(t.key);
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  className={`tp-combo-chip${on ? " is-on" : ""}`}
+                  aria-pressed={on}
+                  disabled={!on && combo.length >= 2}
+                  onClick={() => toggleCombo(t.key)}
+                >
+                  <span
+                    className="tp-combo-chip-ico"
+                    aria-hidden="true"
+                    data-fig={FIG_ICON.has(t.key) ? "1" : undefined}
+                    style={{
+                      maskImage: `url(${THEME_ICON[t.key]})`,
+                      WebkitMaskImage: `url(${THEME_ICON[t.key]})`,
+                      backgroundColor: on ? scoreColor(starOf(t.key)) : "#B8CEE0",
+                    }}
+                  />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+          {combo.length === 2 && (
+            <div className="tp-combo-panel">
+              {comboErr ? (
+                <p className="tp-status-err">{comboErr}</p>
+              ) : comboText ? (
+                <p>{comboText}</p>
+              ) : (
+                <span className="tp-detail-loading" style={{ color: "#ffffff" }}>
+                  <WhirlLoader size={20} />두 영역이 어떻게 맞물리는지 살피는 중…
+                </span>
+              )}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* 요약을 못 받았어도 카드 골격은 띄운다 — 화면이 통째로 비지 않게 */}
       {!themes && THEME_SKELETON.map((t) => (

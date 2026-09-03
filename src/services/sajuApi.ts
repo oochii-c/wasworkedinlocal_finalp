@@ -113,6 +113,20 @@ export async function getThemeDetail(
   return data.text as string;
 }
 
+// 두 주제가 맞물리는 복합 풀이 요청. 실패 시 throw.
+export async function getThemeCombo(
+  req: ReadingRequest & { keys: [string, string]; labels: [string, string] }
+): Promise<string> {
+  const res = await fetch("/api/theme-combo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "복합 풀이 생성 실패");
+  return data.text as string;
+}
+
 // 오늘의 부적 AI 생성 (서버 /api/daily-talisman, GPT-5 Image)
 export interface DailyTalisman {
   image: string;    // data:image/png;base64,... — 생성된 부적 이미지

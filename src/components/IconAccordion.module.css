@@ -60,9 +60,8 @@
   transition: opacity 0.15s;
 }
 
-/* 건강·인간관계 아이콘은 Figma 내보내기라 potrace 4개보다 커 보여 축소 보정. */
-.icon[data-domain="건강"],
-.icon[data-domain="인간관계"] {
+/* Figma 내보내기 아이콘은 potrace 것보다 커 보여 축소 보정. */
+.icon[data-fig="1"] {
   transform: scale(0.8);
 }
 

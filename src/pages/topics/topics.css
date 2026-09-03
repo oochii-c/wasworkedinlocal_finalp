@@ -126,3 +126,97 @@
 .tp-card-empty .tp-card-summary {
   font-style: italic;
 }
+
+/* ── 복합 풀이 (두 주제 선택) ───────────────────────────── */
+.tp-combo {
+  background: rgba(11, 31, 59, 0.62);
+  border: 1px solid #1E3A5A;
+  border-radius: 16px;
+  padding: 14px 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.tp-combo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--saju-gold);
+  margin-bottom: 10px;
+}
+
+.tp-combo-clear {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--saju-text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.tp-combo-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tp-combo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #1E3A5A;
+  border-radius: 999px;
+  background: rgba(8, 22, 44, 0.6);
+  color: var(--saju-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+}
+
+.tp-combo-chip.is-on {
+  border-color: rgba(234, 203, 138, 0.6);
+  background: rgba(234, 203, 138, 0.12);
+  color: var(--saju-gold);
+}
+
+.tp-combo-chip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tp-combo-chip-ico {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.tp-combo-chip-ico[data-fig="1"] {
+  transform: scale(0.85);
+}
+
+.tp-combo-panel {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(234, 203, 138, 0.3);
+  border-radius: 10px;
+  background: rgba(8, 22, 44, 0.95);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--saju-text);
+  word-break: keep-all;
+}
+
+.tp-combo-panel p {
+  margin: 0;
+}
