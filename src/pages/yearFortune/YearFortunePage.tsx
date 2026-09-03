@@ -1,14 +1,11 @@
-import { getChartYearRange } from "./saju/ganzhi";
 import { sampleChart } from "./saju/mock/sampleChart";
 import { YearFortuneDetail } from "./YearFortuneDetail";
-import { useSaju } from "../../state/SajuContext";
+import { useFortuneYear } from "./useFortuneYear";
 import "../../styles/saju.css"; // --saju-* 토큰
 import "../dashboard/dashboard.css"; // db-* 셸 클래스 재사용
 
 export default function YearFortunePage() {
-  const { year, openYear } = useSaju();
-  const { min, max } = getChartYearRange(sampleChart);
-  const yearNum = Number.isInteger(year) ? Math.min(Math.max(year, min), max) : min;
+  const yearNum = useFortuneYear(sampleChart);
 
   // 목업: 실제 LLM이 생성할 AI 총평을 대신하는 하드코딩된 placeholder 텍스트다.
   // 실제 AI 총평이 채워질 때는 summary와 citation(근거)이 항상 함께 와야 한다.
@@ -67,7 +64,6 @@ export default function YearFortunePage() {
       year={yearNum}
       summary={sampleSummary}
       citation={sampleCitation || undefined}
-      onNavigate={openYear}
     />
   );
 }

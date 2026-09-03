@@ -1,7 +1,6 @@
 import { SajuExtended } from "./saju/types";
-import { getYearGanZhi, getChartYearRange } from "./saju/ganzhi";
 import { getMonthInGanZhi } from "./saju/mock/monthGanzhi";
-import { computeDomainScores, computeOverallScore, computeMonthlyScores } from "./saju/mock/scoring";
+import { computeDomainScores, computeMonthlyScores } from "./saju/mock/scoring";
 import { YearNav } from "./components/YearNav";
 import { DomainStars } from "./components/DomainStars";
 import { MonthlyFlow } from "./components/MonthlyFlow";
@@ -14,28 +13,16 @@ export interface YearFortuneDetailProps {
   year: number;
   summary: string;
   citation?: string;
-  onNavigate: (year: number) => void;
 }
 
-export function YearFortuneDetail({ chart, year, summary, citation, onNavigate }: YearFortuneDetailProps) {
-  const yearGanZhi = getYearGanZhi(year);
+export function YearFortuneDetail({ chart, year, summary, citation }: YearFortuneDetailProps) {
   const domainScores = computeDomainScores(chart, year);
-  const overallScore = computeOverallScore(domainScores);
   const monthlyScores = computeMonthlyScores(chart, year);
   const monthlyGanZhi = Array.from({ length: 12 }, (_, i) => getMonthInGanZhi(year, i + 1));
 
-  const { min: minYear, max: maxYear } = getChartYearRange(chart);
-
   return (
     <div className={styles.page}>
-      <YearNav
-        year={year}
-        yearGanZhi={yearGanZhi}
-        overallScore={overallScore}
-        canGoPrev={year > minYear}
-        canGoNext={year < maxYear}
-        onNavigate={onNavigate}
-      />
+      <YearNav chart={chart} />
       <DomainStars scores={domainScores} chart={chart} year={year} />
       <MonthlyFlow
         monthlyScores={monthlyScores}
