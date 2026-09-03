@@ -11,6 +11,7 @@ import {
   READING_SYSTEM,
   buildThemesSystem,
   buildThemeDetailSystem,
+  buildThemeComboSystem,
   YEAR_FORTUNE_SYSTEM,
   buildYearFortuneUser,
   DAYUN_FORTUNE_SYSTEM,
@@ -121,12 +122,12 @@ app.post("/api/reading", async (req, res) => {
 
 // 주제별 사주 리딩 — 6개 주제 요약(별점 + 한줄) 일괄 생성
 const THEME_DEFS = [
-  { key: "love", label: "애정" },
-  { key: "wealth", label: "재물" },
   { key: "health", label: "건강" },
+  { key: "love", label: "애정" },
+  { key: "relations", label: "인간관계" },
+  { key: "wealth", label: "재물" },
   { key: "business", label: "사업" },
   { key: "study", label: "학업" },
-  { key: "relations", label: "인간관계" },
 ];
 
 app.post("/api/themes", async (req, res) => {
@@ -182,10 +183,10 @@ app.post("/api/themes", async (req, res) => {
 
     // 주제 정의 순서대로 정렬 + label 병합, 누락/이상치 방어
     const byKey = Object.fromEntries(parsed.themes.map((t) => [t.key, t]));
+    // 별점은 클라이언트가 원국 십성으로 결정론 산출 — 여기선 요약만 병합한다.
     const themes = THEME_DEFS.map((def) => {
       const g = byKey[def.key] || {};
-      const stars = Math.min(5, Math.max(1, Math.round(Number(g.stars) || 3)));
-      return { key: def.key, label: def.label, stars, summary: String(g.summary || "").trim() };
+      return { key: def.key, label: def.label, summary: String(g.summary || "").trim() };
     });
 
     res.json({ themes });
@@ -252,12 +253,70 @@ app.post("/api/theme-detail", async (req, res) => {
   }
 });
 
+// 두 주제가 맞물리는 복합 풀이 — 십성 상생상극 관계를 근거로 1편 생성
+app.post("/api/theme-combo", async (req, res) => {
+  if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
+    return res.status(500).json({ error: "OPENROUTER_API_KEY가 설정되지 않았습니다. server/.env를 확인하세요." });
+  }
+
+  const { labels, name, gender, chart } = req.body || {};
+  if (!chart || !chart.pillars || !Array.isArray(labels) || labels.length !== 2) {
+    return res.status(400).json({ error: "원국 데이터 또는 주제 2개가 필요합니다." });
+  }
+
+  try {
+    const system = buildThemeComboSystem(labels[0], labels[1]);
+    const userMsg = `${anchorLine(chart.dayGan)}\n\n주제: ${labels[0]} × ${labels[1]}\n이름: ${name || "익명"}\n성별: ${gender === "female" ? "여자" : "남자"}\n\n[사주 원국]\n${chartToText(chart)}`;
+
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: userMsg },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.9,
+      }),
+    });
+
+    if (!r.ok) {
+      const detail = await r.text();
+      return res.status(502).json({ error: `OpenRouter 오류 (${r.status})`, detail });
+    }
+
+    const data = await r.json();
+    const content = data.choices?.[0]?.message?.content ?? "";
+
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : null;
+    }
+
+    if (!parsed?.text) {
+      return res.status(502).json({ error: "복합 풀이 응답 형식 오류", raw: content });
+    }
+
+    res.json({ text: parsed.text });
+  } catch (e) {
+    res.status(500).json({ error: "복합 풀이 생성 실패", detail: String(e) });
+  }
+});
+
 app.post("/api/year-fortune", async (req, res) => {
   if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
     return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
   }
 
-  const { year, ganZhi, rel, dayGan, stars, wuXingCount } = req.body || {};
+  const { year, ganZhi, rel, dayGan, stars, wuXingCount, domainScores, monthly } = req.body || {};
   if (!year || !ganZhi || !dayGan) {
     return res.status(400).json({ error: "필수 파라미터 누락" });
   }
@@ -269,11 +328,20 @@ app.post("/api/year-fortune", async (req, res) => {
   const zodiac = (ZHI_INFO[zhi] || [null, zhi])[1];
   const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
 
+  const DOMAIN_ORDER = ["건강", "애정", "인간관계", "재물", "직업", "학업"];
+  const domainScoreLine = domainScores && typeof domainScores === "object"
+    ? DOMAIN_ORDER.filter((d) => d in domainScores).map((d) => `${d} ${domainScores[d]}`).join(" · ")
+    : "정보 없음";
+  const monthlyLine = Array.isArray(monthly) && monthly.length
+    ? monthly.map((m) => `${m.month}월 ${m.ganZhi} ${m.score}점`).join(" · ")
+    : "정보 없음";
+
   const userMsg = `${anchorLine(dayGan)}
 
 ${buildYearFortuneUser({
     year, ganZhi, gan, zhi, dayGan, dayKor, dayElem, yearKor, yearElem, zodiac, rel, stars, starsLabel,
     wuXing: wuXingLine({ wuXingCount }),
+    domainScoreLine, monthlyLine,
   })}`;
 
   try {
@@ -314,7 +382,12 @@ ${buildYearFortuneUser({
       return res.status(502).json({ error: "응답 형식 오류", raw: content });
     }
 
-    res.json({ text: parsed.text });
+    res.json({
+      text: parsed.text,
+      summary: parsed.summary || "",
+      domains: parsed.domains && typeof parsed.domains === "object" ? parsed.domains : {},
+      months: Array.isArray(parsed.months) ? parsed.months : [],
+    });
   } catch (e) {
     res.status(500).json({ error: "연도 운세 생성 실패", detail: String(e) });
   }

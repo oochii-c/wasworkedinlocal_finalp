@@ -11,7 +11,9 @@
   font-size: 17px;
   font-weight: 700;
   color: var(--saju-gold);
-  margin-bottom: 10px;
+  /* "오늘의 운세"(.db-section-title)와 위/아래 여백 통일 */
+  margin-top: 0;
+  margin-bottom: 14px;
   letter-spacing: -0.01em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
@@ -23,11 +25,17 @@
   word-break: keep-all;
 }
 
-.citation {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(102, 178, 214, 0.2);
-  font-size: 0.78rem;
-  line-height: 1.6;
+.text + .text {
+  margin-top: 0.9em;
+}
+
+.loading {
   color: var(--saju-text-muted);
+}
+
+.notice {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--saju-text-muted);
+  word-break: keep-all;
 }

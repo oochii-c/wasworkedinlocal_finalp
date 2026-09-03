@@ -26,10 +26,10 @@ export async function getReading(req: ReadingRequest): Promise<Story[]> {
 }
 
 // 주제별 리딩 요약 항목 (서버 /api/themes 응답)
+// 별점은 서버가 주지 않는다 — 클라에서 원국 십성으로 결정론 산출(themeScoring.ts).
 export interface ThemeSummary {
   key: string;
   label: string;
-  stars: number;   // 1~5
   summary: string; // 한 줄
 }
 
@@ -65,6 +65,40 @@ export async function getDaYunFortune(params: {
   return data.text as string;
 }
 
+// 특정 연도 세운(歲運) AI 풀이 요청. 실패 시 throw.
+// 한 번 호출로 긴 총평(text) · 요약(summary) · 영역 6개(domains) · 월별 12개(months)를 받는다.
+export interface YearFortuneResult {
+  text: string;
+  summary: string;
+  domains: Record<string, string>;
+  months: string[];
+}
+
+export async function getYearFortune(params: {
+  year: number;
+  ganZhi: string;      // 세운 간지 한자 2글자 (예: "丙午")
+  rel: string;         // 세운 천간 ↔ 일간 관계 라벨 (상생·비화·상성·설기·상극)
+  dayGan: string;      // 일간 한자 (예: "庚")
+  stars: number;       // 1~5
+  wuXingCount: Record<string, number>;
+  domainScores: Record<string, number>;                        // 6영역 점수 (총운·애정·…)
+  monthly: { month: number; ganZhi: string; score: number }[]; // 12개월 간지(한글)·점수
+}): Promise<YearFortuneResult> {
+  const res = await fetch("/api/year-fortune", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "연도 운세 생성 실패");
+  return {
+    text: (data.text as string) ?? "",
+    summary: (data.summary as string) ?? "",
+    domains: data.domains && typeof data.domains === "object" ? (data.domains as Record<string, string>) : {},
+    months: Array.isArray(data.months) ? (data.months as string[]) : [],
+  };
+}
+
 // 특정 주제 하나의 상세 풀이 요청. 실패 시 throw.
 export async function getThemeDetail(
   req: ReadingRequest & { key: string; label: string }
@@ -76,6 +110,20 @@ export async function getThemeDetail(
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "주제 상세 생성 실패");
+  return data.text as string;
+}
+
+// 두 주제가 맞물리는 복합 풀이 요청. 실패 시 throw.
+export async function getThemeCombo(
+  req: ReadingRequest & { keys: [string, string]; labels: [string, string] }
+): Promise<string> {
+  const res = await fetch("/api/theme-combo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "복합 풀이 생성 실패");
   return data.text as string;
 }
 

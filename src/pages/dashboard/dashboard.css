@@ -64,6 +64,19 @@
   text-shadow: 0 2px 12px rgba(234, 203, 138, 0.35);
 }
 
+/* 좌측 홈 복귀 — 화살표만. 터치 타겟 확보용 여백 포함 */
+.db-back-arrow {
+  background: none;
+  border: 0;
+  padding: 4px 8px;
+  margin-left: -8px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--saju-gold);
+  cursor: pointer;
+  text-shadow: 0 2px 12px rgba(234, 203, 138, 0.35);
+}
+
 .db-back-btn {
   background: rgba(11, 31, 59, 0.7);
   border: 1px solid rgba(102, 178, 214, 0.25);
@@ -582,4 +595,29 @@
   font-weight: 700;
   color: var(--saju-gold);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* ---- 화면 내 탭 (운세: 오늘/올해) ---- */
+.db-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.db-tab {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  background: rgba(11, 31, 59, 0.62);
+  color: var(--saju-text-muted);
+  font-family: "ChosunSg", "Pretendard", sans-serif;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.db-tab.is-active {
+  border-color: rgba(234, 203, 138, 0.45);
+  background: rgba(19, 66, 100, 0.9);
+  color: var(--saju-gold);
 }

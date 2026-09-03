@@ -20,14 +20,14 @@ export interface SajuInputs {
   timeUnknown: boolean;
 }
 
-export type SajuView = "form" | "home" | "today" | "topics" | "year-fortune" | "match" | "ai";
+export type SajuView = "form" | "home" | "chart" | "today" | "topics" | "year-fortune" | "match" | "ai";
 
 interface SajuCtx {
   inputs: SajuInputs | null;
   chart: SajuExtended | null;
   view: SajuView;
   year: number;                           // 연운 화면에서 보고 있는 연도
-  commit: (inputs: SajuInputs) => void;   // 입력 → 계산 → 저장 → 홈. 실패 시 throw
+  commit: (inputs: SajuInputs) => void;   // 입력 → 계산 → 저장 → 사주 풀이. 실패 시 throw
   navigate: (view: SajuView) => void;     // chart 보존한 채 화면만 전환
   openYear: (year: number) => void;       // 연도 지정 + 연운 화면으로 전환
   readCache: <T>(key: string) => T | undefined;
@@ -74,7 +74,7 @@ export function SajuProvider({ children }: { children: ReactNode }) {
     setInputs(next);
     saveInputs(next);
     setChart(computed);
-    setView("home");
+    setView("chart");
   };
 
   const navigate = (v: SajuView) => setView(v);

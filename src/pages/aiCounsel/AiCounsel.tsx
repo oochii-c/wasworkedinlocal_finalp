@@ -180,7 +180,9 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
     <div className="db-page ac-page">
       {/* 상단 바 */}
       <header className="db-topbar">
-        <span className="db-logo">🐉 용왕님 상담</span>
+        <button type="button" className="db-back-arrow" onClick={() => onSelect?.("home")} aria-label="용궁 홈으로 돌아가기">
+          ←
+        </button>
         <span className="ac-limit">오늘 {DAILY_LIMIT - remaining}/{DAILY_LIMIT}</span>
       </header>
 
