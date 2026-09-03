@@ -44,7 +44,9 @@ export function DomainStars({ scores, descriptions, dayGanHanja, year }: DomainS
       items={items}
       colorFor={scoreColor}
       renderPanel={(key) =>
-        descriptions?.[key as Domain] || getDomainInterpretation(key as Domain, dayGanHanja, year)
+        key == null
+          ? null
+          : descriptions?.[key as Domain] || getDomainInterpretation(key as Domain, dayGanHanja, year)
       }
     />
   );
