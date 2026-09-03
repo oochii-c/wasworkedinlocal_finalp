@@ -41,7 +41,8 @@ export const ganZhiLabel = (gz = "") => {
 export function wuXingLine(chart) {
   const entries = Object.entries(chart.wuXingCount || {});
   if (!entries.length) return "정보 없음";
-  const counts = entries.map(([k, v]) => `${k}${v}`).join(" ");
+  // 값은 개수가 아니라 가중 점수(소수). 프롬프트에 길게 흘리지 않도록 소수 1자리로 줄인다.
+  const counts = entries.map(([k, v]) => `${k}${Math.round(v * 10) / 10}`).join(" ");
   const values = entries.map(([, v]) => v);
   const min = Math.min(...values);
   const max = Math.max(...values);
