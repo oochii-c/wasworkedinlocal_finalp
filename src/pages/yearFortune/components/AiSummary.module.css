@@ -23,11 +23,13 @@
   word-break: keep-all;
 }
 
-.citation {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(102, 178, 214, 0.2);
-  font-size: 0.78rem;
-  line-height: 1.6;
+.loading {
   color: var(--saju-text-muted);
+}
+
+.notice {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--saju-text-muted);
+  word-break: keep-all;
 }

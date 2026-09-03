@@ -65,6 +65,25 @@ export async function getDaYunFortune(params: {
   return data.text as string;
 }
 
+// 특정 연도 세운(歲運) AI 풀이 요청. 실패 시 throw.
+export async function getYearFortune(params: {
+  year: number;
+  ganZhi: string;      // 세운 간지 한자 2글자 (예: "丙午")
+  rel: string;         // 세운 천간 ↔ 일간 관계 라벨 (상생·비화·상성·설기·상극)
+  dayGan: string;      // 일간 한자 (예: "庚")
+  stars: number;       // 1~5
+  wuXingCount: Record<string, number>;
+}): Promise<string> {
+  const res = await fetch("/api/year-fortune", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "연도 운세 생성 실패");
+  return data.text as string;
+}
+
 // 특정 주제 하나의 상세 풀이 요청. 실패 시 throw.
 export async function getThemeDetail(
   req: ReadingRequest & { key: string; label: string }
