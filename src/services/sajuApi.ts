@@ -26,10 +26,10 @@ export async function getReading(req: ReadingRequest): Promise<Story[]> {
 }
 
 // 주제별 리딩 요약 항목 (서버 /api/themes 응답)
+// 별점은 서버가 주지 않는다 — 클라에서 원국 십성으로 결정론 산출(themeScoring.ts).
 export interface ThemeSummary {
   key: string;
   label: string;
-  stars: number;   // 1~5
   summary: string; // 한 줄
 }
 

@@ -96,15 +96,6 @@
   color: var(--saju-gold);
 }
 
-.panelCaption {
-  margin-left: auto;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--saju-gold);
-  opacity: 0.9;
-  white-space: nowrap;
-}
-
 .panelText {
   margin: 0;
   font-size: 0.82rem;

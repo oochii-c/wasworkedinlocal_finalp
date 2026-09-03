@@ -4,6 +4,7 @@ import { CheonGan, GanZhi } from "../saju/types";
 import { ganZhiToHanja } from "../saju/ganzhi";
 import { getMonthInterpretation, scoreColor } from "../saju/insights";
 import { smoothPath } from "../../dashboard/DaYunFlow";
+import WhirlLoader from "../../../components/WhirlLoader";
 import styles from "./MonthlyFlow.module.css";
 
 export interface MonthlyFlowProps {
@@ -14,12 +15,14 @@ export interface MonthlyFlowProps {
   monthTexts?: string[] | null;
   // 아무 달도 선택하지 않았을 때 설명문 자리에 상시 노출되는 올해 총운 풀이
   yearSummary: string;
+  // 올해 풀이 LLM 호출 중이면 더미 문구 대신 로더를 띄운다.
+  yearLoading?: boolean;
 }
 
 // 대운(인생 흐름) 그래프와 같은 좌표계 — 두 화면의 그래프가 같은 형태로 보이도록 맞춤
 const W = 320, H = 80, PX = 16, PY = 12;
 
-export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, monthTexts, yearSummary }: MonthlyFlowProps) {
+export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, monthTexts, yearSummary, yearLoading }: MonthlyFlowProps) {
   // 선택된 달 인덱스(0~11). null이면 아무 달도 펼치지 않은 상태.
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -92,7 +95,13 @@ export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, monthText
             <div className={styles.detailHead}>
               <span className={styles.detailMonth}>올해 풀이</span>
             </div>
-            <span className={styles.detailInterpretation}>{yearSummary}</span>
+            {yearLoading ? (
+              <span className={styles.detailInterpretation}>
+                <WhirlLoader />용왕님이 올해의 흐름을 읽고 있어요…
+              </span>
+            ) : (
+              <span className={styles.detailInterpretation}>{yearSummary}</span>
+            )}
           </>
         ) : (
           <>

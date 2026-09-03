@@ -48,6 +48,7 @@ export function YearFortuneDetail({
           dayMaster={dayGanKor}
           monthTexts={monthTexts}
           yearSummary={monthlyDefault}
+          yearLoading={summaryLoading}
         />
       </YearNav>
       <DomainStars

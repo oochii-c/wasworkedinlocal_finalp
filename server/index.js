@@ -182,10 +182,10 @@ app.post("/api/themes", async (req, res) => {
 
     // 주제 정의 순서대로 정렬 + label 병합, 누락/이상치 방어
     const byKey = Object.fromEntries(parsed.themes.map((t) => [t.key, t]));
+    // 별점은 클라이언트가 원국 십성으로 결정론 산출 — 여기선 요약만 병합한다.
     const themes = THEME_DEFS.map((def) => {
       const g = byKey[def.key] || {};
-      const stars = Math.min(5, Math.max(1, Math.round(Number(g.stars) || 3)));
-      return { key: def.key, label: def.label, stars, summary: String(g.summary || "").trim() };
+      return { key: def.key, label: def.label, summary: String(g.summary || "").trim() };
     });
 
     res.json({ themes });

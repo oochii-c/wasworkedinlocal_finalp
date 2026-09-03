@@ -38,9 +38,21 @@
   margin-bottom: 8px;
 }
 
+/* SVG를 마스크로 깔고 background-color 로 채운다 (올해 풀이 아이콘과 동일 방식). */
 .tp-card-ico {
-  font-size: 22px;
-  line-height: 1;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.tp-card-ico[data-fig="1"] {
+  transform: scale(0.85);
 }
 
 .tp-card-title {

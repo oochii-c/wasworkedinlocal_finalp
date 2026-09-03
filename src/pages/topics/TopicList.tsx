@@ -2,17 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import "./topics.css";
 import { getThemes, getThemeDetail, type ThemeSummary } from "../../services/sajuApi";
 import { useSaju } from "../../state/SajuContext";
+import { computeThemeScores, type ThemeKey } from "./themeScoring";
+import { scoreColor } from "../yearFortune/saju/insights";
 import WhirlLoader from "../../components/WhirlLoader";
 
-// 주제 key → 아이콘. 백엔드 THEME_DEFS 순서와 짝. 항목 추가 시 여기에 아이콘만 더하면 됨.
+import iconLove from "../../assets/icons/06_compatibility.svg";
+import iconWealth from "../../assets/icons/04_wealth.svg";
+import iconHealth from "../../assets/icons/02_todays-fortune-core.svg";
+import iconBusiness from "../../assets/icons/03_five-elements.svg";
+import iconStudy from "../../assets/icons/08_deep-analysis.svg";
+import iconRelations from "../../assets/icons/05_fate-path.svg";
+
+// 주제 key → 아이콘(SVG). 올해 풀이(DomainStars)와 같은 세트를 쓴다.
 const THEME_ICON: Record<string, string> = {
-  love: "💕",
-  wealth: "💰",
-  health: "🌿",
-  business: "🪸",
-  study: "📖",
-  relations: "🤝",
+  love: iconLove,
+  wealth: iconWealth,
+  health: iconHealth,
+  business: iconBusiness,
+  study: iconStudy,
+  relations: iconRelations,
 };
+
+// Figma 내보내기라 potrace 아이콘보다 커 보여 축소 보정하는 key.
+const FIG_ICON = new Set(["health", "relations"]);
 
 // 요약이 없을 때(로딩·실패) 자리만 잡아둘 골격. 백엔드 THEME_DEFS와 key·순서·라벨을 맞춘다.
 const THEME_SKELETON = [
@@ -31,6 +43,9 @@ function starRow(stars: number): string {
 
 export default function TopicList() {
   const { chart, inputs, readCache, writeCache } = useSaju();
+  // 별점은 LLM이 아니라 원국 십성 분포로 결정론적으로 매긴다.
+  const themeScores = chart ? computeThemeScores(chart, inputs?.gender ?? "male") : null;
+  const starOf = (k: string) => themeScores?.[k as ThemeKey] ?? 3;
   const key = chart ? `themes:${chart.baZi.join("")}:${inputs?.gender ?? "?"}` : "";
   const [themes, setThemes] = useState<ThemeSummary[] | null>(() => (key ? readCache<ThemeSummary[]>(key) ?? null : null));
   const [loading, setLoading] = useState(!themes);
@@ -108,9 +123,18 @@ export default function TopicList() {
       {!themes && THEME_SKELETON.map((t) => (
         <section key={t.key} className="db-section tp-card tp-card-empty" aria-label={`${t.label} 리딩`}>
           <div className="tp-card-head">
-            <span className="tp-card-ico" aria-hidden="true">{THEME_ICON[t.key] ?? "🔹"}</span>
+            <span
+              className="tp-card-ico"
+              aria-hidden="true"
+              data-fig={FIG_ICON.has(t.key) ? "1" : undefined}
+              style={{
+                maskImage: `url(${THEME_ICON[t.key]})`,
+                WebkitMaskImage: `url(${THEME_ICON[t.key]})`,
+                backgroundColor: "#B8CEE0",
+              }}
+            />
             <span className="tp-card-title">{t.label}</span>
-            <span className="tp-card-stars" aria-hidden="true">{starRow(0)}</span>
+            <span className="tp-card-stars" aria-label={`별점 ${starOf(t.key)}점`}>{starRow(starOf(t.key))}</span>
           </div>
           <p className="tp-card-summary">{error ? "풀이를 불러오지 못했습니다." : "용왕님이 살피는 중…"}</p>
         </section>
@@ -122,9 +146,18 @@ export default function TopicList() {
         return (
         <section key={t.key} id={`tp-${t.key}`} className="db-section tp-card" aria-label={`${t.label} 리딩`}>
           <div className="tp-card-head">
-            <span className="tp-card-ico" aria-hidden="true">{THEME_ICON[t.key] ?? "🔹"}</span>
+            <span
+              className="tp-card-ico"
+              aria-hidden="true"
+              data-fig={FIG_ICON.has(t.key) ? "1" : undefined}
+              style={{
+                maskImage: `url(${THEME_ICON[t.key]})`,
+                WebkitMaskImage: `url(${THEME_ICON[t.key]})`,
+                backgroundColor: open ? scoreColor(starOf(t.key)) : "#B8CEE0",
+              }}
+            />
             <span className="tp-card-title">{t.label}</span>
-            <span className="tp-card-stars" aria-label={`별점 ${t.stars}점`}>{starRow(t.stars)}</span>
+            <span className="tp-card-stars" aria-label={`별점 ${starOf(t.key)}점`}>{starRow(starOf(t.key))}</span>
           </div>
           <p className="tp-card-summary">{t.summary}</p>
 
