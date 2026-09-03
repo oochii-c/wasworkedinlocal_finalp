@@ -11,6 +11,7 @@ import BottomNav from "../../components/layout/BottomNav";
 import TopicList from "../topics/TopicList";
 import Machi from "../machi";
 import Today from "../today";
+import YearFortunePage from "../yearFortune/YearFortunePage";
 import AiCounsel from "../aiCounsel/AiCounsel";
 import type { SajuView } from "../../state/SajuContext";
 import BubbleField from "../../components/effects/BubbleField";
@@ -49,6 +50,11 @@ function useReading() {
   return { stories, loading, error, retry: fetchIt };
 }
 
+const FORTUNE_TABS: { view: SajuView; label: string }[] = [
+  { view: "today", label: "오늘" },
+  { view: "year-fortune", label: "올해" },
+];
+
 export default function Dashboard() {
   const { chart, inputs, view, navigate } = useSaju();
   const { stories, loading, error, retry } = useReading();
@@ -67,17 +73,35 @@ export default function Dashboard() {
       <BubbleField />
       {/* 상단 바 */}
       <header className="db-topbar">
-        <span className="db-logo">용왕님 말씀</span>
+        <button type="button" className="db-back-arrow" onClick={() => navigate("home")} aria-label="용궁 홈으로 돌아가기">
+          ←
+        </button>
         <button type="button" className="db-back-btn" onClick={() => navigate("form")} aria-label="입력으로 돌아가기">
-          ← 다시 입력
+          다시 입력
         </button>
       </header>
 
       <main className="db-main">
         {view === "match" ? (
           <Machi chart={chart} />
-        ) : view === "today" ? (
-          <Today />
+        ) : view === "today" || view === "year-fortune" ? (
+          <>
+            <div className="db-tabs" role="tablist" aria-label="운세 기간">
+              {FORTUNE_TABS.map((t) => (
+                <button
+                  key={t.view}
+                  type="button"
+                  role="tab"
+                  className={`db-tab${view === t.view ? " is-active" : ""}`}
+                  aria-selected={view === t.view}
+                  onClick={() => navigate(t.view)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            {view === "today" ? <Today /> : <YearFortunePage />}
+          </>
         ) : view === "topics" ? (
           <TopicList />
         ) : (
@@ -121,10 +145,10 @@ export default function Dashboard() {
       {/* 하단 네비 */}
       <BottomNav
         active={
-          view === "today" ? "today"
+          view === "today" || view === "year-fortune" ? "today"
           : view === "topics" ? "topics"
           : view === "match" ? "match"
-          : "home"
+          : "chart"
         }
         onSelect={handleNav}
       />

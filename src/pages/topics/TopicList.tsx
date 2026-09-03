@@ -14,6 +14,16 @@ const THEME_ICON: Record<string, string> = {
   relations: "🤝",
 };
 
+// 요약이 없을 때(로딩·실패) 자리만 잡아둘 골격. 백엔드 THEME_DEFS와 key·순서·라벨을 맞춘다.
+const THEME_SKELETON = [
+  { key: "love", label: "애정" },
+  { key: "wealth", label: "재물" },
+  { key: "health", label: "건강" },
+  { key: "business", label: "사업" },
+  { key: "study", label: "학업" },
+  { key: "relations", label: "인간관계" },
+];
+
 function starRow(stars: number): string {
   const n = Math.min(5, Math.max(0, stars));
   return "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
@@ -93,6 +103,18 @@ export default function TopicList() {
     <div className="tp-wrap">
       {loading && <p className="tp-status" style={{ color: "#ffffff" }}><WhirlLoader />용왕님이 주제별 풀이를 살피는 중…</p>}
       {error && <p className="tp-status tp-status-err">{error}</p>}
+
+      {/* 요약을 못 받았어도 카드 골격은 띄운다 — 화면이 통째로 비지 않게 */}
+      {!themes && THEME_SKELETON.map((t) => (
+        <section key={t.key} className="db-section tp-card tp-card-empty" aria-label={`${t.label} 리딩`}>
+          <div className="tp-card-head">
+            <span className="tp-card-ico" aria-hidden="true">{THEME_ICON[t.key] ?? "🔹"}</span>
+            <span className="tp-card-title">{t.label}</span>
+            <span className="tp-card-stars" aria-hidden="true">{starRow(0)}</span>
+          </div>
+          <p className="tp-card-summary">{error ? "풀이를 불러오지 못했습니다." : "용왕님이 살피는 중…"}</p>
+        </section>
+      ))}
 
       {/* 주제 카드 세로 나열 */}
       {themes?.map((t) => {

@@ -6,7 +6,7 @@ import "../../styles/saju.css"; // --saju-* 토큰
 import "../dashboard/dashboard.css"; // db-* 셸 클래스 재사용
 
 export default function YearFortunePage() {
-  const { year, openYear, navigate } = useSaju();
+  const { year, openYear } = useSaju();
   const { min, max } = getChartYearRange(sampleChart);
   const yearNum = Number.isInteger(year) ? Math.min(Math.max(year, min), max) : min;
 
@@ -60,23 +60,14 @@ export default function YearFortunePage() {
   const sampleCitation =
     "세운 丙午(병오)는 천간 丙·지지 午 모두 화(火) 기운이며, 일간 庚(금)과는 화극금(火剋金)의 상극 관계입니다. 영역별 점수는 세운 오행(화)과 각 영역에 배정된 오행의 상생상극 관계로 산출됩니다 — 총운·재물(오행 금): 화극금 상극 관계라 1/5점, 인간관계(오행 토): 화생토 생조 관계라 5/5점, 애정(오행 화): 세운과 같은 비화(比和) 관계라 4/5점, 직업학업(오행 수): 수극화로 영역이 세운을 다스리는 관계라 3/5점, 건강(오행 목): 목생화로 영역이 세운에 기운을 내어주는 관계라 2/5점입니다. 여기에 사주 원국의 오행 개수(목2·화1·토2·금2·수1)가 각 영역 점수에 ±1로 반영됩니다. 월별 좋은/주의 달은 각 달의 월간(月干) 오행과 일간 금의 관계로 산출했습니다 — 1~3월(토·금)과 10~12월(토·토·금)은 일간을 돕는 생조 관계, 4~5월(수·수)은 일간이 기운을 내어주는 설기 관계, 8~9월(화·화)은 일간을 직접 극하는 관계로, 각각 좋은 달과 주의 달로 분류됩니다.";
 
+  // 셸(db-page/topbar/db-main)은 Dashboard가 제공. 여기서는 본문만 반환한다.
   return (
-    <div className="db-page">
-      <header className="db-topbar">
-        <span className="db-logo">용왕님 말씀</span>
-        <button type="button" className="db-back-btn" onClick={() => navigate("home")} aria-label="홈으로 돌아가기">
-          ← 돌아가기
-        </button>
-      </header>
-      <main className="db-main">
-        <YearFortuneDetail
-          chart={sampleChart}
-          year={yearNum}
-          summary={sampleSummary}
-          citation={sampleCitation || undefined}
-          onNavigate={openYear}
-        />
-      </main>
-    </div>
+    <YearFortuneDetail
+      chart={sampleChart}
+      year={yearNum}
+      summary={sampleSummary}
+      citation={sampleCitation || undefined}
+      onNavigate={openYear}
+    />
   );
 }

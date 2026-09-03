@@ -64,46 +64,8 @@
   line-height: 1.6;
 }
 
-.bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 120px;
-  margin-top: 16px;
-}
-
-.barColumn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-}
-
-.barGood {
-  width: 100%;
-  background: linear-gradient(180deg, var(--saju-gold-bright), var(--saju-gold));
-  border-radius: 4px 4px 0 0;
-  box-shadow: 0 0 8px rgba(234, 203, 138, 0.35);
-}
-
-.barCaution {
-  width: 100%;
-  background: var(--saju-red);
-  border-radius: 4px 4px 0 0;
-}
-
-.barNeutral {
-  width: 100%;
-  background: rgba(102, 178, 214, 0.35);
-  border-radius: 4px 4px 0 0;
-}
-
-.barLabel {
-  font-size: 0.7rem;
-  color: var(--saju-text-faint);
-  margin-top: 4px;
+.graphWrap {
+  margin: 16px -4px 0;
 }
 
 .legend {

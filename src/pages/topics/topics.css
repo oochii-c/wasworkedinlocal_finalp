@@ -105,3 +105,12 @@
   opacity: 1;
   text-decoration: underline;
 }
+
+/* 요약 미도착(로딩·실패) 카드 — 자리만 잡는 상태라 눌러도 펼칠 게 없다 */
+.tp-card-empty {
+  opacity: 0.55;
+}
+
+.tp-card-empty .tp-card-summary {
+  font-style: italic;
+}
