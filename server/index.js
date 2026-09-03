@@ -257,7 +257,7 @@ app.post("/api/year-fortune", async (req, res) => {
     return res.status(500).json({ error: "OPENROUTER_API_KEY 미설정" });
   }
 
-  const { year, ganZhi, rel, dayGan, stars, wuXingCount } = req.body || {};
+  const { year, ganZhi, rel, dayGan, stars, wuXingCount, domainScores, monthly } = req.body || {};
   if (!year || !ganZhi || !dayGan) {
     return res.status(400).json({ error: "필수 파라미터 누락" });
   }
@@ -269,11 +269,20 @@ app.post("/api/year-fortune", async (req, res) => {
   const zodiac = (ZHI_INFO[zhi] || [null, zhi])[1];
   const starsLabel = ["", "★☆☆☆☆", "★★☆☆☆", "★★★☆☆", "★★★★☆", "★★★★★"][stars] || "";
 
+  const DOMAIN_ORDER = ["건강", "애정", "인간관계", "재물", "직업", "학업"];
+  const domainScoreLine = domainScores && typeof domainScores === "object"
+    ? DOMAIN_ORDER.filter((d) => d in domainScores).map((d) => `${d} ${domainScores[d]}`).join(" · ")
+    : "정보 없음";
+  const monthlyLine = Array.isArray(monthly) && monthly.length
+    ? monthly.map((m) => `${m.month}월 ${m.ganZhi} ${m.score}점`).join(" · ")
+    : "정보 없음";
+
   const userMsg = `${anchorLine(dayGan)}
 
 ${buildYearFortuneUser({
     year, ganZhi, gan, zhi, dayGan, dayKor, dayElem, yearKor, yearElem, zodiac, rel, stars, starsLabel,
     wuXing: wuXingLine({ wuXingCount }),
+    domainScoreLine, monthlyLine,
   })}`;
 
   try {
@@ -314,7 +323,12 @@ ${buildYearFortuneUser({
       return res.status(502).json({ error: "응답 형식 오류", raw: content });
     }
 
-    res.json({ text: parsed.text });
+    res.json({
+      text: parsed.text,
+      summary: parsed.summary || "",
+      domains: parsed.domains && typeof parsed.domains === "object" ? parsed.domains : {},
+      months: Array.isArray(parsed.months) ? parsed.months : [],
+    });
   } catch (e) {
     res.status(500).json({ error: "연도 운세 생성 실패", detail: String(e) });
   }

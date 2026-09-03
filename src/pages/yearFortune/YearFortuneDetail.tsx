@@ -1,7 +1,8 @@
 import { SajuExtended } from "./saju/types";
-import { getMonthInGanZhi } from "./saju/mock/monthGanzhi";
-import { computeDomainScores, computeMonthlyScores } from "./saju/mock/scoring";
-import { getDomainInterpretation } from "./saju/mock/insights";
+import { getMonthInGanZhi } from "./saju/monthGanzhi";
+import { computeDomainScores, computeMonthlyScores, type Domain } from "./saju/scoring";
+import { getDomainInterpretation } from "./saju/insights";
+import { HANJA_TO_CHEON_GAN } from "./saju/ganzhi";
 import { YearNav } from "./components/YearNav";
 import { DomainStars } from "./components/DomainStars";
 import { MonthlyFlow } from "./components/MonthlyFlow";
@@ -11,7 +12,11 @@ import styles from "./YearFortuneDetail.module.css";
 export interface YearFortuneDetailProps {
   chart: SajuExtended;
   year: number;
-  summary: string | null;
+  gender: string;
+  summary: string | null;                              // AI 총평 (긴 글)
+  yearSummary?: string | null;                         // 올해 풀이 = AI 총평의 응원 톤 요약
+  domainTexts?: Record<string, string> | null;         // 영역 6개 LLM 설명
+  monthTexts?: string[] | null;                        // 월별 12개 LLM 풀이
   summaryLoading?: boolean;
   summaryError?: boolean;
 }
@@ -19,15 +24,20 @@ export interface YearFortuneDetailProps {
 export function YearFortuneDetail({
   chart,
   year,
+  gender,
   summary,
+  yearSummary,
+  domainTexts,
+  monthTexts,
   summaryLoading,
   summaryError,
 }: YearFortuneDetailProps) {
-  const domainScores = computeDomainScores(chart, year);
+  const domainScores = computeDomainScores(chart, year, gender);
   const monthlyScores = computeMonthlyScores(chart, year);
   const monthlyGanZhi = Array.from({ length: 12 }, (_, i) => getMonthInGanZhi(year, i + 1));
-  // 총운 = 올해 풀이. 월별 흐름 설명문 자리에서 기본값으로 상시 노출된다.
-  const yearSummary = getDomainInterpretation("총운", chart, year);
+  const dayGanKor = HANJA_TO_CHEON_GAN[chart.dayGan];
+  // 올해 풀이 = AI 총평의 요약. 아직 안 왔거나 실패하면 로컬 폴백 문구로 자리를 채운다.
+  const monthlyDefault = yearSummary || getDomainInterpretation("총운", chart.dayGan, year);
 
   return (
     <div className={styles.page}>
@@ -35,11 +45,17 @@ export function YearFortuneDetail({
         <MonthlyFlow
           monthlyScores={monthlyScores}
           monthlyGanZhi={monthlyGanZhi}
-          dayMaster={chart.dayMaster}
-          yearSummary={yearSummary}
+          dayMaster={dayGanKor}
+          monthTexts={monthTexts}
+          yearSummary={monthlyDefault}
         />
       </YearNav>
-      <DomainStars scores={domainScores} chart={chart} year={year} />
+      <DomainStars
+        scores={domainScores}
+        descriptions={domainTexts as Partial<Record<Domain, string>> | null | undefined}
+        dayGanHanja={chart.dayGan}
+        year={year}
+      />
       <AiSummary summary={summary} loading={summaryLoading} error={summaryError} />
     </div>
   );

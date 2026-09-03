@@ -42,6 +42,25 @@ export const HIDE_GAN_WEIGHT: Record<string, number[]> = {
 // 천간은 대상이 아니다.
 export const MONTH_BRANCH_WEIGHT = 2.0;
 
+// 일간(나) 대비 다른 천간의 십성을 5분류(비겁·식상·재성·관성·인성)로 돌려준다.
+// 정편(正偏) 구분은 하지 않는다 — 영역 점수화엔 5분류면 충분하다.
+// 방향: 오행 생극에서 木→火→土→金→水(생), 木→土→水→火→金(극).
+export function tenGodGroup(
+  dayGan: string,
+  otherGan: string,
+): "비겁" | "식상" | "재성" | "관성" | "인성" {
+  const dw = GAN_TO_WUXING[dayGan];
+  const ow = GAN_TO_WUXING[otherGan];
+  if (!dw || !ow) return "비겁";
+  const di = WUXING_ORDER.indexOf(dw);
+  const oi = WUXING_ORDER.indexOf(ow);
+  if (di === oi) return "비겁"; // 같은 오행
+  if ((di + 1) % 5 === oi) return "식상"; // 내가 생함
+  if ((di + 2) % 5 === oi) return "재성"; // 내가 극함
+  if ((di + 3) % 5 === oi) return "관성"; // 나를 극함
+  return "인성"; // 나를 생함
+}
+
 export function seWunScore(yearGan: string, dayGan: string): { rel: string; stars: number } {
   const yw = GAN_TO_WUXING[yearGan], dw = GAN_TO_WUXING[dayGan];
   if (!yw || !dw) return { rel: "?", stars: 3 };

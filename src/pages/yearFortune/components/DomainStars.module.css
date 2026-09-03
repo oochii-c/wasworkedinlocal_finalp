@@ -1,7 +1,4 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+.wrap {
   padding: 16px;
   background: rgba(11, 31, 59, 0.62);
   border: 1px solid #1E3A5A;
@@ -10,51 +7,108 @@
   box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06), 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.cell {
+/* 아이콘 + 라벨은 상시 노출(살짝 흐림), 활성만 또렷. LLM 풀이는 아래 박스로 아코디언. */
+.row {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: 0 0 auto;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
-  border: 1px solid #1E3A5A;
-  border-radius: 10px;
-  background: rgba(8, 22, 44, 0.6);
-  box-shadow: inset 0 0 12px rgba(102, 178, 214, 0.04);
-}
-
-.header {
-  display: flex;
-  align-items: center;
   gap: 4px;
-}
-
-.label {
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: 2px;
+  border: 0;
+  background: transparent;
   color: var(--saju-text);
-}
-
-.infoButton {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1px solid rgba(234, 203, 138, 0.4);
-  background: rgba(15, 36, 63, 0.85);
-  color: var(--saju-gold);
-  font-size: 0.65rem;
-  line-height: 1;
   cursor: pointer;
 }
 
-.description {
-  font-size: 0.7rem;
-  color: var(--saju-text-muted);
-  text-align: center;
-  line-height: 1.5;
+.tab:hover .icon,
+.tabActive .icon {
+  opacity: 1;
 }
 
-.caption {
-  font-size: 0.75rem;
+.tab:hover .tabLabel,
+.tabActive .tabLabel {
+  color: var(--saju-gold);
+  font-weight: 700;
+}
+
+/* SVG를 마스크로 깔고 background-color(점수색)로 채운다 → 아이콘이 점수 색 실루엣. */
+.icon {
+  display: block;
+  width: 60px;
+  height: 60px;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+/* 건강·인간관계 아이콘은 Figma 내보내기라 potrace 4개보다 커 보여 축소 보정. */
+.icon[data-domain="건강"],
+.icon[data-domain="인간관계"] {
+  transform: scale(0.8);
+}
+
+.tabLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--saju-text-muted);
+  white-space: nowrap;
+}
+
+/* "올해 풀이" 박스(MonthlyFlow .detail)와 동일한 고정 스타일. */
+.panel {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(234, 203, 138, 0.3);
+  border-radius: 10px;
+  background: rgba(8, 22, 44, 0.95);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.panelTitle {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--saju-gold);
+}
+
+.panelCaption {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--saju-gold);
   opacity: 0.9;
+  white-space: nowrap;
+}
+
+.panelText {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--saju-text-muted);
+  word-break: keep-all;
 }

@@ -11,7 +11,9 @@
   font-size: 17px;
   font-weight: 700;
   color: var(--saju-gold);
-  margin-bottom: 10px;
+  /* "오늘의 운세"(.db-section-title)와 위/아래 여백 통일 */
+  margin-top: 0;
+  margin-bottom: 14px;
   letter-spacing: -0.01em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
@@ -21,6 +23,10 @@
   line-height: 1.75;
   color: var(--saju-text);
   word-break: keep-all;
+}
+
+.text + .text {
+  margin-top: 0.9em;
 }
 
 .loading {

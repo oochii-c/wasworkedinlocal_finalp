@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { CheonGan, GanZhi } from "../saju/types";
 import { ganZhiToHanja } from "../saju/ganzhi";
-import { GOOD_MONTH_THRESHOLD, CAUTION_MONTH_THRESHOLD, getMonthInterpretation } from "../saju/mock/insights";
+import { getMonthInterpretation, scoreColor } from "../saju/insights";
 import { smoothPath } from "../../dashboard/DaYunFlow";
 import styles from "./MonthlyFlow.module.css";
 
@@ -10,6 +10,8 @@ export interface MonthlyFlowProps {
   monthlyScores: number[];
   monthlyGanZhi: GanZhi[];
   dayMaster: CheonGan;
+  // 달을 탭했을 때 보여줄 월별 LLM 풀이 12개. 비면 로컬 폴백 문구를 쓴다.
+  monthTexts?: string[] | null;
   // 아무 달도 선택하지 않았을 때 설명문 자리에 상시 노출되는 올해 총운 풀이
   yearSummary: string;
 }
@@ -17,13 +19,7 @@ export interface MonthlyFlowProps {
 // 대운(인생 흐름) 그래프와 같은 좌표계 — 두 화면의 그래프가 같은 형태로 보이도록 맞춤
 const W = 320, H = 80, PX = 16, PY = 12;
 
-function dotColor(score: number): string {
-  if (score >= GOOD_MONTH_THRESHOLD) return "#EACB8A";
-  if (score <= CAUTION_MONTH_THRESHOLD) return "var(--saju-red)";
-  return "rgb(184,206,224)";
-}
-
-export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, yearSummary }: MonthlyFlowProps) {
+export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, monthTexts, yearSummary }: MonthlyFlowProps) {
   // 선택된 달 인덱스(0~11). null이면 아무 달도 펼치지 않은 상태.
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -70,8 +66,8 @@ export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, yearSumma
           {points.map((pt, i) => (
             <circle key={i} cx={pt.x} cy={pt.y}
               r={i === selected ? 5 : 3}
-              fill={dotColor(monthlyScores[i])}
-              stroke={i === selected ? "#EACB8A" : "none"}
+              fill={scoreColor(monthlyScores[i])}
+              stroke={i === selected ? "#EAF2FB" : "none"}
               strokeWidth={i === selected ? 1.5 : 0}
               style={{ pointerEvents: "none" }}
             />
@@ -107,7 +103,7 @@ export function MonthlyFlow({ monthlyScores, monthlyGanZhi, dayMaster, yearSumma
               <span className={styles.detailScore}>{monthlyScores[selected]}점</span>
             </div>
             <span className={styles.detailInterpretation}>
-              {getMonthInterpretation(monthlyGanZhi[selected].gan, dayMaster)}
+              {monthTexts?.[selected] || getMonthInterpretation(monthlyGanZhi[selected].gan, dayMaster)}
             </span>
           </>
         )}
