@@ -276,7 +276,7 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
           <textarea
             ref={textareaRef}
             className="ac-input"
-            placeholder="궁금한 걸 물어보세요… (Shift+Enter 줄바꿈)"
+            placeholder="궁금한 걸 물어보세요…"
             aria-label="상담 질문 입력"
             rows={1}
             value={inputText}
