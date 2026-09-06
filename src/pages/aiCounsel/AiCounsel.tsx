@@ -4,6 +4,7 @@ import BottomNav from "../../components/layout/BottomNav";
 import { getCounsel, guardInput } from "../../services/counselApi";
 import { deriveIdentity } from "./identity";
 import { PERSONAS, DEFAULT_PERSONA, getPersona, type Persona } from "./personas";
+import { loadThreads, saveThread } from "./threadStore";
 import "./aiCounsel.css";
 import type { AiCounselProps, CounselMessage } from "./types";
 
@@ -60,11 +61,36 @@ function TypewriterText({ text, onTick }: { text: string; onTick?: () => void })
 export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
   // null = 채팅방 목록, 값 = 그 캐릭터의 방
   const [openId, setOpenId] = useState<string | null>(null);
-  // 캐릭터별 대화 — 방을 나갔다 들어와도 세션 동안은 이어진다(새로고침하면 초기화).
+  // 캐릭터별 대화. 원국(baZi)별로 IndexedDB에 영속 — 새로고침·재방문에도 복기된다.
+  // threadStore 를 못 쓰는 환경이면 자동으로 세션 메모리로만 동작.
   const [threads, setThreads] = useState<Record<string, CounselMessage[]>>({});
+  const [hydrated, setHydrated] = useState(false);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // 원국 서명 — 저장 스코프 키. (총운·연운 캐시와 같은 baZi 8자 기준)
+  const sig = useMemo(() => chart?.baZi?.join("") ?? "", [chart]);
+
+  // 원국이 바뀌면 그 원국의 저장된 대화를 불러온다.
+  useEffect(() => {
+    let alive = true;
+    setHydrated(false);
+    loadThreads(sig).then((loaded) => {
+      if (!alive) return;
+      setThreads(loaded);
+      setHydrated(true);
+    });
+    return () => { alive = false; };
+  }, [sig]);
+
+  // 실제 대화가 오간 방만 영속한다(인사말만 있는 방은 저장하지 않음).
+  useEffect(() => {
+    if (!hydrated) return;
+    for (const [pid, msgs] of Object.entries(threads)) {
+      if (msgs.some((m) => m.role === "me")) void saveThread(sig, pid, msgs);
+    }
+  }, [threads, hydrated, sig]);
 
   const persona = getPersona(openId ?? DEFAULT_PERSONA.id);
   const messages = openId ? threads[openId] ?? [] : [];
