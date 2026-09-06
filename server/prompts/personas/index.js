@@ -8,12 +8,13 @@ import { SHARK_IDENTITY, SHARK_FALLBACK } from "./shark.js";
 import { DOLPHIN_IDENTITY, DOLPHIN_FALLBACK } from "./dolphin.js";
 import { HAIRTAIL_IDENTITY, HAIRTAIL_FALLBACK } from "./hairtail.js";
 
+// model: 캐릭터별 지정 모델. counsel.js 가 persona.model → env OPENROUTER_MODEL → 기본값 순으로 고른다.
 export const PERSONAS = {
-  turtle:   { id: "turtle",   name: "거북 현자",  identity: TURTLE_IDENTITY,   fallback: TURTLE_FALLBACK },
-  princess: { id: "princess", name: "용궁 공주",  identity: PRINCESS_IDENTITY, fallback: PRINCESS_FALLBACK },
-  shark:    { id: "shark",    name: "상어 장군",  identity: SHARK_IDENTITY,    fallback: SHARK_FALLBACK },
-  dolphin:  { id: "dolphin",  name: "돌고래",     identity: DOLPHIN_IDENTITY,  fallback: DOLPHIN_FALLBACK },
-  hairtail: { id: "hairtail", name: "갈치",       identity: HAIRTAIL_IDENTITY, fallback: HAIRTAIL_FALLBACK },
+  turtle:   { id: "turtle",   name: "거북 대신",  model: "openai/gpt-5",              identity: TURTLE_IDENTITY,   fallback: TURTLE_FALLBACK },
+  princess: { id: "princess", name: "용궁 공주",  model: "anthropic/claude-opus-4.1",  identity: PRINCESS_IDENTITY, fallback: PRINCESS_FALLBACK },
+  shark:    { id: "shark",    name: "상어 장군",  model: "google/gemini-2.5-flash",    identity: SHARK_IDENTITY,    fallback: SHARK_FALLBACK },
+  dolphin:  { id: "dolphin",  name: "돌고래",     model: "anthropic/claude-sonnet-4.5", identity: DOLPHIN_IDENTITY,  fallback: DOLPHIN_FALLBACK },
+  hairtail: { id: "hairtail", name: "갈치",       model: "deepseek/deepseek-chat",     identity: HAIRTAIL_IDENTITY, fallback: HAIRTAIL_FALLBACK },
 };
 
 export const DEFAULT_PERSONA_ID = "turtle";

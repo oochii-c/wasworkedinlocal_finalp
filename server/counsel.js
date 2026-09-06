@@ -9,9 +9,26 @@ const router = express.Router();
 
 const MAX_INPUT = 500; // 사용자 질문 최대 길이(프롬프트 폭탄 방지)
 
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// OpenRouter 호출. 공유 풀 과부하(429)는 대개 짧게 끝나므로 1회만 재시도한다.
+async function callOpenRouter(apiKey, body) {
+  const opts = {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  };
+  let r = await fetch(OPENROUTER_URL, opts);
+  if (r.status === 429) {
+    await sleep(1200);
+    r = await fetch(OPENROUTER_URL, opts);
+  }
+  return r;
+}
+
 router.post("/api/counsel", async (req, res) => {
   const API_KEY = process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
 
   if (!API_KEY || API_KEY.includes("여기에_키_입력")) {
     return res.status(500).json({ error: "OPENROUTER_API_KEY가 설정되지 않았습니다. server/.env를 확인하세요." });
@@ -19,6 +36,8 @@ router.post("/api/counsel", async (req, res) => {
 
   const { chart, messages, personaId } = req.body || {};
   const persona = getPersona(personaId);
+  // 캐릭터별 모델 우선, 없으면 전역 env, 그다음 기본값
+  const MODEL = persona.model || process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
   if (!chart || !chart.pillars) return res.status(400).json({ error: "원국 데이터가 없습니다." });
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "질문이 없습니다." });
@@ -42,15 +61,11 @@ router.post("/api/counsel", async (req, res) => {
   );
 
   try {
-    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: "system", content: system }, ...history],
-        response_format: { type: "json_object" },
-        temperature: 0.9,
-      }),
+    const r = await callOpenRouter(API_KEY, {
+      model: MODEL,
+      messages: [{ role: "system", content: system }, ...history],
+      response_format: { type: "json_object" },
+      temperature: 0.9,
     });
 
     if (!r.ok) {
@@ -75,7 +90,9 @@ router.post("/api/counsel", async (req, res) => {
       return res.json({ reply: persona.fallback, src: "" });
     }
 
-    res.json({ reply: parsed.reply, src: parsed.src || "" });
+    // src 는 한국어 명리 근거 한 줄만 허용. 한글이 없으면(영어 메타추론 등) 버린다.
+    const src = typeof parsed.src === "string" && /[가-힣]/.test(parsed.src) ? parsed.src.trim() : "";
+    res.json({ reply: parsed.reply, src });
   } catch (e) {
     res.status(500).json({ error: "상담 생성 실패", detail: String(e) });
   }
