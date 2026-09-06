@@ -58,7 +58,7 @@ export const PERSONAS: Persona[] = [
     tagline: "엉뚱한 각도에서 원국을 다시 읽어준다. 새로운 시각 하나쯤은.",
     name: "갈치",
     icon: hairtailIcon,
-    welcome: "네 원국, 좀 다르게 읽어봤어. 뭐가 궁금해?",
+    welcome: "히히, 궁금한 거 다 물어봐.",
     reject: "그건 내 각도 밖이야. 사주 얘기 하자.",
     error: "'갈치'가 잠시 자리를 비웠어요.",
   },
