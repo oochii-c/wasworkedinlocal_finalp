@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
 import BottomNav from "../../components/layout/BottomNav";
 import { getCounsel, guardInput } from "../../services/counselApi";
-import { deriveIdentity } from "./identity";
 import { PERSONAS, DEFAULT_PERSONA, getPersona, type Persona } from "./personas";
 import { loadThreads, saveThread } from "./threadStore";
 import "./aiCounsel.css";
@@ -196,24 +194,6 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
     }, 0);
   };
 
-  // 상단 사주 스트립 가로 이동 — 데스크톱: 마우스 휠(세로→가로) + 클릭 드래그
-  const stripRef = useRef<HTMLDivElement>(null);
-  const drag = useRef({ down: false, x: 0, left: 0 });
-  const onStripWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
-    if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
-  };
-  const onStripDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse" || !stripRef.current) return;
-    drag.current = { down: true, x: e.clientX, left: stripRef.current.scrollLeft };
-  };
-  const onStripMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!drag.current.down || !stripRef.current) return;
-    stripRef.current.scrollLeft = drag.current.left - (e.clientX - drag.current.x);
-  };
-  const endStripDrag = () => { drag.current.down = false; };
-
-  const identity = useMemo(() => deriveIdentity(chart), [chart]);
-
   // 채팅방 목록
   if (!openId) {
     return (
@@ -253,37 +233,12 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
         <button type="button" className="db-back-arrow" onClick={() => setOpenId(null)} aria-label="상담 목록으로 돌아가기">
           ←
         </button>
-        <span className="ac-room-title">{persona.name}</span>
       </header>
 
-
-      {/* 상단 고정: 캐릭터가 살펴본 그대 (일간 + 사주 전체 스와이프) */}
-      <div className="ac-identity">
-        <div className="ac-char">
-          <div
-            className="ac-char-hanja"
-            style={{ background: `linear-gradient(135deg, ${identity.color}55, ${identity.color}22)`,
-                     borderColor: `${identity.color}66` }}
-          >{identity.hanja}</div>
-          <div className="ac-char-meta">
-            <div className="ac-char-type">{identity.typeLabel}</div>
-            <div className="ac-char-tags">{identity.tags}</div>
-          </div>
-        </div>
-        <div
-          ref={stripRef}
-          className="ac-strip"
-          aria-label="그대의 사주"
-          onWheel={onStripWheel}
-          onPointerDown={onStripDown}
-          onPointerMove={onStripMove}
-          onPointerUp={endStripDrag}
-          onPointerLeave={endStripDrag}
-        >
-          {identity.chips.map((chip) => (
-            <span key={chip} className="ac-chip">{chip}</span>
-          ))}
-        </div>
+      {/* 상단: 상담 캐릭터 프로필 (사진 + 이름) */}
+      <div className="ac-identity ac-identity--persona">
+        <img src={persona.icon} alt="" className="ac-persona-img" />
+        <span className="ac-persona-name">{persona.name}</span>
       </div>
 
       {/* 채팅 */}
