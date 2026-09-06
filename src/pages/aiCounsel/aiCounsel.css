@@ -76,6 +76,26 @@
   background: linear-gradient(180deg, rgba(11, 31, 59, 0.88), rgba(8, 22, 44, 0.92));
   border-bottom: 1px solid rgba(234, 203, 138, 0.28);
 }
+/* 상담 캐릭터 프로필 — 사진(가운데) + 그 아래 이름 */
+.ac-identity--persona {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.ac-persona-img {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(234, 203, 138, 0.5);
+  display: block;
+}
+.ac-persona-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--saju-text);
+}
 .ac-char {
   display: flex;
   align-items: center;
