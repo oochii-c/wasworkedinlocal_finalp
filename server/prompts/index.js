@@ -11,3 +11,4 @@ export * from "./dayun-fortune.js";
 export * from "./daily-fortune.js";
 export * from "./daily-talisman.js";
 export * from "./counsel.js";
+export * from "./personas/index.js";
