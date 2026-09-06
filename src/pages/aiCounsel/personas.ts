@@ -19,12 +19,12 @@ export interface Persona {
 export const PERSONAS: Persona[] = [
   {
     id: "turtle",
-    tagline: "느긋하고 자상한 노현자. 서두르지 않고 풀어준다.",
-    name: "거북 현자",
+    tagline: "느긋하고 자상한 용궁의 노대신. 서두르지 않고 풀어준다.",
+    name: "거북 대신",
     icon: turtleIcon,
     welcome: "허허, 그대의 사주는 이미 들여다보았네. 무엇이 궁금한가, 천천히 물어보게.",
     reject: "허허, 나는 사주 이야기만 하네. 다른 물음은 접어두게.",
-    error: "지금은 물살이 어지러워 말이 닿지 않는구먼. 조금 뒤에 다시 물어보게.",
+    error: "'거북 대신'이 잠시 자리를 비웠어요.",
   },
   {
     id: "princess",
@@ -33,16 +33,16 @@ export const PERSONAS: Persona[] = [
     icon: princessIcon,
     welcome: "네 사주는 벌써 다 봐뒀어. 편하게 물어봐, 뭐든 들어줄게.",
     reject: "미안, 나는 사주 이야기만 할 수 있어. 다른 건 어려워.",
-    error: "지금은 파도가 심해서 말이 잘 안 닿네. 조금 뒤에 다시 물어봐 줄래?",
+    error: "'용궁 공주'가 잠시 자리를 비웠어요.",
   },
   {
     id: "shark",
     tagline: "직설·단도직입. 할 일과 피할 일을 짚어준다.",
     name: "상어 장군",
     icon: sharkIcon,
-    welcome: "네 판은 이미 봤다. 물어라. 돌려 말하지 않겠다.",
-    reject: "사주 밖의 이야기는 받지 않는다.",
-    error: "지금은 물살이 거칠어 말이 닿지 않는다. 잠시 뒤 다시 물어라.",
+    welcome: "네 판은 이미 다 봤어. 물어봐.",
+    reject: "사주 밖의 얘긴 안 받아.",
+    error: "'상어 장군'이 잠시 자리를 비웠어요.",
   },
   {
     id: "dolphin",
@@ -51,16 +51,16 @@ export const PERSONAS: Persona[] = [
     icon: dolphinIcon,
     welcome: "네 사주 벌써 다 봤지! 뭐부터 물어볼래?",
     reject: "앗, 나는 사주 얘기만 할 수 있어! 다른 건 패스.",
-    error: "어라, 파도가 세서 말이 안 닿네. 조금 있다 다시 물어봐 줘.",
+    error: "'돌고래'가 잠시 자리를 비웠어요.",
   },
   {
     id: "hairtail",
-    tagline: "냉소적이고 날카로운 분석. 듣기 좋은 말은 없다.",
+    tagline: "엉뚱한 각도에서 원국을 다시 읽어준다. 새로운 시각 하나쯤은.",
     name: "갈치",
     icon: hairtailIcon,
-    welcome: "네 원국은 다 읽었어. 듣기 좋은 말은 기대하지 말고 물어봐.",
-    reject: "사주 밖의 얘기엔 관심 없어.",
-    error: "지금은 물살이 어지러워서 말이 안 닿아. 나중에 다시 물어봐.",
+    welcome: "네 원국, 좀 다르게 읽어봤어. 뭐가 궁금해?",
+    reject: "그건 내 각도 밖이야. 사주 얘기 하자.",
+    error: "'갈치'가 잠시 자리를 비웠어요.",
   },
 ];
 
