@@ -13,6 +13,7 @@ import Machi from "../machi";
 import Today from "../today";
 import YearFortunePage from "../yearFortune/YearFortunePage";
 import AiCounsel from "../aiCounsel/AiCounsel";
+import Wish from "../wish/Wish";
 import type { SajuView } from "../../state/SajuContext";
 import BubbleField from "../../components/effects/BubbleField";
 import { useSaju } from "../../state/SajuContext";
@@ -67,6 +68,7 @@ export default function Dashboard() {
   };
 
   if (view === "ai") return <AiCounsel chart={chart} name={inputs?.name} onSelect={handleNav} />;
+  if (view === "wishes") return <Wish onSelect={handleNav} />;
 
   return (
     <div className="db-page">
