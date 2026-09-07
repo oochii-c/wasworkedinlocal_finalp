@@ -3,7 +3,7 @@ import { type SajuInput, type Pillar, type SajuChart, type SajuExtended } from "
 import { correctToSaju } from "./timeCorrection";
 import { toTraditional, toTradArr } from "./hanja";
 import { SIPSHEN_GROUP, calcShenSha } from "./shenSha";
-import { GAN_TO_WUXING, calcFortuneFlow } from "./fortune";
+import { GAN_TO_WUXING, HIDE_GAN_WEIGHT, MONTH_BRANCH_WEIGHT, calcFortuneFlow } from "./fortune";
 
 export const PILLAR_DEFS: [string, string][] = [
   ["연", "Year"],
@@ -83,26 +83,36 @@ export function computeSaju(input: SajuInput): SajuChart {
 export function computeSajuExtended(input: SajuInput): SajuExtended {
   const base = computeSaju(input);
 
-  // 오행 집계 (원국 8자 + 지장간)
+  // 오행 집계 (원국 8자 + 지장간). 개수가 아니라 가중 점수라 소수가 나온다.
+  // 천간 1.0 / 지지 1.0 / 지지의 지장간 합 1.0, 월지 계열만 MONTH_BRANCH_WEIGHT 배.
+  // 총합은 사주와 무관하게 상수(월지 ×2 기준 14.0)라 오행 점유율을 사주 간에 비교할 수 있다.
   const wuXingCount: Record<string, number> = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
-  // 1. 원국 8자 오행 (천간 + 지지)
   for (const p of base.pillars) {
-    for (const ch of p.wuXing) {
-      if (ch in wuXingCount) wuXingCount[ch]++;
-    }
-  }
-  // 2. 지장간 오행
-  for (const p of base.pillars) {
-    for (const gan of p.hideGan) {
+    const mul = p.key === "월" ? MONTH_BRANCH_WEIGHT : 1;
+    // p.wuXing 은 "木火" 꼴 2글자 — 앞이 천간 오행, 뒤가 지지 오행
+    const [ganWx, zhiWx] = p.wuXing;
+    if (ganWx in wuXingCount) wuXingCount[ganWx] += 1;
+    if (zhiWx in wuXingCount) wuXingCount[zhiWx] += mul;
+
+    const weights = HIDE_GAN_WEIGHT[p.zhi] || [];
+    p.hideGan.forEach((gan, i) => {
       const wx = GAN_TO_WUXING[gan];
-      if (wx && wx in wuXingCount) wuXingCount[wx]++;
-    }
+      // 가중치 표에 없는 자리는 0 — 표와 라이브러리가 어긋나도 총합만 줄지 값이 튀지 않는다.
+      if (wx && wx in wuXingCount) wuXingCount[wx] += (weights[i] ?? 0) * mul;
+    });
+  }
+  // 부동소수 누적 오차 정리 (0.30000000000000004 방지)
+  for (const k of Object.keys(wuXingCount)) {
+    wuXingCount[k] = Math.round(wuXingCount[k] * 100) / 100;
   }
 
   // 십성 집계 (5분류)
   const shiShenCount: Record<string, number> = { 비겁: 0, 식상: 0, 재성: 0, 관성: 0, 인성: 0 };
   for (const p of base.pillars) {
-    const g = SIPSHEN_GROUP[p.shiShenGan];
+    // 일간 자신(日主)은 세지 않는다. 모든 사주에 무조건 붙는 비겁 +1이라
+    // 비겁만 평균 26%로 뜨고(나머지 18%대) "비겁 없는 사주"가 아예 못 나왔다.
+    // 빼면 다섯 분류가 19.8~20.1%로 균등선에 붙는다.
+    const g = p.shiShenGan === "日主" ? undefined : SIPSHEN_GROUP[p.shiShenGan];
     if (g) shiShenCount[g]++;
     for (const z of p.shiShenZhi) {
       const gz = SIPSHEN_GROUP[z];

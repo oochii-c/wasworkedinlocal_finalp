@@ -22,8 +22,13 @@ export function getYearGanZhi(year: number): GanZhi {
 }
 
 export function getChartYearRange(chart: SajuExtended): { min: number; max: number } {
-  const birthYear = Number(chart.birthDate.slice(0, 4));
-  return { min: birthYear + 1, max: birthYear + 100 };
+  // 실제 원국이 들고 있는 세운(대운에서 펼친 연도 목록)의 양 끝을 범위로 쓴다.
+  const years = (chart.seWun ?? []).map((s) => s.year);
+  if (years.length === 0) {
+    const now = new Date().getFullYear();
+    return { min: now, max: now + 100 };
+  }
+  return { min: years[0], max: years[years.length - 1] };
 }
 
 export const CHEON_GAN_HANJA: Record<CheonGan, string> = {
@@ -35,6 +40,25 @@ export const JI_JI_HANJA: Record<JiJi, string> = {
   자: "子", 축: "丑", 인: "寅", 묘: "卯", 진: "辰", 사: "巳",
   오: "午", 미: "未", 신: "申", 유: "酉", 술: "戌", 해: "亥",
 };
+
+// 실제 원국·lunar-typescript 는 한자를 주므로 되돌리는 표도 둔다.
+export const HANJA_TO_CHEON_GAN = Object.fromEntries(
+  Object.entries(CHEON_GAN_HANJA).map(([k, v]) => [v, k]),
+) as Record<string, CheonGan>;
+
+export const HANJA_TO_JI_JI = Object.fromEntries(
+  Object.entries(JI_JI_HANJA).map(([k, v]) => [v, k]),
+) as Record<string, JiJi>;
+
+// 한자 오행("木") ↔ 한글 오행("목"). getOhaengRelation 은 한글 오행을 받는다.
+export const HANJA_ELEM_TO_KOR: Record<string, Ohaeng> = {
+  木: "목", 火: "화", 土: "토", 金: "금", 水: "수",
+};
+
+// 한자 일간("庚") → 한글 오행("금")
+export function ohaengOfHanjaGan(hanjaGan: string): Ohaeng {
+  return GAN_TO_OHAENG[HANJA_TO_CHEON_GAN[hanjaGan]];
+}
 
 export const GAN_TO_OHAENG: Record<CheonGan, Ohaeng> = {
   갑: "목", 을: "목",

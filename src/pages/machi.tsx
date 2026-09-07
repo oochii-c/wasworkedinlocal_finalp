@@ -197,7 +197,7 @@ const ROLE_INFO: Record<RelationType, { label: string; emoji: string; desc: stri
   gwiin: { label: "회장님", emoji: "👑", desc: "챙겨야할 존재", caution: "받기만 하면 서운해질 수 있어요, 가끔은 나도 먼저 손을 내밀어보세요", base: 92, color: "#6FE0C0" },
   danjjak: { label: "단짝", emoji: "🙏", desc: "일지가 똑같은 찐친", caution: "너무 편해서 소중함을 잊지 않게, 가끔은 마음을 표현해주세요", base: 90, color: "#FF9ED8" },
   oreunpal: { label: "PT쌤", emoji: "🏋️‍♂️", desc: "지혜의 귀인", caution: "내가 너무 많이 챙기면 지칠 수 있어요, 가끔은 기대도 괜찮아요", base: 82, color: "#C9A6F5" },
-  horangi: { label: "혐관", emoji: "⚡", desc: "운을 방해하는 존재", caution: "무리해서 맞추려 하지 마세요, 그냥 다른 리듬일 뿐이에요", base: 58, color: "#7FA8D9" },
+  horangi: { label: "주의", emoji: "⚡", desc: "운을 방해하는 존재", caution: "무리해서 맞추려 하지 마세요, 그냥 다른 리듬일 뿐이에요", base: 58, color: "#7FA8D9" },
   jageuk: { label: "키링", emoji: "🐣", desc: "매력적인 귀인", caution: "부딪히는 게 나쁜 건 아니에요, 다만 감정 소모되지 않게 거리 조절을", base: 48, color: "#F08585" },
 };
 

@@ -6,16 +6,6 @@ export interface GanZhi {
   ji: JiJi;
 }
 
-export interface SajuExtended {
-  birthDate: string;
-  calendarType: "solar" | "lunar";
-  gender: "M" | "F";
-  pillars: {
-    year: GanZhi;
-    month: GanZhi;
-    day: GanZhi;
-    hour: GanZhi | null;
-  };
-  dayMaster: CheonGan;
-  ohaeng: Record<"목" | "화" | "토" | "금" | "수", number>;
-}
+// 원국은 폼에서 계산돼 SajuContext 에 실려오는 실제 확장 원국을 그대로 쓴다.
+// (한자 일간·가중치 오행·십성·세운 배열 등을 모두 들고 있다.)
+export type { SajuExtended } from "../../../saju";

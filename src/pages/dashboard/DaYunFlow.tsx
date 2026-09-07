@@ -22,7 +22,7 @@ function starsDisplay(n: number) {
   return "★".repeat(full) + "☆".repeat(5 - full);
 }
 
-function smoothPath(pts: { x: number; y: number }[]): string {
+export function smoothPath(pts: { x: number; y: number }[]): string {
   if (pts.length < 2) return "";
   const get = (i: number) => pts[Math.max(0, Math.min(i, pts.length - 1))];
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;

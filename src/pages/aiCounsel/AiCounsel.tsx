@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
 import BottomNav from "../../components/layout/BottomNav";
 import { getCounsel, guardInput } from "../../services/counselApi";
-import { deriveIdentity } from "./identity";
+import { PERSONAS, DEFAULT_PERSONA, getPersona, type Persona } from "./personas";
+import { loadThreads, saveThread } from "./threadStore";
 import "./aiCounsel.css";
 import type { AiCounselProps, CounselMessage } from "./types";
-
-const DAILY_LIMIT = 5;
 
 // 정적 추천 질문
 const SUGGESTED = [
@@ -20,10 +18,7 @@ const SUGGESTED = [
   "이사나 이동수가 있을까요?",
 ];
 
-const WELCOME: CounselMessage = {
-  role: "wang",
-  text: "짐이 그대의 사주를 이미 살펴보았노라. 무엇이 궁금한가, 편히 물으라.",
-};
+const welcomeOf = (p: Persona): CounselMessage => ({ role: "wang", text: p.welcome });
 
 // 용왕 답변 타자기 효과 — 마운트 시 1회 한 글자씩. reduced-motion이면 즉시 전체 표시.
 function TypewriterText({ text, onTick }: { text: string; onTick?: () => void }) {
@@ -62,11 +57,49 @@ function TypewriterText({ text, onTick }: { text: string; onTick?: () => void })
 }
 
 export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
-  const [messages, setMessages] = useState<CounselMessage[]>([WELCOME]);
+  // null = 채팅방 목록, 값 = 그 캐릭터의 방
+  const [openId, setOpenId] = useState<string | null>(null);
+  // 캐릭터별 대화. 원국(baZi)별로 IndexedDB에 영속 — 새로고침·재방문에도 복기된다.
+  // threadStore 를 못 쓰는 환경이면 자동으로 세션 메모리로만 동작.
+  const [threads, setThreads] = useState<Record<string, CounselMessage[]>>({});
+  const [hydrated, setHydrated] = useState(false);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [remaining, setRemaining] = useState(DAILY_LIMIT);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // 원국 서명 — 저장 스코프 키. (총운·연운 캐시와 같은 baZi 8자 기준)
+  const sig = useMemo(() => chart?.baZi?.join("") ?? "", [chart]);
+
+  // 원국이 바뀌면 그 원국의 저장된 대화를 불러온다.
+  useEffect(() => {
+    let alive = true;
+    setHydrated(false);
+    loadThreads(sig).then((loaded) => {
+      if (!alive) return;
+      setThreads(loaded);
+      setHydrated(true);
+    });
+    return () => { alive = false; };
+  }, [sig]);
+
+  // 실제 대화가 오간 방만 영속한다(인사말만 있는 방은 저장하지 않음).
+  useEffect(() => {
+    if (!hydrated) return;
+    for (const [pid, msgs] of Object.entries(threads)) {
+      if (msgs.some((m) => m.role === "me")) void saveThread(sig, pid, msgs);
+    }
+  }, [threads, hydrated, sig]);
+
+  const persona = getPersona(openId ?? DEFAULT_PERSONA.id);
+  const messages = openId ? threads[openId] ?? [] : [];
+
+  // 열린 방에만 메시지를 덧붙인다.
+  const append = useCallback((...msgs: CounselMessage[]) => {
+    setThreads((prev) => {
+      if (!openId) return prev;
+      return { ...prev, [openId]: [...(prev[openId] ?? []), ...msgs] };
+    });
+  }, [openId]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -101,44 +134,48 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
 
   const handleSend = useCallback(async () => {
     const text = inputText.trim();
-    if (!text || loading || remaining <= 0) return;
+    if (!text || loading) return;
 
     // 1층 클라이언트 인젝션 방어
     if (guardInput(text) === null) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "wang",
-          text: "짐은 사주의 이치만을 논하노라. 다른 물음은 받지 않겠노라.",
-        },
-      ]);
+      append({ role: "wang", text: persona.reject });
       setInputText("");
       resetTextarea();
       return;
     }
 
     const userMsg: CounselMessage = { role: "me", text };
-    setMessages((prev) => [...prev, userMsg]);
+    append(userMsg);
     setInputText("");
     resetTextarea();
     setLoading(true);
 
     try {
-      const { reply, src, remaining: left } = await getCounsel({
+      const { reply, src } = await getCounsel({
         chart,
         messages: [...messages, userMsg],
+        personaId: persona.id,
       });
-      setMessages((prev) => [...prev, { role: "wang", text: reply, src }]);
-      setRemaining(left);
+      append({ role: "wang", text: reply, src });
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "wang", text: "용궁에 파도가 심하여 말씀을 전하기 어렵노라. 잠시 후 다시 물으라." },
-      ]);
+      append({ role: "wang", text: persona.error });
     } finally {
       setLoading(false);
     }
-  }, [inputText, loading, remaining, messages, chart, resetTextarea]);
+  }, [inputText, loading, messages, chart, persona, append, resetTextarea]);
+
+  // 방 입장 — 첫 입장이면 인사말로 대화를 시작한다.
+  const enterRoom = (p: Persona) => {
+    setThreads((prev) => (prev[p.id] ? prev : { ...prev, [p.id]: [welcomeOf(p)] }));
+    setInputText("");
+    setOpenId(p.id);
+  };
+
+  // 목록에 보일 미리보기 — 마지막 대화, 없으면 캐릭터 소개.
+  const previewOf = (p: Persona) => {
+    const thread = threads[p.id];
+    return thread?.length ? thread[thread.length - 1].text : p.tagline;
+  };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -157,60 +194,51 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
     }, 0);
   };
 
-  // 상단 사주 스트립 가로 이동 — 데스크톱: 마우스 휠(세로→가로) + 클릭 드래그
-  const stripRef = useRef<HTMLDivElement>(null);
-  const drag = useRef({ down: false, x: 0, left: 0 });
-  const onStripWheel = (e: ReactWheelEvent<HTMLDivElement>) => {
-    if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
-  };
-  const onStripDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse" || !stripRef.current) return;
-    drag.current = { down: true, x: e.clientX, left: stripRef.current.scrollLeft };
-  };
-  const onStripMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!drag.current.down || !stripRef.current) return;
-    stripRef.current.scrollLeft = drag.current.left - (e.clientX - drag.current.x);
-  };
-  const endStripDrag = () => { drag.current.down = false; };
+  // 채팅방 목록
+  if (!openId) {
+    return (
+      <div className="db-page ac-page">
+        <header className="db-topbar">
+          <button type="button" className="db-back-arrow" onClick={() => onSelect?.("home")} aria-label="용궁 홈으로 돌아가기">
+            ←
+          </button>
+        </header>
 
-  const exhausted = remaining <= 0;
-  const identity = useMemo(() => deriveIdentity(chart), [chart]);
+        <main className="ac-main">
+          <ul className="ac-rooms">
+            {PERSONAS.map((p) => (
+              <li key={p.id}>
+                <button type="button" className="ac-room" onClick={() => enterRoom(p)}>
+                  <img src={p.icon} alt="" className="ac-room-img" />
+                  <span className="ac-room-body">
+                    <span className="ac-room-name">{p.name}</span>
+                    <span className="ac-room-preview">{previewOf(p)}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </main>
 
+        <BottomNav active="ai" onSelect={onSelect} />
+      </div>
+    );
+  }
+
+  // 방 내부
   return (
     <div className="db-page ac-page">
       {/* 상단 바 */}
       <header className="db-topbar">
-        <span className="db-logo">🐉 용왕님 상담</span>
-        <span className="ac-limit">오늘 {DAILY_LIMIT - remaining}/{DAILY_LIMIT}</span>
+        <button type="button" className="db-back-arrow" onClick={() => setOpenId(null)} aria-label="상담 목록으로 돌아가기">
+          ←
+        </button>
       </header>
 
-      {/* 상단 고정: 용왕이 살펴본 그대 (캐릭터 + 사주 전체 스와이프) */}
-      <div className="ac-identity">
-        <div className="ac-char">
-          <div
-            className="ac-char-hanja"
-            style={{ background: `linear-gradient(135deg, ${identity.color}55, ${identity.color}22)`,
-                     borderColor: `${identity.color}66` }}
-          >{identity.hanja}</div>
-          <div className="ac-char-meta">
-            <div className="ac-char-type">{identity.typeLabel}</div>
-            <div className="ac-char-tags">{identity.tags}</div>
-          </div>
-        </div>
-        <div
-          ref={stripRef}
-          className="ac-strip"
-          aria-label="용왕이 살펴본 그대의 사주"
-          onWheel={onStripWheel}
-          onPointerDown={onStripDown}
-          onPointerMove={onStripMove}
-          onPointerUp={endStripDrag}
-          onPointerLeave={endStripDrag}
-        >
-          {identity.chips.map((chip) => (
-            <span key={chip} className="ac-chip">{chip}</span>
-          ))}
-        </div>
+      {/* 상단: 상담 캐릭터 프로필 (사진 + 이름) */}
+      <div className="ac-identity ac-identity--persona">
+        <img src={persona.icon} alt="" className="ac-persona-img" />
+        <span className="ac-persona-name">{persona.name}</span>
       </div>
 
       {/* 채팅 */}
@@ -218,23 +246,16 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
         <div className="ac-chat">
           {messages.map((msg, i) => (
             <div key={i} className={`ac-msg ac-msg--${msg.role}`}>
-              <span className="ac-who">{msg.role === "wang" ? "용왕" : "나"}</span>
+              <span className="ac-who">{msg.role === "wang" ? persona.name : "나"}</span>
               <p className="ac-text">
                 {msg.role === "wang" ? <TypewriterText text={msg.text} onTick={scrollToEnd} /> : msg.text}
               </p>
-              {msg.src && <span className="ac-src">근거: {msg.src}</span>}
             </div>
           ))}
           {loading && (
             <div className="ac-msg ac-msg--wang">
-              <span className="ac-who">용왕</span>
+              <span className="ac-who">{persona.name}</span>
               <p className="ac-text ac-loading">···</p>
-            </div>
-          )}
-          {exhausted && (
-            <div className="ac-msg ac-msg--wang">
-              <span className="ac-who">용왕</span>
-              <p className="ac-text">오늘 짐과 나눌 수 있는 대화가 다하였노라. 내일 다시 오라.</p>
             </div>
           )}
           <div ref={chatEndRef} />
@@ -249,18 +270,17 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
             className="ac-suggest-btn"
             aria-label="추천 질문"
             onClick={() => setSheetOpen(true)}
-            disabled={exhausted}
           >
             ✦
           </button>
           <textarea
             ref={textareaRef}
             className="ac-input"
-            placeholder={exhausted ? "오늘 대화가 마감되었습니다" : "궁금한 걸 물어보세요… (Shift+Enter 줄바꿈)"}
+            placeholder="궁금한 걸 물어보세요…"
             aria-label="상담 질문 입력"
             rows={1}
             value={inputText}
-            disabled={exhausted || loading}
+            disabled={loading}
             onChange={(e) => { setInputText(e.target.value); autoResize(); }}
             onKeyDown={onKeyDown}
           />
@@ -268,7 +288,7 @@ export default function AiCounsel({ chart, onSelect }: AiCounselProps) {
             type="button"
             className="ac-send"
             aria-label="전송"
-            disabled={exhausted || loading || !inputText.trim()}
+            disabled={loading || !inputText.trim()}
             onClick={handleSend}
           >
             {loading ? "…" : "↑"}

@@ -75,16 +75,55 @@ export const SIPSHEN_COLOR: Record<string, string> = {
   인성: "#7e9fe0",
 };
 
-// 그래프(오행 버블·십성 레이더) 축 천장 = 이 비율이면 최대 크기/맨 바깥에 도달.
-// 불변식: strengthLabel의 "많은" 기준(0.30) 이상이어야 함(더 낮추면 "끝에 닿았는데 적당한" 모순 발생).
-// 0.30 = 최저 경계값(끝에 닿음 ⟺ 정확히 "많은")이라 안전.
+// 오행 버블 축 천장 = 이 비율이면 최대 크기에 도달.
+// 불변식: strengthLabel의 "풍부한" 기준(0.30) 이상이어야 함(더 낮추면 "끝에 닿았는데 적당한" 모순 발생).
+// 0.30 = 최저 경계값(끝에 닿음 ⟺ 정확히 "풍부한")이라 안전.
 export const GRAPH_FULL_SHARE = 0.30;
 
-// 전체합 대비 비율로 강약 라벨 산출 (오행·십성 설명 공용)
+// 전체합 대비 비율로 강약 라벨 산출 (오행 전용)
 export function strengthLabel(cnt: number, total: number): string {
-  if (cnt === 0) return "없는";
+  if (cnt === 0) return NEEDS_FILL_LABEL;
   const share = total > 0 ? cnt / total : 0;
-  if (share >= 0.30) return "많은";
+  if (share >= 0.30) return "풍부한";
   if (share >= 0.15) return "적당한";
   return "적은";
+}
+
+/* ------------------------------------------------------------
+   십성 강약 — 오행과 분리한 이유
+   오행은 지장간 구성상 土가 평균 27%를 먹는 등 오행마다 기대값이 다르고,
+   값도 가중 점수(소수)다. 십성은 다섯 분류의 기대값이 모두 균등선(1/5)에
+   붙어 있어(측정: 19.8~20.1%) "균등 대비 몇 배인가"로 재는 게 맞다.
+   고정 share 임계값(0.30/0.15)을 그대로 쓰면 0.15~0.30 밴드가 확률질량
+   대부분을 삼켜 사주 절반 이상이 "적당한" 3개 이상을 받았다.
+   ------------------------------------------------------------ */
+export const SIPSHEN_EVEN_SHARE = 1 / SIPSHEN_LABELS.length; // 균등선 0.20
+
+// 균등 대비 배율. 1.0 = 딱 균등, 2.0 = 균등의 두 배.
+export function sipshenRatio(cnt: number, total: number): number {
+  return total > 0 ? cnt / total / SIPSHEN_EVEN_SHARE : 0;
+}
+
+// 레이더 축 끝(= fill 1.0)에 닿는 배율. 균등이면 정확히 축 중간(0.5)에 온다.
+export const SIPSHEN_FULL_RATIO = 2.0;
+
+// 0이어도 완전히 찌그러지지 않도록 남기는 최소 반지름 비율
+export const SIPSHEN_MIN_FILL = 0.06;
+
+export function sipshenStrengthLabel(cnt: number, total: number): string {
+  if (cnt === 0) return NEEDS_FILL_LABEL;
+  const r = sipshenRatio(cnt, total);
+  if (r >= 1.4) return "풍부한";
+  if (r >= 0.7) return "적당한";
+  return "적은";
+}
+
+// "{대상}{조사} {강도} 사주예요" 문장에서 쓰는 조사.
+// "채워야 하는"만 대상을 목적어로 받아 을/를을 쓴다("재성을 채워야 하는").
+// 나머지 강도는 대상이 주어라 이/가다("재성이 풍부한").
+// 붙는 말(십성 5종·"기운")이 모두 받침으로 끝나 을/이 한 벌로 충분하다.
+export const NEEDS_FILL_LABEL = "채워야 하는";
+
+export function strengthParticle(strength: string): string {
+  return strength === NEEDS_FILL_LABEL ? "을" : "이";
 }

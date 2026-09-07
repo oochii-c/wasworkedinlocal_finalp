@@ -1,42 +1,53 @@
+import { Domain, GRID_DOMAINS } from "../saju/scoring";
+import { getDomainCaption, getDomainInterpretation, scoreColor } from "../saju/insights";
+import { IconAccordion, type IconAccordionItem } from "../../../components/IconAccordion";
 
-import { useState } from "react";
-import { SajuExtended } from "../saju/types";
-import { Domain, DOMAINS } from "../saju/mock/scoring";
-import { getDomainCaption, getDomainInterpretation } from "../saju/mock/insights";
-import { StarRating } from "./StarRating";
-import styles from "./DomainStars.module.css";
+import iconAe from "../../../assets/icons/06_compatibility.svg";
+import iconJae from "../../../assets/icons/04_wealth.svg";
+import iconIn from "../../../assets/icons/05_fate-path.svg";
+import iconHak from "../../../assets/icons/08_deep-analysis.svg";
+import iconGeon from "../../../assets/icons/02_todays-fortune-core.svg";
+import iconJik from "../../../assets/icons/03_five-elements.svg";
+
+const DOMAIN_ICON: Record<Exclude<Domain, "총운">, string> = {
+  애정: iconAe,
+  재물: iconJae,
+  직업: iconJik,
+  학업: iconHak,
+  건강: iconGeon,
+  인간관계: iconIn,
+};
+
+// Figma 내보내기라 축소 보정이 필요한 아이콘
+const FIG = new Set<string>(["건강", "인간관계"]);
 
 export interface DomainStarsProps {
   scores: Record<Domain, number>;
-  chart: SajuExtended;
+  descriptions?: Partial<Record<Domain, string>> | null;
+  dayGanHanja: string;
   year: number;
 }
 
-export function DomainStars({ scores, chart, year }: DomainStarsProps) {
-  const [openDomain, setOpenDomain] = useState<Domain | null>(null);
+export function DomainStars({ scores, descriptions, dayGanHanja, year }: DomainStarsProps) {
+  const items: IconAccordionItem[] = GRID_DOMAINS.map((d) => ({
+    key: d,
+    label: d,
+    icon: DOMAIN_ICON[d],
+    score: scores[d],
+    caption: getDomainCaption(d, scores[d]),
+    figIcon: FIG.has(d),
+  }));
 
   return (
-    <section className={styles.grid} aria-label="영역별 별점">
-      {DOMAINS.map((domain) => (
-        <div key={domain} className={styles.cell}>
-          <div className={styles.header}>
-            <span className={styles.label}>{domain}</span>
-            <button
-              type="button"
-              className={styles.infoButton}
-              aria-label={`${domain} 설명 보기`}
-              onClick={() => setOpenDomain((prev) => (prev === domain ? null : domain))}
-            >
-              ?
-            </button>
-          </div>
-          {openDomain === domain && (
-            <span className={styles.description}>{getDomainInterpretation(domain, chart, year)}</span>
-          )}
-          <StarRating score={scores[domain]} />
-          <span className={styles.caption}>{getDomainCaption(domain, scores[domain])}</span>
-        </div>
-      ))}
-    </section>
+    <IconAccordion
+      ariaLabel="영역별 풀이"
+      items={items}
+      colorFor={scoreColor}
+      renderPanel={(key) =>
+        key == null
+          ? null
+          : descriptions?.[key as Domain] || getDomainInterpretation(key as Domain, dayGanHanja, year)
+      }
+    />
   );
 }

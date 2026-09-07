@@ -23,62 +23,6 @@
   font-style: normal;
 }
 
-/* ---- 주제 카드 (.db-section 위에 얹음) ---- */
-.tp-card {
-  scroll-margin-top: 52px; /* sticky 탭 높이만큼 여백 */
-  width: 100%;
-  max-width: 350px;
-  margin-inline: auto;
-}
-
-.tp-card-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.tp-card-ico {
-  font-size: 22px;
-  line-height: 1;
-}
-
-.tp-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--saju-text);
-}
-
-.tp-card-stars {
-  margin-left: auto;
-  color: var(--saju-gold);
-  letter-spacing: 1px;
-  font-size: 15px;
-}
-
-.tp-card-summary {
-  font-size: 14.5px;
-  color: var(--saju-text);
-  line-height: 1.7;
-  word-break: keep-all;
-  margin-bottom: 10px;
-}
-
-/* ---- 자세히 보기 상세 (인라인 확장) ---- */
-.tp-card-detail {
-  border-top: 1px solid rgba(102, 178, 214, 0.18);
-  margin-bottom: 10px;
-  padding-top: 10px;
-}
-
-.tp-card-detail p {
-  font-size: 14.5px;
-  color: var(--saju-text);
-  line-height: 1.7;
-  word-break: keep-all;
-  margin: 0;
-}
-
 .tp-detail-loading {
   display: block;
   margin-top: 8px;
@@ -87,21 +31,98 @@
   color: var(--saju-text-muted);
 }
 
-.tp-card-more {
-  display: block;
-  width: 100%;
-  background: none;
-  border: none;
-  text-align: right;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--saju-gold);
-  cursor: pointer;
-  padding: 2px 0;
-  opacity: 0.85;
+/* ── 복합 풀이 (두 주제 선택) ───────────────────────────── */
+.tp-combo {
+  background: rgba(11, 31, 59, 0.62);
+  border: 1px solid #1E3A5A;
+  border-radius: 16px;
+  padding: 14px 16px;
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 24px rgba(102, 178, 214, 0.06), 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-.tp-card-more:hover {
+/* 상단 IconAccordion(.row/.tab)과 동일한 배치. */
+.tp-combo-picks {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tp-combo-picks::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-combo-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  color: var(--saju-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tp-combo-chip.is-on {
+  color: var(--saju-gold);
+  font-weight: 700;
+}
+
+.tp-combo-chip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tp-combo-chip-ico {
+  display: block;
+  width: 60px;
+  height: 60px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.tp-combo-chip:hover:not(:disabled) .tp-combo-chip-ico,
+.tp-combo-chip.is-on .tp-combo-chip-ico {
   opacity: 1;
-  text-decoration: underline;
+}
+
+.tp-combo-chip-ico[data-fig="1"] {
+  transform: scale(0.8);
+}
+
+.tp-combo-panel {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(234, 203, 138, 0.3);
+  border-radius: 10px;
+  background: rgba(8, 22, 44, 0.95);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--saju-text);
+  word-break: keep-all;
+}
+
+.tp-combo-panel p {
+  margin: 0;
+}
+
+.tp-hint {
+  display: block;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--saju-text-faint);
 }

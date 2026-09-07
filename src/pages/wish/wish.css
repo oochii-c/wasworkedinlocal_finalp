@@ -1,0 +1,193 @@
+/* ============================================================
+   wish.css — 소원 빌기
+   포털 '소원 빌기' 랜드마크에서 들어오는 화면. 껍데기(.db-page)·상단바
+   (.db-topbar)·하단 네비는 대시보드 것을 그대로 쓰고, 여기서는 무대만 얹는다.
+   용왕 파츠 애니는 components/effects/DragonMotion 이 그린다.
+   ============================================================ */
+
+/* 채팅방(.ac-page)과 같은 이유로 페이지 자체는 늘어나지 않는다 */
+.wi-page {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* .db-page::before 의 기본 배경을 알현실 배경으로 교체.
+   같은 규칙(480px 칼럼 안에서만 그림)이라 넓은 화면에서도 세로 배경이
+   좌우로 잘려나가지 않는다. */
+.db-page.wi-page::before {
+  background:
+    radial-gradient(circle at 50% 58%, rgb(32 126 130 / .22), transparent 34%),
+    url("../../assets/img/background_fixdstny_vertical_v1.png") top center / cover no-repeat;
+}
+
+/* 상단바와 하단 네비 사이를 채우는 무대 */
+.wi-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  /* 하단 네비 가운데 여의주 버튼이 margin-top:-24px 로 튀어 올라오므로 그만큼 비운다 */
+  padding: 0 20px 36px;
+}
+
+/* 수면 굴절광 */
+.wi-water {
+  position: absolute;
+  inset: -18% 0 auto;
+  height: 58%;
+  opacity: .2;
+  background: repeating-conic-gradient(from 88deg at 50% 0, transparent 0 7deg, #b8ffff 8deg 10deg, transparent 11deg 22deg);
+  filter: blur(18px);
+  animation: wi-water-shift 9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.wi-state {
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  color: var(--saju-text-muted);
+  font-size: 13px;
+}
+
+.wi-input {
+  z-index: 4;
+  width: 100%;
+  max-width: 320px;
+  margin-top: -10px;
+  box-sizing: border-box;
+  border: 1px solid rgba(102, 178, 214, 0.3);
+  border-radius: 999px;
+  padding: 11px 18px;
+  background: rgba(8, 22, 44, 0.72);
+  color: var(--saju-text);
+  font-family: inherit;
+  font-size: 14px;
+  text-align: center;
+}
+.wi-input::placeholder { color: var(--saju-text-faint); }
+.wi-input:focus {
+  outline: none;
+  border-color: rgba(234, 203, 138, 0.55);
+}
+.wi-input:disabled { opacity: .5; }
+
+.wi-controls {
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wi-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 104px;
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  border-radius: 999px;
+  padding: 11px 18px;
+  color: var(--saju-text);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: inset 0 1px rgb(255 255 255 / .16), 0 10px 28px rgb(0 10 18 / .25);
+  transition: transform .18s ease, filter .18s ease;
+}
+.wi-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.12); }
+.wi-btn:active:not(:disabled) { transform: translateY(0); }
+.wi-btn:disabled { opacity: .45; cursor: default; }
+
+.wi-btn--wish {
+  background: linear-gradient(135deg, var(--saju-gold-bright), var(--saju-gold));
+  border-color: rgba(234, 203, 138, 0.55);
+  color: var(--saju-navy-900);
+  font-weight: 700;
+}
+.wi-btn--burn { background: linear-gradient(180deg, var(--saju-blue-500), var(--saju-blue-700)); }
+.wi-btn--past { background: rgba(11, 31, 59, 0.7); }
+
+/* ---- 지난 소원 시트 (포털 .pt-sheet 와 같은 결) ---- */
+.wi-sheet-back {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 10, 22, 0.62);
+}
+
+.wi-sheet {
+  width: 100%;
+  max-width: 340px;
+  max-height: 70dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(234, 203, 138, 0.28);
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(11, 31, 59, 0.94);
+}
+
+.wi-sheet-title {
+  margin: 0;
+  font-family: "BMYeonSung", Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--saju-gold);
+  text-align: center;
+}
+
+.wi-sheet-empty {
+  margin: 0;
+  padding: 18px 0;
+  text-align: center;
+  color: var(--saju-text-faint);
+  font-size: 13px;
+}
+
+.wi-sheet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wi-sheet-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(102, 178, 214, 0.14);
+  padding-bottom: 8px;
+}
+.wi-sheet-text { color: var(--saju-text); font-size: 14px; }
+.wi-sheet-date { flex-shrink: 0; color: var(--saju-text-faint); font-size: 11px; }
+
+.wi-sheet-close {
+  border: 1px solid rgba(102, 178, 214, 0.25);
+  border-radius: 999px;
+  padding: 10px;
+  background: rgba(8, 22, 44, 0.8);
+  color: var(--saju-text);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+@keyframes wi-water-shift { to { transform: translateX(3%) scaleX(1.08); opacity: .3; } }
+
+@media (max-width: 520px) {
+  .wi-stage { padding-inline: 12px; }
+  .wi-btn { min-width: 96px; padding: 10px 14px; }
+}
